@@ -6,14 +6,17 @@ const DEFAULT_CHATS = [
   { id: 'doubao',   name: '豆包',      url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false },
 ];
 
+let allChats = [];
 let currentChatId = null;
+let ready = false;
 
 const select = document.getElementById('chatSelect');
 const frame = document.getElementById('chatFrame');
 
 async function loadConfig() {
   const { chats, sidebarChat } = await chrome.storage.sync.get(['chats', 'sidebarChat']);
-  const enabled = (chats || DEFAULT_CHATS).filter(c => c.enabled);
+  allChats = chats || DEFAULT_CHATS;
+  const enabled = allChats.filter(c => c.enabled);
 
   select.innerHTML = '';
 
@@ -39,13 +42,12 @@ async function loadConfig() {
   });
 
   select.value = targetId;
+  currentChatId = targetId;
   loadChatDirect(targetId);
 }
 
-async function loadChatDirect(id) {
-  const data = await chrome.storage.sync.get(['chats']);
-  const all = data.chats || DEFAULT_CHATS;
-  const chat = all.find(c => c.id === id);
+function loadChatDirect(id) {
+  const chat = allChats.find(c => c.id === id);
   if (!chat) return;
   currentChatId = id;
   frame.src = chat.url;
@@ -68,8 +70,39 @@ document.getElementById('btnSidebarOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
+async function handleTabSwitch() {
+  if (!ready) return;
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!tab?.url) return;
+
+  const enabled = allChats.filter(c => c.enabled);
+  const matched = enabled.find(c => tab.url.startsWith(c.url));
+
+  if (matched) {
+    select.value = matched.id;
+    loadChatDirect(matched.id);
+  } else {
+    window.close();
+  }
+}
+
 async function init() {
   await loadConfig();
+
+  // On initial open, load the chat matching current tab, if any
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (tab?.url) {
+    const enabled = allChats.filter(c => c.enabled);
+    const matched = enabled.find(c => tab.url.startsWith(c.url));
+    if (matched) {
+      select.value = matched.id;
+      loadChatDirect(matched.id);
+    }
+  }
+
+  ready = true;
+
+  chrome.tabs.onActivated.addListener(handleTabSwitch);
 
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.chats || changes.sidebarChat) {
