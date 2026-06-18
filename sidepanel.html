@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIChats Sidebar</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="panel-header">
+    <select id="chatSelect"></select>
+    <button class="btn-icon" id="btnExpand" title="打开网格视图">⊞</button>
+    <button class="btn-icon" id="btnSettings" title="设置">⚙</button>
+  </div>
+  <div class="panel-body">
+    <iframe id="chatFrame" allow="clipboard-read; clipboard-write"></iframe>
+    <div id="emptyState" class="empty-state" hidden>
+      <p>还没有启用聊天站点</p>
+      <button id="btnSidebarOptions">去设置</button>
+    </div>
+  </div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

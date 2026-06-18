@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "AIChats",
+  "version": "1.0.0",
+  "description": "Shell that embeds multiple AI chat websites in a single view",
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "options_page": "options.html",
+  "action": {
+    "default_title": "AIChats"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "remove_frame_headers",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}

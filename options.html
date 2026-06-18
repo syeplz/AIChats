@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIChats 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>AIChats 设置</h1>
+
+    <section>
+      <h2>聊天站点</h2>
+      <div id="chatList"></div>
+
+      <details>
+        <summary>添加新站点</summary>
+        <form id="addForm" class="add-form">
+          <input type="text" id="addName" placeholder="名称（如 ChatGPT）" required>
+          <input type="url" id="addUrl" placeholder="URL（如 https://chat.openai.com）" required>
+          <input type="url" id="addIcon" placeholder="图标 URL（可选，留空自动获取）">
+          <button type="submit">添加</button>
+        </form>
+      </details>
+
+      <details>
+        <summary>从模板添加</summary>
+        <div class="templates" id="templates"></div>
+      </details>
+    </section>
+
+    <section>
+      <h2>布局</h2>
+      <div class="field">
+        <label for="columns">每页列数</label>
+        <div class="field-hint">每行显示几个聊天站（1~4）</div>
+        <input type="range" id="columns" min="1" max="4" value="2">
+        <span id="columnsValue">2</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>侧边栏</h2>
+      <div class="field">
+        <label for="sidebarChat">默认显示的聊天站</label>
+        <div class="field-hint">点击扩展图标时侧边栏中打开的站点</div>
+        <select id="sidebarChat"></select>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="btnSave" class="btn-primary">保存设置</button>
+      <span id="saveStatus" class="save-status"></span>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
