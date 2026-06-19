@@ -130,15 +130,16 @@ document.getElementById('editSave').addEventListener('click', async () => {
   if (!editingId) return;
   const name = document.getElementById('editName').value.trim();
   const url = document.getElementById('editUrl').value.trim();
-  const icon = document.getElementById('editIcon').value.trim();
+  let icon = document.getElementById('editIcon').value.trim();
   if (!name || !url) return;
+  if (!icon) icon = await autoDetectFavicon(url) || `https://${new URL(url).hostname}/favicon.ico`;
   const data = await loadData();
   const list = data.chats || [];
   const target = list.find(c => c.id === editingId);
   if (target) {
     target.name = name;
     target.url = url;
-    target.icon = icon || `https://${new URL(url).hostname}/favicon.ico`;
+    target.icon = icon;
   }
   await saveChats(list);
   closeEditModal();
@@ -177,6 +178,16 @@ function renderTemplates(chats) {
         enabled: true,
       });
       await saveChats(list);
+      const detected = await autoDetectFavicon(tpl.url);
+      if (detected && detected !== tpl.icon) {
+        const data2 = await loadData();
+        const list2 = data2.chats || [];
+        const target = list2.find(c => c.url === tpl.url);
+        if (target) {
+          target.icon = detected;
+          await chrome.storage.sync.set({ chats: list2 });
+        }
+      }
     });
     container.appendChild(btn);
   });
@@ -216,11 +227,66 @@ function renderTheme(val) {
   if (select) select.value = val;
 }
 
+async function autoDetectFavicon(siteUrl) {
+  let url;
+  try { url = new URL(siteUrl); } catch { return ''; }
+  const origin = url.origin;
+
+  try {
+    const resp = await fetch(origin, { signal: AbortSignal.timeout(4000) });
+    if (resp.ok) {
+      const html = await resp.text();
+      const patterns = [
+        /<link[^>]+rel=["'](?:shortcut )?icon["'][^>]+href=["']([^"']+)["']/i,
+        /<link[^>]+rel=["']apple-touch-icon["'][^>]+href=["']([^"']+)["']/i,
+        /<link[^>]+href=["']([^"']+)["'][^>]+rel=["'](?:shortcut )?icon["']/i,
+      ];
+      for (const pat of patterns) {
+        const m = html.match(pat);
+        if (m) {
+          const href = m[1];
+          return href.startsWith('http') ? href : new URL(href, origin).href;
+        }
+      }
+    }
+  } catch {}
+
+  const candidates = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
+  for (const c of candidates) {
+    try {
+      const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
+      if (r.ok) return c;
+    } catch {}
+  }
+  return '';
+}
+
+document.querySelectorAll('.btn-detect').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const targetId = btn.dataset.target;
+    const input = document.getElementById(targetId);
+    const urlInput = targetId === 'addIcon' ? document.getElementById('addUrl') : document.getElementById('editUrl');
+    const siteUrl = urlInput.value.trim();
+    if (!siteUrl) { input.value = ''; return; }
+    btn.disabled = true;
+    btn.textContent = '检测中…';
+    const iconUrl = await autoDetectFavicon(siteUrl);
+    if (iconUrl) {
+      input.value = iconUrl;
+    } else {
+      input.value = `https://${new URL(siteUrl).hostname}/favicon.ico`;
+    }
+    btn.disabled = false;
+    btn.textContent = '检测';
+  });
+});
+
 document.getElementById('addForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = document.getElementById('addName').value.trim();
   const url = document.getElementById('addUrl').value.trim();
-  const icon = document.getElementById('addIcon').value.trim() || `https://${new URL(url).hostname}/favicon.ico`;
+  let icon = document.getElementById('addIcon').value.trim();
+  if (!icon) icon = await autoDetectFavicon(url) || `https://${new URL(url).hostname}/favicon.ico`;
 
   if (!name || !url) return;
 

@@ -168,6 +168,49 @@ summary:hover {
   margin-top: 8px;
 }
 
+.input-with-btn {
+  display: flex;
+  gap: 6px;
+}
+
+.input-with-btn input {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+}
+
+.input-with-btn input:focus {
+  border-color: var(--accent);
+}
+
+.btn-detect {
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-detect:hover {
+  background: var(--btn-icon-hover-bg);
+  color: var(--text-primary);
+}
+
+.btn-detect:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
 .add-form input {
   padding: 8px 12px;
   background: var(--bg-card);

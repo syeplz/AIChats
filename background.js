@@ -1,14 +1,51 @@
+async function autoDetectFavicon(siteUrl) {
+  let url;
+  try { url = new URL(siteUrl); } catch { return ''; }
+  const origin = url.origin;
+  try {
+    const resp = await fetch(origin, { signal: AbortSignal.timeout(4000) });
+    if (resp.ok) {
+      const html = await resp.text();
+      const patterns = [
+        /<link[^>]+rel=["'](?:shortcut )?icon["'][^>]+href=["']([^"']+)["']/i,
+        /<link[^>]+rel=["']apple-touch-icon["'][^>]+href=["']([^"']+)["']/i,
+        /<link[^>]+href=["']([^"']+)["'][^>]+rel=["'](?:shortcut )?icon["']/i,
+      ];
+      for (const pat of patterns) {
+        const m = html.match(pat);
+        if (m) {
+          const href = m[1];
+          return href.startsWith('http') ? href : new URL(href, origin).href;
+        }
+      }
+    }
+  } catch {}
+  const candidates = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
+  for (const c of candidates) {
+    try {
+      const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
+      if (r.ok) return c;
+    } catch {}
+  }
+  return '';
+}
+
 chrome.runtime.onInstalled.addListener(async () => {
   const { chats } = await chrome.storage.sync.get('chats');
   if (!chats) {
     const defaults = [
-      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chat.openai.com',        icon: 'https://chat.openai.com/favicon.ico',    enabled: true },
-      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico',   enabled: true },
-      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico',           enabled: true },
-      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false },
-      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false },
+      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chat.openai.com',        enabled: true },
+      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       enabled: true },
+      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               enabled: true },
+      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        enabled: false },
+      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     enabled: false },
     ];
-    await chrome.storage.sync.set({ chats: defaults, columns: 2, sidebarChat: 'chatgpt', theme: 'system' });
+    const icons = await Promise.all(defaults.map(d => autoDetectFavicon(d.url)));
+    const withIcons = defaults.map((d, i) => ({
+      ...d,
+      icon: icons[i] || `https://${new URL(d.url).hostname}/favicon.ico`,
+    }));
+    await chrome.storage.sync.set({ chats: withIcons, columns: 2, sidebarChat: 'chatgpt', theme: 'system' });
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });

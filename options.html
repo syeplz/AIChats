@@ -20,7 +20,10 @@
         <form id="addForm" class="add-form">
           <input type="text" id="addName" placeholder="名称（如 ChatGPT）" required>
           <input type="url" id="addUrl" placeholder="URL（如 https://chat.openai.com）" required>
-          <input type="url" id="addIcon" placeholder="图标 URL（可选，留空自动获取）">
+          <div class="input-with-btn">
+            <input type="url" id="addIcon" placeholder="图标 URL（可选，留空自动获取）">
+            <button type="button" class="btn-detect" data-target="addIcon">检测</button>
+          </div>
           <button type="submit">添加</button>
         </form>
       </details>
@@ -37,7 +40,10 @@
         <div class="modal-fields">
           <input type="text" id="editName" placeholder="名称" required>
           <input type="url" id="editUrl" placeholder="URL（如 https://chat.openai.com）" required>
-          <input type="url" id="editIcon" placeholder="图标 URL（可选，留空自动获取）">
+          <div class="input-with-btn">
+            <input type="url" id="editIcon" placeholder="图标 URL（可选，留空自动获取）">
+            <button type="button" class="btn-detect" data-target="editIcon">检测</button>
+          </div>
         </div>
         <div class="modal-actions">
           <button id="editCancel" class="btn-secondary">取消</button>
