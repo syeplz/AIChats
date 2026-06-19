@@ -455,3 +455,98 @@ summary:hover {
   background: var(--btn-icon-hover-bg);
   color: var(--text-primary);
 }
+
+.prompt-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.prompt-add-form input,
+.prompt-add-form textarea {
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.prompt-add-form input:focus,
+.prompt-add-form textarea:focus {
+  border-color: var(--accent);
+}
+
+.prompt-add-form button {
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--btn-primary-text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  align-self: flex-start;
+}
+
+.prompt-add-form button:hover {
+  background: var(--accent-hover);
+}
+
+.prompt-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.prompt-item .prompt-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.prompt-item .prompt-label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.prompt-item .prompt-preview {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prompt-item .prompt-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.prompt-item .prompt-actions button {
+  background: none;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.prompt-item .prompt-actions button:hover {
+  background: var(--btn-icon-hover-bg);
+  color: var(--text-primary);
+}
+
+.prompt-item .prompt-actions .btn-danger:hover {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}

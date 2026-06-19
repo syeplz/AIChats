@@ -92,12 +92,55 @@ async function updateThemeSelect() {
   sel.value = await store.get('theme') || 'system';
 }
 
+const chipBar = document.getElementById('chipBar');
+
+async function renderChips(prompts) {
+  if (!Array.isArray(prompts)) prompts = await store.get('prompts') || [];
+  if (prompts.length === 0) {
+    chipBar.hidden = true;
+    return;
+  }
+  chipBar.hidden = false;
+  chipBar.innerHTML = '';
+  prompts.forEach(p => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = p.label;
+    chip.addEventListener('click', async () => {
+      const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      const url = tab?.url || '';
+      const title = tab?.title || '';
+      const text = p.content.replace(/\{url\}/g, url).replace(/\{title\}/g, title);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      chip.classList.add('copied');
+      chip.textContent = _('sidepanel_promptCopied');
+      setTimeout(() => {
+        chip.textContent = p.label;
+        chip.classList.remove('copied');
+      }, 1200);
+    });
+    chipBar.appendChild(chip);
+  });
+}
+
 async function init() {
   await initI18n();
   translatePage();
   await loadConfig();
   await initTheme();
   updateThemeSelect();
+  await renderChips();
 
   document.getElementById('themeSelect').addEventListener('change', async (e) => {
     await setTheme(e.target.value);
@@ -117,6 +160,7 @@ async function init() {
 
   store.subscribe('chats', loadConfig);
   store.subscribe('sidebarChat', loadConfig);
+  store.subscribe('prompts', renderChips);
 }
 
 init();

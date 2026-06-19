@@ -52,6 +52,30 @@
       </div>
     </div>
 
+    <div id="promptEditModal" class="modal-overlay" hidden>
+      <div class="modal">
+        <h3 data-i18n="options_editPromptTitle">编辑快捷提示</h3>
+        <div class="modal-fields">
+          <input type="text" id="promptEditLabel" data-i18n-placeholder="options_promptsAddLabel" placeholder="标签文本" required>
+          <textarea id="promptEditContent" data-i18n-placeholder="options_promptsAddContent" placeholder="提示内容" rows="3" required></textarea>
+        </div>
+        <div class="modal-actions">
+          <button id="promptEditCancel" class="btn-secondary" data-i18n="common_cancel">取消</button>
+          <button id="promptEditSave" class="btn-primary" data-i18n="common_save">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2 data-i18n="options_promptsSection">快捷提示</h2>
+      <div id="promptList"></div>
+      <div class="prompt-add-form">
+        <input type="text" id="promptAddLabel" data-i18n-placeholder="options_promptsAddLabel" placeholder="标签文本">
+        <textarea id="promptAddContent" data-i18n-placeholder="options_promptsAddContent" placeholder="提示内容，支持 {url} 和 {title} 变量" rows="2"></textarea>
+        <button id="promptAddBtn" data-i18n="options_promptsAddBtn">添加提示</button>
+      </div>
+    </section>
+
     <section>
       <h2 data-i18n="options_layout">布局</h2>
       <div class="field">

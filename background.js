@@ -14,6 +14,18 @@ chrome.runtime.onInstalled.addListener(async () => {
     await store.set('columns', 2);
     await store.set('sidebarChat', 'chatgpt');
     await store.set('theme', 'system');
+    await store.set('prompts', [
+      { id: 'p_intro', label: '介绍这个页面', content: '请用中文介绍我当前正在浏览的这个页面 {url} 是做什么的，包括它的主要功能和用途。' },
+      { id: 'p_summarize', label: '总结一下', content: '请总结 {title} ({url}) 的核心内容。' },
+      { id: 'p_whatis', label: '这个 URL 是什么', content: '请解释 {url} 这个页面是关于什么的，以及它的核心功能和使用场景。' },
+    ]);
+  }
+  if (!(await store.get('prompts'))) {
+    await store.set('prompts', [
+      { id: 'p_intro', label: '介绍这个页面', content: '请用中文介绍我当前正在浏览的这个页面 {url} 是做什么的，包括它的主要功能和用途。' },
+      { id: 'p_summarize', label: '总结一下', content: '请总结 {title} ({url}) 的核心内容。' },
+      { id: 'p_whatis', label: '这个 URL 是什么', content: '请解释 {url} 这个页面是关于什么的，以及它的核心功能和使用场景。' },
+    ]);
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });

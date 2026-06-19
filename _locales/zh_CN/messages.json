@@ -215,5 +215,39 @@
   "chatList_errorDuplicateUrl": {
     "message": "该 URL 已在列表中",
     "description": "Validation error: duplicate URL"
+  },
+
+  "options_promptsSection": {
+    "message": "快捷提示",
+    "description": "Section heading: quick prompts"
+  },
+  "options_promptsAddLabel": {
+    "message": "标签文本",
+    "description": "Prompts add form: label placeholder"
+  },
+  "options_promptsAddContent": {
+    "message": "提示内容，支持 {url} 和 {title} 变量",
+    "description": "Prompts add form: content placeholder"
+  },
+  "options_promptsAddBtn": {
+    "message": "添加提示",
+    "description": "Prompts add button"
+  },
+  "options_promptsEmpty": {
+    "message": "还没有快捷提示，在上方添加。",
+    "description": "Empty state in prompts list"
+  },
+  "options_editPromptTitle": {
+    "message": "编辑快捷提示",
+    "description": "Edit prompt modal heading"
+  },
+  "options_promptsConfirmDelete": {
+    "message": "确定删除快捷提示「$1」？",
+    "description": "Confirmation dialog when deleting a prompt"
+  },
+
+  "sidepanel_promptCopied": {
+    "message": "已复制！",
+    "description": "Chip copy feedback tooltip/text"
   }
 }

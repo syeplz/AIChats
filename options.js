@@ -14,13 +14,14 @@ const TEMPLATES = [
 let editingId = null;
 
 async function loadData() {
-  const [chats, columns, sidebarChat, theme] = await Promise.all([
+  const [chats, columns, sidebarChat, theme, prompts] = await Promise.all([
     store.get('chats'),
     store.get('columns'),
     store.get('sidebarChat'),
     store.get('theme'),
+    store.get('prompts'),
   ]);
-  return { chats, columns, sidebarChat, theme };
+  return { chats, columns, sidebarChat, theme, prompts };
 }
 
 async function render() {
@@ -29,12 +30,14 @@ async function render() {
   const columns = data.columns || 2;
   const sidebarChat = data.sidebarChat || (chats.find(c => c.enabled)?.id || '');
   const theme = data.theme || 'system';
+  const prompts = data.prompts || [];
 
   renderChatList(chats);
   renderTemplates(chats);
   renderSidebarSelect(chats, sidebarChat);
   renderColumns(columns);
   renderTheme(theme);
+  renderPrompts(prompts);
 }
 
 async function saveChats(chats) {
@@ -221,6 +224,122 @@ function renderColumns(val) {
 function renderTheme(val) {
   const select = document.getElementById('themeSelect');
   if (select) select.value = val;
+}
+
+let promptEditingId = null;
+
+function renderPrompts(prompts) {
+  const list = document.getElementById('promptList');
+  list.innerHTML = '';
+
+  if (prompts.length === 0) {
+    list.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${_('options_promptsEmpty')}</p>`;
+    return;
+  }
+
+  prompts.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'prompt-item';
+
+    item.innerHTML = `
+      <button class="btn-move" data-pid="${p.id}" data-dir="up" ${i === 0 ? 'disabled' : ''}>↑</button>
+      <button class="btn-move" data-pid="${p.id}" data-dir="down" ${i === prompts.length - 1 ? 'disabled' : ''}>↓</button>
+      <div class="prompt-info">
+        <div class="prompt-label">${escapeHtml(p.label)}</div>
+        <div class="prompt-preview">${escapeHtml(p.content)}</div>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn-edit" data-pid="${p.id}">${_('common_edit')}</button>
+        <button class="btn-danger" data-pid="${p.id}">${_('common_delete')}</button>
+      </div>
+    `;
+
+    item.querySelector('.btn-danger').addEventListener('click', async (e) => {
+      if (!confirm(_('options_promptsConfirmDelete', [p.label]))) return;
+      const id = e.target.dataset.pid;
+      const data = await loadData();
+      const prompts = (data.prompts || []).filter(x => x.id !== id);
+      await store.set('prompts', prompts);
+      render();
+    });
+
+    item.querySelector('.btn-edit').addEventListener('click', () => {
+      openPromptEditModal(p);
+    });
+
+    item.querySelectorAll('.btn-move').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.dataset.pid;
+        const dir = e.currentTarget.dataset.dir;
+        const data = await loadData();
+        const prompts = [...(data.prompts || [])];
+        const idx = prompts.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        const targetIdx = dir === 'up' ? idx - 1 : idx + 1;
+        if (targetIdx < 0 || targetIdx >= prompts.length) return;
+        [prompts[idx], prompts[targetIdx]] = [prompts[targetIdx], prompts[idx]];
+        await store.set('prompts', prompts);
+        render();
+      });
+    });
+
+    list.appendChild(item);
+  });
+}
+
+function openPromptEditModal(p) {
+  promptEditingId = p.id;
+  document.getElementById('promptEditLabel').value = p.label;
+  document.getElementById('promptEditContent').value = p.content;
+  document.getElementById('promptEditModal').hidden = false;
+  document.getElementById('promptEditLabel').focus();
+}
+
+function closePromptEditModal() {
+  promptEditingId = null;
+  document.getElementById('promptEditModal').hidden = true;
+}
+
+document.getElementById('promptEditSave').addEventListener('click', async () => {
+  if (!promptEditingId) return;
+  const label = document.getElementById('promptEditLabel').value.trim();
+  const content = document.getElementById('promptEditContent').value.trim();
+  if (!label || !content) return;
+  const data = await loadData();
+  const prompts = (data.prompts || []).map(p =>
+    p.id === promptEditingId ? { ...p, label, content } : p
+  );
+  await store.set('prompts', prompts);
+  closePromptEditModal();
+  render();
+});
+
+document.getElementById('promptEditCancel').addEventListener('click', closePromptEditModal);
+document.getElementById('promptEditModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closePromptEditModal();
+});
+document.getElementById('promptEditModal').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePromptEditModal();
+});
+
+document.getElementById('promptAddBtn').addEventListener('click', async () => {
+  const label = document.getElementById('promptAddLabel').value.trim();
+  const content = document.getElementById('promptAddContent').value.trim();
+  if (!label || !content) return;
+  const data = await loadData();
+  const prompts = data.prompts || [];
+  const id = 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  prompts.push({ id, label, content });
+  await store.set('prompts', prompts);
+  document.getElementById('promptAddLabel').value = '';
+  document.getElementById('promptAddContent').value = '';
+  render();
+});
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 document.querySelectorAll('.btn-detect').forEach(btn => {
