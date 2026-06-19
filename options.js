@@ -245,6 +245,10 @@ function renderPrompts(prompts) {
     item.innerHTML = `
       <button class="btn-move" data-pid="${p.id}" data-dir="up" ${i === 0 ? 'disabled' : ''}>↑</button>
       <button class="btn-move" data-pid="${p.id}" data-dir="down" ${i === prompts.length - 1 ? 'disabled' : ''}>↓</button>
+      <label class="chat-toggle">
+        <input type="checkbox" ${p.enabled !== false ? 'checked' : ''} data-pid="${p.id}">
+        <span class="slider"></span>
+      </label>
       <div class="prompt-info">
         <div class="prompt-label">${escapeHtml(resolved.label)}</div>
         <div class="prompt-preview">${escapeHtml(resolved.content)}</div>
@@ -260,6 +264,15 @@ function renderPrompts(prompts) {
       const id = e.target.dataset.pid;
       const data = await loadData();
       const prompts = (data.prompts || []).filter(x => x.id !== id);
+      await store.set('prompts', prompts);
+      render();
+    });
+
+    item.querySelector('.chat-toggle input').addEventListener('change', async (e) => {
+      const id = e.target.dataset.pid;
+      const checked = e.target.checked;
+      const data = await loadData();
+      const prompts = (data.prompts || []).map(x => x.id === id ? { ...x, enabled: checked } : x);
       await store.set('prompts', prompts);
       render();
     });
@@ -331,7 +344,7 @@ document.getElementById('promptAddBtn').addEventListener('click', async () => {
   const data = await loadData();
   const prompts = data.prompts || [];
   const id = 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  prompts.push({ id, label, content });
+  prompts.push({ id, label, content, enabled: true });
   await store.set('prompts', prompts);
   document.getElementById('promptAddLabel').value = '';
   document.getElementById('promptAddContent').value = '';

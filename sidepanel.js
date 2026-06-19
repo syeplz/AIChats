@@ -96,6 +96,7 @@ const chipBar = document.getElementById('chipBar');
 
 async function renderChips(prompts) {
   if (!Array.isArray(prompts)) prompts = await store.get('prompts') || [];
+  prompts = prompts.filter(p => p.enabled !== false);
   if (prompts.length === 0) {
     chipBar.hidden = true;
     return;
