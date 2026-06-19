@@ -191,6 +191,15 @@ function renderTemplates(chats) {
     });
     container.appendChild(btn);
   });
+
+  TEMPLATES.forEach((tpl, i) => {
+    autoDetectFavicon(tpl.url).then(detected => {
+      if (detected && detected !== tpl.icon) {
+        const imgs = container.querySelectorAll('img');
+        if (imgs[i]) imgs[i].src = detected;
+      }
+    });
+  });
 }
 
 function renderSidebarSelect(chats, selected) {
