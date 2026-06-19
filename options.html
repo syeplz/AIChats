@@ -3,94 +3,95 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIChats 设置</title>
+  <title data-i18n="options_title">AIChats 设置</title>
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <div class="container">
-    <h1>AIChats 设置</h1>
+    <h1 data-i18n="options_title">AIChats 设置</h1>
 
     <section>
-      <h2>聊天站点</h2>
+      <h2 data-i18n="options_chatSites">聊天站点</h2>
       <div id="chatList"></div>
 
       <details>
-        <summary>添加新站点</summary>
+        <summary data-i18n="options_addNew">添加新站点</summary>
         <form id="addForm" class="add-form">
-          <input type="text" id="addName" placeholder="名称（如 ChatGPT）" required>
-          <input type="url" id="addUrl" placeholder="URL（如 https://chat.openai.com）" required>
+          <input type="text" id="addName" data-i18n-placeholder="options_addNamePlaceholder" placeholder="名称（如 ChatGPT）" required>
+          <input type="url" id="addUrl" data-i18n-placeholder="options_addUrlPlaceholder" placeholder="URL（如 https://chat.openai.com）" required>
           <div class="input-with-btn">
-            <input type="url" id="addIcon" placeholder="图标 URL（可选，留空自动获取）">
-            <button type="button" class="btn-detect" data-target="addIcon">检测</button>
+            <input type="url" id="addIcon" data-i18n-placeholder="options_addIconPlaceholder" placeholder="图标 URL（可选，留空自动获取）">
+            <button type="button" class="btn-detect" data-target="addIcon" data-i18n="common_detect">检测</button>
           </div>
-          <button type="submit">添加</button>
+          <button type="submit" data-i18n="options_addBtn">添加</button>
         </form>
       </details>
 
       <details>
-        <summary>从模板添加</summary>
+        <summary data-i18n="options_fromTemplate">从模板添加</summary>
         <div class="templates" id="templates"></div>
       </details>
     </section>
 
     <div id="editModal" class="modal-overlay" hidden>
       <div class="modal">
-        <h3>编辑站点</h3>
+        <h3 data-i18n="options_editTitle">编辑站点</h3>
         <div class="modal-fields">
-          <input type="text" id="editName" placeholder="名称" required>
-          <input type="url" id="editUrl" placeholder="URL（如 https://chat.openai.com）" required>
+          <input type="text" id="editName" data-i18n-placeholder="options_editNamePlaceholder" placeholder="名称" required>
+          <input type="url" id="editUrl" data-i18n-placeholder="options_editUrlPlaceholder" placeholder="URL（如 https://chat.openai.com）" required>
           <div class="input-with-btn">
-            <input type="url" id="editIcon" placeholder="图标 URL（可选，留空自动获取）">
-            <button type="button" class="btn-detect" data-target="editIcon">检测</button>
+            <input type="url" id="editIcon" data-i18n-placeholder="options_editIconPlaceholder" placeholder="图标 URL（可选，留空自动获取）">
+            <button type="button" class="btn-detect" data-target="editIcon" data-i18n="common_detect">检测</button>
           </div>
         </div>
         <div class="modal-actions">
-          <button id="editCancel" class="btn-secondary">取消</button>
-          <button id="editSave" class="btn-primary">保存</button>
+          <button id="editCancel" class="btn-secondary" data-i18n="common_cancel">取消</button>
+          <button id="editSave" class="btn-primary" data-i18n="common_save">保存</button>
         </div>
       </div>
     </div>
 
     <section>
-      <h2>布局</h2>
+      <h2 data-i18n="options_layout">布局</h2>
       <div class="field">
-        <label for="columns">每页列数</label>
-        <div class="field-hint">每行显示几个聊天站（1~4）</div>
+        <label for="columns" data-i18n="options_columnsLabel">每页列数</label>
+        <div class="field-hint" data-i18n="options_columnsHint">每行显示几个聊天站（1~4）</div>
         <input type="range" id="columns" min="1" max="4" value="2">
         <span id="columnsValue">2</span>
       </div>
     </section>
 
     <section>
-      <h2>侧边栏</h2>
+      <h2 data-i18n="options_sidebar">侧边栏</h2>
       <div class="field">
-        <label for="sidebarChat">默认显示的聊天站</label>
-        <div class="field-hint">点击扩展图标时侧边栏中打开的站点</div>
+        <label for="sidebarChat" data-i18n="options_sidebarLabel">默认显示的聊天站</label>
+        <div class="field-hint" data-i18n="options_sidebarHint">点击扩展图标时侧边栏中打开的站点</div>
         <select id="sidebarChat"></select>
       </div>
     </section>
 
     <section>
-      <h2>主题</h2>
+      <h2 data-i18n="options_theme">主题</h2>
       <div class="field">
-        <label for="themeSelect">外观</label>
-        <div class="field-hint">选择浅色/深色模式，或跟随系统设置</div>
+        <label for="themeSelect" data-i18n="options_themeLabel">外观</label>
+        <div class="field-hint" data-i18n="options_themeHint">选择浅色/深色模式，或跟随系统设置</div>
         <select id="themeSelect">
-          <option value="system">跟随系统</option>
-          <option value="light">浅色</option>
-          <option value="dark">深色</option>
+          <option value="system" data-i18n="common_themeSystem">☯ 跟随系统</option>
+          <option value="light" data-i18n="common_themeLight">☀ 浅色</option>
+          <option value="dark" data-i18n="common_themeDark">☾ 深色</option>
         </select>
       </div>
     </section>
 
     <div class="actions">
-      <button id="btnSave" class="btn-primary">保存设置</button>
+      <button id="btnSave" class="btn-primary" data-i18n="options_saveBtn">保存设置</button>
       <span id="saveStatus" class="save-status"></span>
     </div>
   </div>
 
   <script src="theme.js"></script>
+  <script src="i18n.js"></script>
   <script src="store.js"></script>
   <script src="favicon.js"></script>
   <script src="chatList.js"></script>

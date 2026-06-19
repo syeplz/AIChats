@@ -1,0 +1,219 @@
+{
+  "appName": {
+    "message": "AIChats",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "在单一视图中嵌入多个 AI 聊天网站",
+    "description": "Extension description"
+  },
+  "appTitle": {
+    "message": "AIChats",
+    "description": "Tooltip on toolbar icon"
+  },
+
+  "common_themeSystem": {
+    "message": "☯ 跟随系统",
+    "description": "Theme: follow system"
+  },
+  "common_themeLight": {
+    "message": "☀ 浅色",
+    "description": "Theme: light mode"
+  },
+  "common_themeDark": {
+    "message": "☾ 深色",
+    "description": "Theme: dark mode"
+  },
+  "common_save": {
+    "message": "保存",
+    "description": "Save button"
+  },
+  "common_cancel": {
+    "message": "取消",
+    "description": "Cancel button"
+  },
+  "common_detect": {
+    "message": "检测",
+    "description": "Detect favicon button"
+  },
+  "common_detecting": {
+    "message": "检测中…",
+    "description": "Detect button while loading"
+  },
+  "common_edit": {
+    "message": "编辑",
+    "description": "Edit button"
+  },
+  "common_delete": {
+    "message": "删除",
+    "description": "Delete button"
+  },
+  "common_openInNewTab": {
+    "message": "在新标签页打开",
+    "description": "Open link in new tab"
+  },
+  "common_refresh": {
+    "message": "刷新当前聊天站",
+    "description": "Refresh button tooltip"
+  },
+  "common_switchTheme": {
+    "message": "切换主题",
+    "description": "Theme dropdown tooltip"
+  },
+  "common_openSettings": {
+    "message": "设置",
+    "description": "Open settings page"
+  },
+
+  "options_title": {
+    "message": "AIChats 设置",
+    "description": "Options page <title> and <h1>"
+  },
+  "options_chatSites": {
+    "message": "聊天站点",
+    "description": "Section heading: chat sites"
+  },
+  "options_addNew": {
+    "message": "添加新站点",
+    "description": "Collapsible summary: add new site"
+  },
+  "options_addNamePlaceholder": {
+    "message": "名称（如 ChatGPT）",
+    "description": "Add form: name input placeholder"
+  },
+  "options_addUrlPlaceholder": {
+    "message": "URL（如 https://chat.openai.com）",
+    "description": "Add form: URL input placeholder"
+  },
+  "options_addIconPlaceholder": {
+    "message": "图标 URL（可选，留空自动获取）",
+    "description": "Add form: icon input placeholder"
+  },
+  "options_addBtn": {
+    "message": "添加",
+    "description": "Add site submit button"
+  },
+  "options_fromTemplate": {
+    "message": "从模板添加",
+    "description": "Collapsible summary: add from template"
+  },
+  "options_editTitle": {
+    "message": "编辑站点",
+    "description": "Edit modal heading"
+  },
+  "options_editNamePlaceholder": {
+    "message": "名称",
+    "description": "Edit modal: name placeholder"
+  },
+  "options_editUrlPlaceholder": {
+    "message": "URL（如 https://chat.openai.com）",
+    "description": "Edit modal: URL placeholder"
+  },
+  "options_editIconPlaceholder": {
+    "message": "图标 URL（可选，留空自动获取）",
+    "description": "Edit modal: icon placeholder"
+  },
+  "options_layout": {
+    "message": "布局",
+    "description": "Section heading: layout"
+  },
+  "options_columnsLabel": {
+    "message": "每页列数",
+    "description": "Columns field label"
+  },
+  "options_columnsHint": {
+    "message": "每行显示几个聊天站（1~4）",
+    "description": "Columns field hint"
+  },
+  "options_sidebar": {
+    "message": "侧边栏",
+    "description": "Section heading: sidebar"
+  },
+  "options_sidebarLabel": {
+    "message": "默认显示的聊天站",
+    "description": "Sidebar default chat label"
+  },
+  "options_sidebarHint": {
+    "message": "点击扩展图标时侧边栏中打开的站点",
+    "description": "Sidebar field hint"
+  },
+  "options_theme": {
+    "message": "主题",
+    "description": "Section heading: theme"
+  },
+  "options_themeLabel": {
+    "message": "外观",
+    "description": "Theme field label"
+  },
+  "options_themeHint": {
+    "message": "选择浅色/深色模式，或跟随系统设置",
+    "description": "Theme field hint"
+  },
+  "options_saveBtn": {
+    "message": "保存设置",
+    "description": "Save settings button"
+  },
+  "options_saved": {
+    "message": "✓ 已保存",
+    "description": "Save success status"
+  },
+  "options_chatListEmpty": {
+    "message": "还没有聊天站点，从上方模板添加或手动添加。",
+    "description": "Empty state in chat list"
+  },
+  "options_noEnabledSites": {
+    "message": "— 无已启用站点 —",
+    "description": "Dropdown placeholder when no enabled chats"
+  },
+  "options_confirmDelete": {
+    "message": "确定删除 $1？",
+    "description": "Confirmation dialog when deleting a site. $1 is the chat name."
+  },
+
+  "sidepanel_title": {
+    "message": "AIChats Sidebar",
+    "description": "Side panel <title>"
+  },
+  "sidepanel_expandTitle": {
+    "message": "打开网格视图",
+    "description": "Expand button tooltip"
+  },
+  "sidepanel_emptyText": {
+    "message": "还没有启用聊天站点",
+    "description": "Empty state text when no chats enabled"
+  },
+  "sidepanel_goSettings": {
+    "message": "去设置",
+    "description": "Empty state action button"
+  },
+  "sidepanel_noChat": {
+    "message": "— 无聊天站 —",
+    "description": "Dropdown placeholder when no chats available"
+  },
+
+  "standalone_title": {
+    "message": "AIChats",
+    "description": "Standalone page <title>"
+  },
+  "standalone_errorOverlay": {
+    "message": "无法加载，请尝试在新标签页打开",
+    "description": "Error overlay when iframe fails to load"
+  },
+  "standalone_emptyText": {
+    "message": "还没有添加聊天站点，请在扩展图标右键菜单中打开设置",
+    "description": "Empty state when no chats configured"
+  },
+  "standalone_screenDotLabel": {
+    "message": "第 $1 屏",
+    "description": "Aria-label for screen navigation dots. $1 is the screen number."
+  },
+
+  "chatList_errorNameUrlRequired": {
+    "message": "名称和 URL 不能为空",
+    "description": "Validation error: name and URL are required"
+  },
+  "chatList_errorDuplicateUrl": {
+    "message": "该 URL 已在列表中",
+    "description": "Validation error: duplicate URL"
+  }
+}

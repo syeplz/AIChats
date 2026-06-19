@@ -4,16 +4,16 @@ const chatList = {
   },
 
   add(list, { name, url, icon }) {
-    if (!name || !url) throw new Error('名称和 URL 不能为空');
-    if (list.some(c => c.url === url)) throw new Error('该 URL 已在列表中');
+    if (!name || !url) throw new Error(_('chatList_errorNameUrlRequired'));
+    if (list.some(c => c.url === url)) throw new Error(_('chatList_errorDuplicateUrl'));
     return [...list, { id: chatList.generateId(), name, url, icon: icon || '', enabled: true }];
   },
 
   edit(list, id, { name, url, icon }) {
-    if (!name || !url) throw new Error('名称和 URL 不能为空');
+    if (!name || !url) throw new Error(_('chatList_errorNameUrlRequired'));
     const idx = list.findIndex(c => c.id === id);
     if (idx === -1) return list;
-    if (list.some(c => c.url === url && c.id !== id)) throw new Error('该 URL 已在列表中');
+    if (list.some(c => c.url === url && c.id !== id)) throw new Error(_('chatList_errorDuplicateUrl'));
     const updated = [...list];
     updated[idx] = { ...updated[idx], name, url, icon: icon || updated[idx].icon };
     return updated;

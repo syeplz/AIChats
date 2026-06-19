@@ -47,7 +47,7 @@ function renderChatList(chats) {
   list.innerHTML = '';
 
   if (chats.length === 0) {
-    list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">还没有聊天站点，从上方模板添加或手动添加。</p>';
+    list.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${_('options_chatListEmpty')}</p>`;
     return;
   }
 
@@ -70,8 +70,8 @@ function renderChatList(chats) {
         <div class="chat-url">${chat.url}</div>
       </div>
       <div class="chat-actions">
-        <button class="btn-edit" data-id="${chat.id}">编辑</button>
-        <button class="btn-danger" data-id="${chat.id}">删除</button>
+        <button class="btn-edit" data-id="${chat.id}">${_('common_edit')}</button>
+        <button class="btn-danger" data-id="${chat.id}">${_('common_delete')}</button>
       </div>
     `;
 
@@ -93,7 +93,7 @@ function renderChatList(chats) {
     });
 
     item.querySelector('.btn-danger').addEventListener('click', async (e) => {
-      if (!confirm(`确定删除 "${chat.name}"？`)) return;
+      if (!confirm(_('options_confirmDelete', [chat.name]))) return;
       const id = e.target.dataset.id;
       const data = await loadData();
       const updated = chatList.remove(data.chats || [], id);
@@ -195,7 +195,7 @@ function renderSidebarSelect(chats, selected) {
   select.innerHTML = '';
 
   if (enabled.length === 0) {
-    select.innerHTML = '<option value="">— 无已启用站点 —</option>';
+    select.innerHTML = `<option value="">${_('options_noEnabledSites')}</option>`;
     return;
   }
 
@@ -231,7 +231,7 @@ document.querySelectorAll('.btn-detect').forEach(btn => {
     const siteUrl = urlInput.value.trim();
     if (!siteUrl) { input.value = ''; return; }
     btn.disabled = true;
-    btn.textContent = '检测中…';
+    btn.textContent = _('common_detecting');
     const iconUrl = await autoDetectFavicon(siteUrl);
     if (iconUrl) {
       input.value = iconUrl;
@@ -239,7 +239,7 @@ document.querySelectorAll('.btn-detect').forEach(btn => {
       input.value = `https://${new URL(siteUrl).hostname}/favicon.ico`;
     }
     btn.disabled = false;
-    btn.textContent = '检测';
+    btn.textContent = _('common_detect');
   });
 });
 
@@ -277,12 +277,14 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   applyTheme(theme);
 
   const status = document.getElementById('saveStatus');
-  status.textContent = '✓ 已保存';
+  status.textContent = _('options_saved');
   status.className = 'save-status';
   setTimeout(() => { status.textContent = ''; }, 2000);
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  await initI18n();
+  translatePage();
   await initTheme();
   render();
 });

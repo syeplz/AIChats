@@ -41,15 +41,15 @@ function createCellElement(chat) {
         ${chat.name}
       </div>
       <div class="cell-actions">
-        <button class="btn-refresh" title="刷新当前聊天站"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 2 22 8 16 8"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L22 8"/><circle cx="12" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg></button>
-        <button title="在新标签页打开" data-url="${chat.url}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+        <button class="btn-refresh" title="${_('common_refresh')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 2 22 8 16 8"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L22 8"/><circle cx="12" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg></button>
+        <button title="${_('common_openInNewTab')}" data-url="${chat.url}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
       </div>
     </div>
     <div class="cell-content">
       <iframe src="${chat.url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" loading="lazy"></iframe>
       <div class="cell-overlay" hidden>
-        <p>无法加载，请尝试在新标签页打开</p>
-        <button data-url="${chat.url}">在新标签页打开</button>
+        <p>${_('standalone_errorOverlay')}</p>
+        <button data-url="${chat.url}">${_('common_openInNewTab')}</button>
       </div>
     </div>
   `;
@@ -108,10 +108,7 @@ function bindImgError(container) {
 
 function render() {
   if (chats.length === 0) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <p>还没有添加聊天站点，请在扩展图标右键菜单中打开设置</p>
-      </div>`;
+    grid.innerHTML = `<div class="empty-state"><p>${_('standalone_emptyText')}</p></div>`;
     return;
   }
 
@@ -163,7 +160,7 @@ function renderDots() {
   for (let i = 0; i < numScreens; i++) {
     const btn = document.createElement('button');
     btn.dataset.screen = i;
-    btn.setAttribute('aria-label', `第 ${i + 1} 屏`);
+    btn.setAttribute('aria-label', _('standalone_screenDotLabel', [i + 1]));
     btn.addEventListener('click', () => {
       gallery.scrollTo({ top: i * (window.innerHeight - 4), behavior: 'smooth' });
     });
@@ -205,6 +202,8 @@ function onResize() {
 }
 
 async function init() {
+  await initI18n();
+  translatePage();
   await loadConfig();
   await initTheme();
   render();

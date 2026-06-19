@@ -3,29 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIChats Sidebar</title>
+  <title data-i18n="sidepanel_title">AIChats Sidebar</title>
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
   <div class="panel-header">
     <select id="chatSelect"></select>
-    <button class="btn-icon" id="btnExpand" title="打开网格视图">⊞</button>
-    <select id="themeSelect" class="theme-select" title="切换主题">
-      <option value="system">☯ 跟随系统</option>
-      <option value="light">☀ 浅色</option>
-      <option value="dark">☾ 深色</option>
+    <button class="btn-icon" id="btnExpand" data-i18n-title="sidepanel_expandTitle" title="打开网格视图">⊞</button>
+    <select id="themeSelect" class="theme-select" data-i18n-title="common_switchTheme" title="切换主题">
+      <option value="system" data-i18n="common_themeSystem">☯ 跟随系统</option>
+      <option value="light" data-i18n="common_themeLight">☀ 浅色</option>
+      <option value="dark" data-i18n="common_themeDark">☾ 深色</option>
     </select>
-    <button class="btn-icon" id="btnSettings" title="设置">⚙</button>
+    <select id="localeSelect" class="theme-select">
+      <option value="zh_CN">🇨🇳 中文</option>
+      <option value="en">🇺🇸 English</option>
+    </select>
+    <button class="btn-icon" id="btnSettings" data-i18n-title="common_openSettings" title="设置">⚙</button>
   </div>
   <div class="panel-body">
     <iframe id="chatFrame" allow="clipboard-read; clipboard-write"></iframe>
     <div id="emptyState" class="empty-state" hidden>
-      <p>还没有启用聊天站点</p>
-      <button id="btnSidebarOptions">去设置</button>
+      <p data-i18n="sidepanel_emptyText">还没有启用聊天站点</p>
+      <button id="btnSidebarOptions" data-i18n="sidepanel_goSettings">去设置</button>
     </div>
   </div>
   <script src="theme.js"></script>
+  <script src="i18n.js"></script>
   <script src="store.js"></script>
   <script src="sidepanel.js"></script>
 </body>

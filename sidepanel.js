@@ -24,7 +24,7 @@ async function loadConfig() {
   select.innerHTML = '';
 
   if (enabled.length === 0) {
-    select.innerHTML = '<option value="">— 无聊天站 —</option>';
+    select.innerHTML = `<option value="">${_('sidepanel_noChat')}</option>`;
     frame.src = 'about:blank';
     frame.hidden = true;
     document.getElementById('emptyState').hidden = false;
@@ -93,6 +93,8 @@ async function updateThemeSelect() {
 }
 
 async function init() {
+  await initI18n();
+  translatePage();
   await loadConfig();
   await initTheme();
   updateThemeSelect();
@@ -101,6 +103,13 @@ async function init() {
     await setTheme(e.target.value);
   });
   store.subscribe('theme', updateThemeSelect);
+
+  const localeSelect = document.getElementById('localeSelect');
+  localeSelect.value = await store.get('locale') || 'zh_CN';
+  localeSelect.addEventListener('change', async (e) => {
+    await store.set('locale', e.target.value);
+    location.reload();
+  });
 
   ready = true;
 

@@ -1,0 +1,219 @@
+{
+  "appName": {
+    "message": "AIChats",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "Embed multiple AI chat websites in a single view",
+    "description": "Extension description"
+  },
+  "appTitle": {
+    "message": "AIChats",
+    "description": "Tooltip on toolbar icon"
+  },
+
+  "common_themeSystem": {
+    "message": "☯ System",
+    "description": "Theme: follow system"
+  },
+  "common_themeLight": {
+    "message": "☀ Light",
+    "description": "Theme: light mode"
+  },
+  "common_themeDark": {
+    "message": "☾ Dark",
+    "description": "Theme: dark mode"
+  },
+  "common_save": {
+    "message": "Save",
+    "description": "Save button"
+  },
+  "common_cancel": {
+    "message": "Cancel",
+    "description": "Cancel button"
+  },
+  "common_detect": {
+    "message": "Detect",
+    "description": "Detect favicon button"
+  },
+  "common_detecting": {
+    "message": "Detecting…",
+    "description": "Detect button while loading"
+  },
+  "common_edit": {
+    "message": "Edit",
+    "description": "Edit button"
+  },
+  "common_delete": {
+    "message": "Delete",
+    "description": "Delete button"
+  },
+  "common_openInNewTab": {
+    "message": "Open in new tab",
+    "description": "Open link in new tab"
+  },
+  "common_refresh": {
+    "message": "Refresh current chat",
+    "description": "Refresh button tooltip"
+  },
+  "common_switchTheme": {
+    "message": "Switch theme",
+    "description": "Theme dropdown tooltip"
+  },
+  "common_openSettings": {
+    "message": "Settings",
+    "description": "Open settings page"
+  },
+
+  "options_title": {
+    "message": "AIChats Settings",
+    "description": "Options page <title> and <h1>"
+  },
+  "options_chatSites": {
+    "message": "Chat Sites",
+    "description": "Section heading: chat sites"
+  },
+  "options_addNew": {
+    "message": "Add New Site",
+    "description": "Collapsible summary: add new site"
+  },
+  "options_addNamePlaceholder": {
+    "message": "Name (e.g. ChatGPT)",
+    "description": "Add form: name input placeholder"
+  },
+  "options_addUrlPlaceholder": {
+    "message": "URL (e.g. https://chat.openai.com)",
+    "description": "Add form: URL input placeholder"
+  },
+  "options_addIconPlaceholder": {
+    "message": "Icon URL (optional, auto-detect if empty)",
+    "description": "Add form: icon input placeholder"
+  },
+  "options_addBtn": {
+    "message": "Add",
+    "description": "Add site submit button"
+  },
+  "options_fromTemplate": {
+    "message": "Add from Template",
+    "description": "Collapsible summary: add from template"
+  },
+  "options_editTitle": {
+    "message": "Edit Site",
+    "description": "Edit modal heading"
+  },
+  "options_editNamePlaceholder": {
+    "message": "Name",
+    "description": "Edit modal: name placeholder"
+  },
+  "options_editUrlPlaceholder": {
+    "message": "URL (e.g. https://chat.openai.com)",
+    "description": "Edit modal: URL placeholder"
+  },
+  "options_editIconPlaceholder": {
+    "message": "Icon URL (optional, auto-detect if empty)",
+    "description": "Edit modal: icon placeholder"
+  },
+  "options_layout": {
+    "message": "Layout",
+    "description": "Section heading: layout"
+  },
+  "options_columnsLabel": {
+    "message": "Columns per page",
+    "description": "Columns field label"
+  },
+  "options_columnsHint": {
+    "message": "Chat sites per row (1~4)",
+    "description": "Columns field hint"
+  },
+  "options_sidebar": {
+    "message": "Sidebar",
+    "description": "Section heading: sidebar"
+  },
+  "options_sidebarLabel": {
+    "message": "Default chat site",
+    "description": "Sidebar default chat label"
+  },
+  "options_sidebarHint": {
+    "message": "Site opened in the side panel when clicking extension icon",
+    "description": "Sidebar field hint"
+  },
+  "options_theme": {
+    "message": "Theme",
+    "description": "Section heading: theme"
+  },
+  "options_themeLabel": {
+    "message": "Appearance",
+    "description": "Theme field label"
+  },
+  "options_themeHint": {
+    "message": "Choose light, dark, or system preference",
+    "description": "Theme field hint"
+  },
+  "options_saveBtn": {
+    "message": "Save Settings",
+    "description": "Save settings button"
+  },
+  "options_saved": {
+    "message": "✓ Saved",
+    "description": "Save success status"
+  },
+  "options_chatListEmpty": {
+    "message": "No chat sites yet. Add one from the templates above or manually.",
+    "description": "Empty state in chat list"
+  },
+  "options_noEnabledSites": {
+    "message": "— No enabled sites —",
+    "description": "Dropdown placeholder when no enabled chats"
+  },
+  "options_confirmDelete": {
+    "message": "Delete $1？",
+    "description": "Confirmation dialog when deleting a site. $1 is the chat name."
+  },
+
+  "sidepanel_title": {
+    "message": "AIChats Sidebar",
+    "description": "Side panel <title>"
+  },
+  "sidepanel_expandTitle": {
+    "message": "Open grid view",
+    "description": "Expand button tooltip"
+  },
+  "sidepanel_emptyText": {
+    "message": "No chat sites enabled",
+    "description": "Empty state text when no chats enabled"
+  },
+  "sidepanel_goSettings": {
+    "message": "Go to Settings",
+    "description": "Empty state action button"
+  },
+  "sidepanel_noChat": {
+    "message": "— No chat —",
+    "description": "Dropdown placeholder when no chats available"
+  },
+
+  "standalone_title": {
+    "message": "AIChats",
+    "description": "Standalone page <title>"
+  },
+  "standalone_errorOverlay": {
+    "message": "Failed to load. Try opening in a new tab.",
+    "description": "Error overlay when iframe fails to load"
+  },
+  "standalone_emptyText": {
+    "message": "No chat sites configured. Add sites from the extension options.",
+    "description": "Empty state when no chats configured"
+  },
+  "standalone_screenDotLabel": {
+    "message": "Screen $1",
+    "description": "Aria-label for screen navigation dots. $1 is the screen number."
+  },
+
+  "chatList_errorNameUrlRequired": {
+    "message": "Name and URL are required",
+    "description": "Validation error: name and URL are required"
+  },
+  "chatList_errorDuplicateUrl": {
+    "message": "This URL is already in the list",
+    "description": "Validation error: duplicate URL"
+  }
+}
