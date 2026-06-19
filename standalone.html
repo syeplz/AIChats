@@ -8,22 +8,11 @@
   <link rel="stylesheet" href="standalone.css">
 </head>
 <body>
-  <div id="disabledMessage" class="disabled-message" hidden>
-    <h2>AIChats</h2>
-    <p>新标签页替换已禁用。</p>
-    <p>您可以从浏览器工具栏的扩展图标打开侧边栏，或右键扩展图标打开设置重新启用。</p>
-  </div>
-
   <div id="app">
-    <main class="gallery">
-      <button class="arrow arrow-left" id="arrowLeft" aria-label="上一页">‹</button>
-      <div class="gallery-viewport" id="viewport">
-        <div class="gallery-track" id="track"></div>
-      </div>
-      <button class="arrow arrow-right" id="arrowRight" aria-label="下一页">›</button>
-    </main>
-
-    <footer class="thumbstrip" id="thumbstrip"></footer>
+    <div class="gallery" id="gallery">
+      <div class="gallery-grid" id="grid"></div>
+    </div>
+    <div class="screen-dots" id="screenDots" hidden></div>
   </div>
 
   <script src="theme.js"></script>
