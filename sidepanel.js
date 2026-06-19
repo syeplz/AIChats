@@ -59,16 +59,7 @@ select.addEventListener('change', () => {
 });
 
 document.getElementById('btnExpand').addEventListener('click', async () => {
-  const url = chrome.runtime.getURL('standalone.html');
-  const allTabs = await chrome.tabs.query({});
-  const existing = allTabs.find(t => t.url === url);
-  if (existing) {
-    await chrome.tabs.update(existing.id, { active: true, autoDiscardable: false });
-    await chrome.windows.update(existing.windowId, { focused: true });
-  } else {
-    const tab = await chrome.tabs.create({ url });
-    await chrome.tabs.update(tab.id, { autoDiscardable: false });
-  }
+  chrome.runtime.sendMessage({ action: 'openStandalone' });
   window.close();
 });
 

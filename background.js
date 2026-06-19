@@ -12,3 +12,18 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
+
+chrome.runtime.onMessage.addListener(async (msg) => {
+  if (msg.action === 'openStandalone') {
+    const url = chrome.runtime.getURL('standalone.html');
+    const allTabs = await chrome.tabs.query({});
+    const existing = allTabs.find(t => t.url === url);
+    if (existing) {
+      await chrome.tabs.highlight({ windowId: existing.windowId, tabs: existing.index });
+      await chrome.windows.update(existing.windowId, { focused: true });
+    } else {
+      const tab = await chrome.tabs.create({ url });
+      await chrome.tabs.update(tab.id, { autoDiscardable: false });
+    }
+  }
+});
