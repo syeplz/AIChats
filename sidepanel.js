@@ -63,10 +63,11 @@ document.getElementById('btnExpand').addEventListener('click', async () => {
   const allTabs = await chrome.tabs.query({});
   const existing = allTabs.find(t => t.url === url);
   if (existing) {
-    await chrome.tabs.update(existing.id, { active: true });
+    await chrome.tabs.update(existing.id, { active: true, autoDiscardable: false });
     await chrome.windows.update(existing.windowId, { focused: true });
   } else {
-    await chrome.tabs.create({ url });
+    const tab = await chrome.tabs.create({ url });
+    await chrome.tabs.update(tab.id, { autoDiscardable: false });
   }
   window.close();
 });

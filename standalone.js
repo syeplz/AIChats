@@ -12,6 +12,7 @@ let chats = [];
 let columns = 2;
 let currentPage = 0;
 let newTabOverride = true;
+let currentCols = 0;
 
 const track = document.getElementById('track');
 const thumbstrip = document.getElementById('thumbstrip');
@@ -144,6 +145,7 @@ function render() {
   const cols = getEffectiveColumns();
   const pages = totalPages();
   layoutPages();
+  currentCols = cols;
 
   renderThumbnails(cols, pages);
   updateArrows(pages);
@@ -266,8 +268,10 @@ function handleTouchMove(e) {
 function onResize() {
   syncGalleryHeight();
   if (chats.length === 0) return;
-  layoutPages();
   const cols = getEffectiveColumns();
+  if (cols === currentCols) return;
+  layoutPages();
+  currentCols = cols;
   const pages = totalPages();
   renderThumbnails(cols, pages);
   updateArrows(pages);
