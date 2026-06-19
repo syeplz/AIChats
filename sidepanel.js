@@ -47,6 +47,7 @@ async function loadConfig() {
 }
 
 function loadChatDirect(id) {
+  if (currentChatId === id) return;
   const chat = allChats.find(c => c.id === id);
   if (!chat) return;
   currentChatId = id;

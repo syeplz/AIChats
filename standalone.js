@@ -21,6 +21,7 @@ const viewport = document.getElementById('viewport');
 const gallery = document.querySelector('.gallery');
 const app = document.getElementById('app');
 const disabledMsg = document.getElementById('disabledMessage');
+const cellCache = new Map();
 
 async function loadConfig() {
   const data = await chrome.storage.sync.get(['chats', 'columns', 'newTabOverride']);
@@ -38,6 +39,80 @@ function getEffectiveColumns() {
 function totalPages() {
   const cols = getEffectiveColumns();
   return Math.max(1, Math.ceil(chats.length / cols));
+}
+
+function createCellElement(chat) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  const firstChar = chat.name.charAt(0);
+  cell.innerHTML = `
+    <div class="cell-header">
+      <div class="cell-name">
+        <img src="${chat.icon}" alt="" loading="lazy">
+        <span class="fallback-icon" style="display:none">${firstChar}</span>
+        ${chat.name}
+      </div>
+      <div class="cell-actions">
+        <button title="在新标签页打开" data-url="${chat.url}">↗</button>
+      </div>
+    </div>
+    <div class="cell-content">
+      <iframe src="${chat.url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" loading="lazy"></iframe>
+      <div class="cell-overlay" hidden>
+        <p>无法加载，请尝试在新标签页打开</p>
+        <button data-url="${chat.url}">在新标签页打开</button>
+      </div>
+    </div>
+  `;
+  bindImgError(cell);
+  cell.dataset.chatId = chat.id;
+  return cell;
+}
+
+function ensureCells() {
+  chats.forEach(chat => {
+    if (!cellCache.has(chat.id)) {
+      const cell = createCellElement(chat);
+      cellCache.set(chat.id, cell);
+    }
+  });
+  for (const [id, el] of cellCache) {
+    if (!chats.some(c => c.id === id)) {
+      el.remove();
+      cellCache.delete(id);
+    }
+  }
+}
+
+function layoutPages() {
+  const cols = getEffectiveColumns();
+  const pages = totalPages();
+  if (currentPage >= pages) currentPage = pages - 1;
+  if (currentPage < 0) currentPage = 0;
+
+  const cells = Array.from(track.querySelectorAll('.cell'));
+  const frag = document.createDocumentFragment();
+  cells.forEach(c => frag.appendChild(c));
+
+  track.innerHTML = '';
+  for (let p = 0; p < pages; p++) {
+    const pageEl = document.createElement('div');
+    pageEl.className = 'page';
+    pageEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    pageEl.style.gridTemplateRows = '1fr';
+
+    const start = p * cols;
+    const end = Math.min(start + cols, chats.length);
+    for (let i = start; i < end; i++) {
+      const chat = chats[i];
+      const cell = cellCache.get(chat.id);
+      if (cell) pageEl.appendChild(cell);
+    }
+    track.appendChild(pageEl);
+  }
+
+  track.style.transition = 'none';
+  track.style.transform = `translateX(-${currentPage * 100}%)`;
 }
 
 function render() {
@@ -64,58 +139,11 @@ function render() {
   app.hidden = false;
   disabledMsg.hidden = true;
 
+  ensureCells();
+
   const cols = getEffectiveColumns();
   const pages = totalPages();
-  if (currentPage >= pages) currentPage = pages - 1;
-  if (currentPage < 0) currentPage = 0;
-
-  const activePageChats = chats.slice(currentPage * cols, (currentPage + 1) * cols);
-
-  track.innerHTML = '';
-  for (let p = 0; p < pages; p++) {
-    const pageEl = document.createElement('div');
-    pageEl.className = 'page';
-    pageEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    pageEl.style.gridTemplateRows = '1fr';
-
-    const start = p * cols;
-    const end = Math.min(start + cols, chats.length);
-    for (let i = start; i < end; i++) {
-      const chat = chats[i];
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-
-      const firstChar = chat.name.charAt(0);
-
-      cell.innerHTML = `
-        <div class="cell-header">
-          <div class="cell-name">
-            <img src="${chat.icon}" alt="" loading="lazy">
-            <span class="fallback-icon" style="display:none">${firstChar}</span>
-            ${chat.name}
-          </div>
-          <div class="cell-actions">
-            <button title="在新标签页打开" data-url="${chat.url}">↗</button>
-          </div>
-        </div>
-        <div class="cell-content">
-          <iframe src="${chat.url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" loading="lazy"></iframe>
-          <div class="cell-overlay" hidden>
-            <p>无法加载，请尝试在新标签页打开</p>
-            <button data-url="${chat.url}">在新标签页打开</button>
-          </div>
-        </div>
-      `;
-
-      bindImgError(cell);
-      pageEl.appendChild(cell);
-    }
-
-    track.appendChild(pageEl);
-  }
-
-  track.style.transition = 'none';
-  track.style.transform = `translateX(-${currentPage * 100}%)`;
+  layoutPages();
 
   renderThumbnails(cols, pages);
   updateArrows(pages);
@@ -145,7 +173,6 @@ function renderThumbnails(cols, pages) {
     }
   }
 
-  // Scroll active thumb into view
   const active = thumbstrip.querySelector('.thumb.active');
   if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
@@ -209,7 +236,6 @@ function handleWheel(e) {
   else goPrev();
 }
 
-// Touch handling
 let touchStartX = 0;
 let touchStartY = 0;
 let touchMoved = false;
@@ -234,13 +260,17 @@ function handleTouchMove(e) {
   const dx = Math.abs(e.touches[0].clientX - touchStartX);
   const dy = Math.abs(e.touches[0].clientY - touchStartY);
   if (dx > 10 || dy > 10) touchMoved = true;
-  // Prevent default vertical scroll during swipe
   if (dx > dy && dx > 10) e.preventDefault();
 }
 
 function onResize() {
   syncGalleryHeight();
-  render();
+  if (chats.length === 0) return;
+  layoutPages();
+  const cols = getEffectiveColumns();
+  const pages = totalPages();
+  renderThumbnails(cols, pages);
+  updateArrows(pages);
 }
 
 function syncGalleryHeight() {
@@ -266,8 +296,6 @@ async function init() {
     if (e.key === 'ArrowLeft') goPrev();
     if (e.key === 'ArrowRight') goNext();
   });
-
-
 
   window.addEventListener('resize', onResize);
 
