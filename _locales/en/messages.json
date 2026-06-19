@@ -217,6 +217,39 @@
     "description": "Validation error: duplicate URL"
   },
 
+  "prompts_p_intro_label": {
+    "message": "Introduce this page",
+    "description": "Default prompt: introduce page label"
+  },
+  "prompts_p_intro_content": {
+    "message": "Introduce what this page {url} is about, including its main features and purpose.",
+    "description": "Default prompt: introduce page content"
+  },
+  "prompts_p_summarize_label": {
+    "message": "Summarize",
+    "description": "Default prompt: summarize label"
+  },
+  "prompts_p_summarize_content": {
+    "message": "Summarize the core content of {title} ({url}).",
+    "description": "Default prompt: summarize content"
+  },
+  "prompts_p_whatis_label": {
+    "message": "What is this URL",
+    "description": "Default prompt: what is this URL label"
+  },
+  "prompts_p_whatis_content": {
+    "message": "Explain what this page {url} is about, its core functionality and use cases.",
+    "description": "Default prompt: what is this URL content"
+  },
+  "prompts_p_clipboard_label": {
+    "message": "Analyze clipboard",
+    "description": "Default prompt: analyze clipboard label"
+  },
+  "prompts_p_clipboard_content": {
+    "message": "Analyze the following content: {clipboard}",
+    "description": "Default prompt: analyze clipboard content"
+  },
+
   "options_promptsSection": {
     "message": "Quick Prompts",
     "description": "Section heading: quick prompts"

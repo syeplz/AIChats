@@ -217,6 +217,39 @@
     "description": "Validation error: duplicate URL"
   },
 
+  "prompts_p_intro_label": {
+    "message": "介绍这个页面",
+    "description": "Default prompt: introduce page label"
+  },
+  "prompts_p_intro_content": {
+    "message": "请用中文介绍我当前正在浏览的这个页面 {url} 是做什么的，包括它的主要功能和用途。",
+    "description": "Default prompt: introduce page content"
+  },
+  "prompts_p_summarize_label": {
+    "message": "总结一下",
+    "description": "Default prompt: summarize label"
+  },
+  "prompts_p_summarize_content": {
+    "message": "请总结 {title} ({url}) 的核心内容。",
+    "description": "Default prompt: summarize content"
+  },
+  "prompts_p_whatis_label": {
+    "message": "这个 URL 是什么",
+    "description": "Default prompt: what is this URL label"
+  },
+  "prompts_p_whatis_content": {
+    "message": "请解释 {url} 这个页面是关于什么的，以及它的核心功能和使用场景。",
+    "description": "Default prompt: what is this URL content"
+  },
+  "prompts_p_clipboard_label": {
+    "message": "分析剪贴板",
+    "description": "Default prompt: analyze clipboard label"
+  },
+  "prompts_p_clipboard_content": {
+    "message": "请分析以下内容：{clipboard}",
+    "description": "Default prompt: analyze clipboard content"
+  },
+
   "options_promptsSection": {
     "message": "快捷提示",
     "description": "Section heading: quick prompts"

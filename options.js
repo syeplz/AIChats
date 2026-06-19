@@ -238,6 +238,7 @@ function renderPrompts(prompts) {
   }
 
   prompts.forEach((p, i) => {
+    const resolved = localizePrompt(p);
     const item = document.createElement('div');
     item.className = 'prompt-item';
 
@@ -245,8 +246,8 @@ function renderPrompts(prompts) {
       <button class="btn-move" data-pid="${p.id}" data-dir="up" ${i === 0 ? 'disabled' : ''}>↑</button>
       <button class="btn-move" data-pid="${p.id}" data-dir="down" ${i === prompts.length - 1 ? 'disabled' : ''}>↓</button>
       <div class="prompt-info">
-        <div class="prompt-label">${escapeHtml(p.label)}</div>
-        <div class="prompt-preview">${escapeHtml(p.content)}</div>
+        <div class="prompt-label">${escapeHtml(resolved.label)}</div>
+        <div class="prompt-preview">${escapeHtml(resolved.content)}</div>
       </div>
       <div class="prompt-actions">
         <button class="btn-edit" data-pid="${p.id}">${_('common_edit')}</button>
@@ -255,7 +256,7 @@ function renderPrompts(prompts) {
     `;
 
     item.querySelector('.btn-danger').addEventListener('click', async (e) => {
-      if (!confirm(_('options_promptsConfirmDelete', [p.label]))) return;
+      if (!confirm(_('options_promptsConfirmDelete', [resolved.label]))) return;
       const id = e.target.dataset.pid;
       const data = await loadData();
       const prompts = (data.prompts || []).filter(x => x.id !== id);
@@ -288,9 +289,10 @@ function renderPrompts(prompts) {
 }
 
 function openPromptEditModal(p) {
+  const resolved = localizePrompt(p);
   promptEditingId = p.id;
-  document.getElementById('promptEditLabel').value = p.label;
-  document.getElementById('promptEditContent').value = p.content;
+  document.getElementById('promptEditLabel').value = resolved.label;
+  document.getElementById('promptEditContent').value = resolved.content;
   document.getElementById('promptEditModal').hidden = false;
   document.getElementById('promptEditLabel').focus();
 }
@@ -307,7 +309,7 @@ document.getElementById('promptEditSave').addEventListener('click', async () => 
   if (!label || !content) return;
   const data = await loadData();
   const prompts = (data.prompts || []).map(p =>
-    p.id === promptEditingId ? { ...p, label, content } : p
+    p.id === promptEditingId ? { ...p, label, content, isDefault: false } : p
   );
   await store.set('prompts', prompts);
   closePromptEditModal();

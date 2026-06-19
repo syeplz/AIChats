@@ -103,9 +103,10 @@ async function renderChips(prompts) {
   chipBar.hidden = false;
   chipBar.innerHTML = '';
   prompts.forEach(p => {
+    const resolved = localizePrompt(p);
     const chip = document.createElement('button');
     chip.className = 'chip';
-    chip.textContent = p.label;
+    chip.textContent = resolved.label;
     chip.addEventListener('click', async () => {
       let clipboardText = '';
       try {
@@ -114,7 +115,7 @@ async function renderChips(prompts) {
       const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
       const url = tab?.url || '';
       const title = tab?.title || '';
-      const text = p.content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText);
+      const text = resolved.content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText);
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -130,7 +131,7 @@ async function renderChips(prompts) {
       chip.classList.add('copied');
       chip.textContent = _('sidepanel_promptCopied');
       setTimeout(() => {
-        chip.textContent = p.label;
+        chip.textContent = resolved.label;
         chip.classList.remove('copied');
       }, 1200);
     });
