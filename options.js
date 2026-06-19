@@ -196,10 +196,22 @@ function renderTemplates(chats) {
     autoDetectFavicon(tpl.url).then(detected => {
       if (detected && detected !== tpl.icon) {
         const imgs = container.querySelectorAll('img');
-        if (imgs[i]) imgs[i].src = detected;
+        if (imgs[i]) setFaviconSrc(imgs[i], detected, tpl.url);
       }
     });
   });
+}
+
+async function setFaviconSrc(img, iconUrl, siteUrl) {
+  try {
+    const origin = new URL(siteUrl).origin;
+    const resp = await fetch(iconUrl, { headers: { 'Referer': origin + '/' } });
+    if (!resp.ok) throw new Error();
+    const blob = await resp.blob();
+    img.src = URL.createObjectURL(blob);
+  } catch {
+    img.src = iconUrl;
+  }
 }
 
 function renderSidebarSelect(chats, selected) {
@@ -261,9 +273,10 @@ async function autoDetectFavicon(siteUrl) {
     }
   } catch {}
 
+  const reqInit = { signal: AbortSignal.timeout(2000), headers: { 'Referer': origin + '/' } };
   for (const c of htmlCandidates) {
     try {
-      const r = await fetch(c, { signal: AbortSignal.timeout(2000) });
+      const r = await fetch(c, reqInit);
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
         if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
@@ -275,7 +288,7 @@ async function autoDetectFavicon(siteUrl) {
   const fallbacks = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
   for (const c of fallbacks) {
     try {
-      const r = await fetch(c, { signal: AbortSignal.timeout(2000) });
+      const r = await fetch(c, reqInit);
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
         if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }

@@ -23,9 +23,10 @@ async function autoDetectFavicon(siteUrl) {
     }
   } catch {}
 
+  const reqInit = { signal: AbortSignal.timeout(2000), headers: { 'Referer': origin + '/' } };
   for (const c of htmlCandidates) {
     try {
-      const r = await fetch(c, { signal: AbortSignal.timeout(2000) });
+      const r = await fetch(c, reqInit);
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
         if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
@@ -37,7 +38,7 @@ async function autoDetectFavicon(siteUrl) {
   const fallbacks = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
   for (const c of fallbacks) {
     try {
-      const r = await fetch(c, { signal: AbortSignal.timeout(2000) });
+      const r = await fetch(c, reqInit);
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
         if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
