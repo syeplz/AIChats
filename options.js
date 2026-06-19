@@ -13,12 +13,14 @@ const TEMPLATES = [
 
 let editingId = null;
 
-function generateId() {
-  return 'chat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-}
-
 async function loadData() {
-  return chrome.storage.sync.get(['chats', 'columns', 'sidebarChat', 'theme']);
+  const [chats, columns, sidebarChat, theme] = await Promise.all([
+    store.get('chats'),
+    store.get('columns'),
+    store.get('sidebarChat'),
+    store.get('theme'),
+  ]);
+  return { chats, columns, sidebarChat, theme };
 }
 
 async function render() {
@@ -36,7 +38,7 @@ async function render() {
 }
 
 async function saveChats(chats) {
-  await chrome.storage.sync.set({ chats });
+  await store.set('chats', chats);
   render();
 }
 
@@ -79,23 +81,23 @@ function renderChatList(chats) {
     iconImg.addEventListener('error', () => {
       if (iconImg.dataset.resolved) return;
       iconImg.dataset.resolved = '1';
-      upgradeChatIcon(iconImg, chat);
+      upgradeIcon(iconImg, chat);
     });
 
     item.querySelector('.chat-toggle input').addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      const checked = e.target.checked;
       const data = await loadData();
-      const list = data.chats || [];
-      const target = list.find(c => c.id === e.target.dataset.id);
-      if (target) target.enabled = e.target.checked;
-      await saveChats(list);
+      const updated = chatList.setEnabled(data.chats || [], id, checked);
+      await saveChats(updated);
     });
 
     item.querySelector('.btn-danger').addEventListener('click', async (e) => {
       if (!confirm(`确定删除 "${chat.name}"？`)) return;
+      const id = e.target.dataset.id;
       const data = await loadData();
-      const list = data.chats || [];
-      const filtered = list.filter(c => c.id !== e.target.dataset.id);
-      await saveChats(filtered);
+      const updated = chatList.remove(data.chats || [], id);
+      await saveChats(updated);
     });
 
     item.querySelector('.btn-edit').addEventListener('click', () => {
@@ -107,13 +109,8 @@ function renderChatList(chats) {
         const id = e.currentTarget.dataset.id;
         const dir = e.currentTarget.dataset.dir;
         const data = await loadData();
-        const list = data.chats || [];
-        const idx = list.findIndex(c => c.id === id);
-        if (idx === -1) return;
-        const swap = dir === 'up' ? idx - 1 : idx + 1;
-        if (swap < 0 || swap >= list.length) return;
-        [list[idx], list[swap]] = [list[swap], list[idx]];
-        await saveChats(list);
+        const updated = chatList.move(data.chats || [], id, dir);
+        if (updated !== (data.chats || [])) await saveChats(updated);
       });
     });
   });
@@ -141,15 +138,13 @@ document.getElementById('editSave').addEventListener('click', async () => {
   if (!name || !url) return;
   if (!icon) icon = await autoDetectFavicon(url) || `https://${new URL(url).hostname}/favicon.ico`;
   const data = await loadData();
-  const list = data.chats || [];
-  const target = list.find(c => c.id === editingId);
-  if (target) {
-    target.name = name;
-    target.url = url;
-    target.icon = icon;
+  try {
+    const updated = chatList.edit(data.chats || [], editingId, { name, url, icon });
+    await saveChats(updated);
+    closeEditModal();
+  } catch (e) {
+    alert(e.message);
   }
-  await saveChats(list);
-  closeEditModal();
 });
 
 document.getElementById('editCancel').addEventListener('click', closeEditModal);
@@ -172,28 +167,13 @@ function renderTemplates(chats) {
     btn.innerHTML = `<img src="${tpl.icon}" alt="" loading="lazy"> ${tpl.name}`;
     btn.addEventListener('click', async () => {
       const data = await loadData();
-      const list = data.chats || [];
-      if (list.some(c => c.url === tpl.url)) {
-        alert(`"${tpl.name}" 已在列表中`);
-        return;
-      }
-      list.push({
-        id: generateId(),
-        name: tpl.name,
-        url: tpl.url,
-        icon: tpl.icon,
-        enabled: true,
-      });
-      await saveChats(list);
-      const detected = await autoDetectFavicon(tpl.url);
-      if (detected && detected !== tpl.icon) {
-        const data2 = await loadData();
-        const list2 = data2.chats || [];
-        const target = list2.find(c => c.url === tpl.url);
-        if (target) {
-          target.icon = detected;
-          await chrome.storage.sync.set({ chats: list2 });
-        }
+      try {
+        const detected = await autoDetectFavicon(tpl.url);
+        const icon = detected || tpl.icon;
+        const updated = chatList.add(data.chats || [], { name: tpl.name, url: tpl.url, icon });
+        await saveChats(updated);
+      } catch (e) {
+        alert(e.message);
       }
     });
     container.appendChild(btn);
@@ -207,52 +187,6 @@ function renderTemplates(chats) {
       }
     });
   });
-}
-
-async function setFaviconSrc(img, iconUrl, siteUrl) {
-  try {
-    const origin = new URL(siteUrl).origin;
-    const resp = await fetch(iconUrl, { headers: { 'Referer': origin + '/' } });
-    if (!resp.ok) throw new Error();
-    const blob = await resp.blob();
-    img.src = URL.createObjectURL(blob);
-  } catch {
-    img.src = `https://www.google.com/s2/favicons?domain=${new URL(siteUrl).hostname}&sz=32`;
-  }
-}
-
-async function upgradeChatIcon(img, chat) {
-  const hostname = new URL(chat.url).hostname;
-  const googlePrefix = 'https://www.google.com/s2/favicons?domain=';
-
-  if (chat.icon.startsWith(googlePrefix)) return;
-
-  const origin = new URL(chat.url).origin;
-
-  try {
-    const resp = await fetch(chat.icon, {
-      signal: AbortSignal.timeout(3000),
-      headers: { 'Referer': origin + '/' }
-    });
-    if (resp.ok) {
-      const ct = resp.headers.get('Content-Type') || '';
-      if (!ct.startsWith('text/')) {
-        const blob = await resp.blob();
-        img.src = URL.createObjectURL(blob);
-        return;
-      }
-    }
-  } catch {}
-
-  const googleUrl = `${googlePrefix}${hostname}&sz=32`;
-  img.src = googleUrl;
-  const data = await loadData();
-  const list = data.chats || [];
-  const target = list.find(c => c.id === chat.id);
-  if (target) {
-    target.icon = googleUrl;
-    await chrome.storage.sync.set({ chats: list });
-  }
 }
 
 function renderSidebarSelect(chats, selected) {
@@ -289,57 +223,6 @@ function renderTheme(val) {
   if (select) select.value = val;
 }
 
-async function autoDetectFavicon(siteUrl) {
-  let url;
-  try { url = new URL(siteUrl); } catch { return ''; }
-  const origin = url.origin;
-
-  const htmlCandidates = [];
-  try {
-    const resp = await fetch(origin, { signal: AbortSignal.timeout(4000) });
-    if (resp.ok) {
-      const html = await resp.text();
-      const patterns = [
-        /<link[^>]+rel=["'](?:shortcut )?icon["'][^>]+href=["']([^"']+)["']/ig,
-        /<link[^>]+rel=["']apple-touch-icon["'][^>]+href=["']([^"']+)["']/ig,
-        /<link[^>]+href=["']([^"']+)["'][^>]+rel=["'](?:shortcut )?icon["']/ig,
-      ];
-      for (const pat of patterns) {
-        let m;
-        while ((m = pat.exec(html)) !== null) {
-          const href = m[1];
-          htmlCandidates.push(href.startsWith('http') ? href : new URL(href, origin).href);
-        }
-      }
-    }
-  } catch {}
-
-  const reqInit = { signal: AbortSignal.timeout(2000), headers: { 'Referer': origin + '/' } };
-  for (const c of htmlCandidates) {
-    try {
-      const r = await fetch(c, reqInit);
-      if (r.ok) {
-        const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
-        r.body?.cancel();
-      }
-    } catch {}
-  }
-
-  const fallbacks = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
-  for (const c of fallbacks) {
-    try {
-      const r = await fetch(c, reqInit);
-      if (r.ok) {
-        const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
-        r.body?.cancel();
-      }
-    } catch {}
-  }
-  return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
-}
-
 document.querySelectorAll('.btn-detect').forEach(btn => {
   btn.addEventListener('click', async () => {
     const targetId = btn.dataset.target;
@@ -366,23 +249,17 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
   const url = document.getElementById('addUrl').value.trim();
   let icon = document.getElementById('addIcon').value.trim();
   if (!icon) icon = await autoDetectFavicon(url) || `https://${new URL(url).hostname}/favicon.ico`;
-
   if (!name || !url) return;
-
   const data = await loadData();
-  const list = data.chats || [];
-
-  if (list.some(c => c.url === url)) {
-    alert('该 URL 已在列表中');
-    return;
+  try {
+    const updated = chatList.add(data.chats || [], { name, url, icon });
+    await saveChats(updated);
+    document.getElementById('addName').value = '';
+    document.getElementById('addUrl').value = '';
+    document.getElementById('addIcon').value = '';
+  } catch (e) {
+    alert(e.message);
   }
-
-  list.push({ id: generateId(), name, url, icon, enabled: true });
-  await saveChats(list);
-
-  document.getElementById('addName').value = '';
-  document.getElementById('addUrl').value = '';
-  document.getElementById('addIcon').value = '';
 });
 
 document.getElementById('btnSave').addEventListener('click', async () => {
@@ -394,7 +271,9 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const enabled = (data.chats || []).filter(c => c.enabled);
   const finalSidebar = sidebarChat || (enabled[0]?.id) || '';
 
-  await chrome.storage.sync.set({ columns, sidebarChat: finalSidebar, theme });
+  await store.set('columns', columns);
+  await store.set('sidebarChat', finalSidebar);
+  await store.set('theme', theme);
   applyTheme(theme);
 
   const status = document.getElementById('saveStatus');

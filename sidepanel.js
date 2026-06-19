@@ -14,7 +14,10 @@ const select = document.getElementById('chatSelect');
 const frame = document.getElementById('chatFrame');
 
 async function loadConfig() {
-  const { chats, sidebarChat } = await chrome.storage.sync.get(['chats', 'sidebarChat']);
+  const [chats, sidebarChat] = await Promise.all([
+    store.get('chats'),
+    store.get('sidebarChat'),
+  ]);
   allChats = chats || DEFAULT_CHATS;
   const enabled = allChats.filter(c => c.enabled);
 
@@ -55,7 +58,7 @@ function loadChatDirect(id) {
 
 select.addEventListener('change', () => {
   loadChatDirect(select.value);
-  chrome.storage.sync.set({ sidebarChat: select.value });
+  store.set('sidebarChat', select.value);
 });
 
 document.getElementById('btnExpand').addEventListener('click', async () => {
@@ -86,8 +89,7 @@ async function handleTabSwitch() {
 
 async function updateThemeSelect() {
   const sel = document.getElementById('themeSelect');
-  const { theme } = await chrome.storage.sync.get('theme');
-  sel.value = theme || 'system';
+  sel.value = await store.get('theme') || 'system';
 }
 
 async function init() {
@@ -98,19 +100,14 @@ async function init() {
   document.getElementById('themeSelect').addEventListener('change', async (e) => {
     await setTheme(e.target.value);
   });
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.theme) updateThemeSelect();
-  });
+  store.subscribe('theme', updateThemeSelect);
 
   ready = true;
 
   chrome.tabs.onActivated.addListener(handleTabSwitch);
 
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.chats || changes.sidebarChat) {
-      loadConfig();
-    }
-  });
+  store.subscribe('chats', loadConfig);
+  store.subscribe('sidebarChat', loadConfig);
 }
 
 init();

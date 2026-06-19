@@ -18,9 +18,9 @@ const screenDots = document.getElementById('screenDots');
 const cellCache = new Map();
 
 async function loadConfig() {
-  const data = await chrome.storage.sync.get(['chats', 'columns']);
-  chats = (data.chats || DEFAULT_CHATS).filter(c => c.enabled);
-  columns = data.columns || 2;
+  const saved = await store.get('chats');
+  chats = (saved || DEFAULT_CHATS).filter(c => c.enabled);
+  columns = await store.get('columns') || 2;
 }
 
 function getEffectiveColumns() {
@@ -104,41 +104,6 @@ function bindImgError(container) {
       if (chat) upgradeIcon(img, chat);
     });
   });
-}
-
-async function upgradeIcon(img, chat) {
-  const hostname = new URL(chat.url).hostname;
-  const googlePrefix = 'https://www.google.com/s2/favicons?domain=';
-
-  if (chat.icon.startsWith(googlePrefix)) return;
-
-  const origin = new URL(chat.url).origin;
-
-  try {
-    const resp = await fetch(chat.icon, {
-      signal: AbortSignal.timeout(3000),
-      headers: { 'Referer': origin + '/' }
-    });
-    if (resp.ok) {
-      const ct = resp.headers.get('Content-Type') || '';
-      if (!ct.startsWith('text/')) {
-        const blob = await resp.blob();
-        img.src = URL.createObjectURL(blob);
-        return;
-      }
-    }
-  } catch {}
-
-  const googleUrl = `${googlePrefix}${hostname}&sz=32`;
-  img.src = googleUrl;
-  try {
-    const { chats: saved } = await chrome.storage.sync.get('chats');
-    const target = saved?.find(c => c.id === chat.id);
-    if (target) {
-      target.icon = googleUrl;
-      await chrome.storage.sync.set({ chats: saved });
-    }
-  } catch {}
 }
 
 function render() {
@@ -255,11 +220,8 @@ async function init() {
     }
   });
 
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.chats || changes.columns) {
-      loadConfig().then(render);
-    }
-  });
+  store.subscribe('chats', () => loadConfig().then(render));
+  store.subscribe('columns', () => loadConfig().then(render));
 }
 
 init();

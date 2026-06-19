@@ -1,70 +1,19 @@
-async function autoDetectFavicon(siteUrl) {
-  let url;
-  try { url = new URL(siteUrl); } catch { return ''; }
-  const origin = url.origin;
-
-  const htmlCandidates = [];
-  try {
-    const resp = await fetch(origin, { signal: AbortSignal.timeout(4000) });
-    if (resp.ok) {
-      const html = await resp.text();
-      const patterns = [
-        /<link[^>]+rel=["'](?:shortcut )?icon["'][^>]+href=["']([^"']+)["']/ig,
-        /<link[^>]+rel=["']apple-touch-icon["'][^>]+href=["']([^"']+)["']/ig,
-        /<link[^>]+href=["']([^"']+)["'][^>]+rel=["'](?:shortcut )?icon["']/ig,
-      ];
-      for (const pat of patterns) {
-        let m;
-        while ((m = pat.exec(html)) !== null) {
-          const href = m[1];
-          htmlCandidates.push(href.startsWith('http') ? href : new URL(href, origin).href);
-        }
-      }
-    }
-  } catch {}
-
-  const reqInit = { signal: AbortSignal.timeout(2000), headers: { 'Referer': origin + '/' } };
-  for (const c of htmlCandidates) {
-    try {
-      const r = await fetch(c, reqInit);
-      if (r.ok) {
-        const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
-        r.body?.cancel();
-      }
-    } catch {}
-  }
-
-  const fallbacks = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
-  for (const c of fallbacks) {
-    try {
-      const r = await fetch(c, reqInit);
-      if (r.ok) {
-        const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
-        r.body?.cancel();
-      }
-    } catch {}
-  }
-  return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
-}
+importScripts('store.js');
 
 chrome.runtime.onInstalled.addListener(async () => {
-  const { chats } = await chrome.storage.sync.get('chats');
+  const chats = await store.get('chats');
   if (!chats) {
     const defaults = [
-      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chat.openai.com',        enabled: true },
-      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       enabled: true },
-      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               enabled: true },
-      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        enabled: false },
-      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     enabled: false },
+      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chat.openai.com',        icon: 'https://chat.openai.com/favicon.ico',    enabled: true },
+      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico',   enabled: true },
+      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico',           enabled: true },
+      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false },
+      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false },
     ];
-    const icons = await Promise.all(defaults.map(d => autoDetectFavicon(d.url)));
-    const withIcons = defaults.map((d, i) => ({
-      ...d,
-      icon: icons[i] || `https://${new URL(d.url).hostname}/favicon.ico`,
-    }));
-    await chrome.storage.sync.set({ chats: withIcons, columns: 2, sidebarChat: 'chatgpt', theme: 'system' });
+    await store.set('chats', defaults);
+    await store.set('columns', 2);
+    await store.set('sidebarChat', 'chatgpt');
+    await store.set('theme', 'system');
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
