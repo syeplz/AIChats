@@ -2,11 +2,10 @@ async function autoDetectFavicon(siteUrl) {
   let url;
   try { url = new URL(siteUrl); } catch { return ''; }
   const origin = url.origin;
-
-  const probes = [
-    fetch(origin, { signal: AbortSignal.timeout(4000) }).then(async r => {
-      if (!r.ok) throw new Error();
-      const html = await r.text();
+  try {
+    const resp = await fetch(origin, { signal: AbortSignal.timeout(4000) });
+    if (resp.ok) {
+      const html = await resp.text();
       const patterns = [
         /<link[^>]+rel=["'](?:shortcut )?icon["'][^>]+href=["']([^"']+)["']/i,
         /<link[^>]+rel=["']apple-touch-icon["'][^>]+href=["']([^"']+)["']/i,
@@ -19,21 +18,16 @@ async function autoDetectFavicon(siteUrl) {
           return href.startsWith('http') ? href : new URL(href, origin).href;
         }
       }
-      throw new Error();
-    }),
-    ...(['/favicon.ico', '/favicon.svg', '/favicon-32x32.png', '/favicon.png', '/apple-touch-icon.png'].map(p =>
-      fetch(origin + p, { method: 'HEAD', signal: AbortSignal.timeout(2000) }).then(r => {
-        if (!r.ok) throw new Error();
-        return origin + p;
-      })
-    )),
-  ];
-
-  try {
-    return await Promise.any(probes);
-  } catch {
-    return '';
+    }
+  } catch {}
+  const candidates = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
+  for (const c of candidates) {
+    try {
+      const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
+      if (r.ok) return c;
+    } catch {}
   }
+  return '';
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
