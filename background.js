@@ -46,7 +46,7 @@ async function autoDetectFavicon(siteUrl) {
       }
     } catch {}
   }
-  return '';
+  return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
 }
 
 chrome.runtime.onInstalled.addListener(async () => {

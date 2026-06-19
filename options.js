@@ -6,7 +6,7 @@ const TEMPLATES = [
   { name: '豆包',          url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico' },
   { name: 'Gemini',       url: 'https://gemini.google.com',       icon: 'https://gemini.google.com/favicon.ico' },
   { name: 'Perplexity',   url: 'https://www.perplexity.ai',       icon: 'https://www.perplexity.ai/favicon.ico' },
-  { name: 'Grok',         url: 'https://grok.com',                icon: 'https://grok.com/images/favicon.ico' },
+  { name: 'Grok',         url: 'https://grok.com',                icon: 'https://www.google.com/s2/favicons?domain=grok.com&sz=32' },
   { name: '通义千问',      url: 'https://tongyi.aliyun.com',       icon: 'https://tongyi.aliyun.com/favicon.ico' },
   { name: '文心一言',      url: 'https://yiyan.baidu.com',         icon: 'https://yiyan.baidu.com/favicon.ico' },
 ];
@@ -210,7 +210,7 @@ async function setFaviconSrc(img, iconUrl, siteUrl) {
     const blob = await resp.blob();
     img.src = URL.createObjectURL(blob);
   } catch {
-    img.src = iconUrl;
+    img.src = `https://www.google.com/s2/favicons?domain=${new URL(siteUrl).hostname}&sz=32`;
   }
 }
 
@@ -296,7 +296,7 @@ async function autoDetectFavicon(siteUrl) {
       }
     } catch {}
   }
-  return '';
+  return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
 }
 
 document.querySelectorAll('.btn-detect').forEach(btn => {
