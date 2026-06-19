@@ -211,6 +211,7 @@ function updateActiveDot() {
   dots.forEach((dot, i) => dot.classList.toggle('active', i === screenIndex));
 }
 
+let savedScrollTop = 0;
 let scrollTicking = false;
 function onGalleryScroll() {
   if (!scrollTicking) {
@@ -234,9 +235,17 @@ async function init() {
   await loadConfig();
   await initTheme();
   render();
+  gallery.scrollTop = 0;
 
   window.addEventListener('resize', onResize);
   gallery.addEventListener('scroll', onGalleryScroll);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      savedScrollTop = gallery.scrollTop;
+    } else {
+      gallery.scrollTop = savedScrollTop;
+    }
+  });
 
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.chats || changes.columns) {
