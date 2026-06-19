@@ -11,5 +11,5 @@
     </linearGradient>
   </defs>
   <rect x="10" y="10" width="108" height="108" rx="26" ry="26" fill="url(#bg)" stroke="#2a2a36" stroke-width="1.5"/>
-  <text x="64" y="82" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="66" font-weight="bold" fill="url(#txt)" text-anchor="middle" letter-spacing="1">AI</text>
+  <text x="64" y="87" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="66" font-weight="bold" fill="url(#txt)" text-anchor="middle" letter-spacing="1">AI</text>
 </svg>
