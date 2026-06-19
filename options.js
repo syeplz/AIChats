@@ -42,7 +42,10 @@ async function render() {
 
 async function saveChats(chats) {
   await store.set('chats', chats);
-  render();
+  const sidebarChat = await store.get('sidebarChat') || (chats.find(c => c.enabled)?.id || '');
+  renderChatList(chats);
+  renderSidebarSelect(chats, sidebarChat);
+  renderTemplates(chats);
 }
 
 function renderChatList(chats) {
@@ -263,18 +266,18 @@ function renderPrompts(prompts) {
       if (!confirm(_('options_promptsConfirmDelete', [resolved.label]))) return;
       const id = e.target.dataset.pid;
       const data = await loadData();
-      const prompts = (data.prompts || []).filter(x => x.id !== id);
-      await store.set('prompts', prompts);
-      render();
+      const updated = (data.prompts || []).filter(x => x.id !== id);
+      await store.set('prompts', updated);
+      renderPrompts(updated);
     });
 
     item.querySelector('.chat-toggle input').addEventListener('change', async (e) => {
       const id = e.target.dataset.pid;
       const checked = e.target.checked;
       const data = await loadData();
-      const prompts = (data.prompts || []).map(x => x.id === id ? { ...x, enabled: checked } : x);
-      await store.set('prompts', prompts);
-      render();
+      const updated = (data.prompts || []).map(x => x.id === id ? { ...x, enabled: checked } : x);
+      await store.set('prompts', updated);
+      renderPrompts(updated);
     });
 
     item.querySelector('.btn-edit').addEventListener('click', () => {
@@ -286,14 +289,14 @@ function renderPrompts(prompts) {
         const id = e.currentTarget.dataset.pid;
         const dir = e.currentTarget.dataset.dir;
         const data = await loadData();
-        const prompts = [...(data.prompts || [])];
-        const idx = prompts.findIndex(x => x.id === id);
+        const updated = [...(data.prompts || [])];
+        const idx = updated.findIndex(x => x.id === id);
         if (idx === -1) return;
         const targetIdx = dir === 'up' ? idx - 1 : idx + 1;
-        if (targetIdx < 0 || targetIdx >= prompts.length) return;
-        [prompts[idx], prompts[targetIdx]] = [prompts[targetIdx], prompts[idx]];
-        await store.set('prompts', prompts);
-        render();
+        if (targetIdx < 0 || targetIdx >= updated.length) return;
+        [updated[idx], updated[targetIdx]] = [updated[targetIdx], updated[idx]];
+        await store.set('prompts', updated);
+        renderPrompts(updated);
       });
     });
 
@@ -321,12 +324,12 @@ document.getElementById('promptEditSave').addEventListener('click', async () => 
   const content = document.getElementById('promptEditContent').value.trim();
   if (!label || !content) return;
   const data = await loadData();
-  const prompts = (data.prompts || []).map(p =>
+  const updated = (data.prompts || []).map(p =>
     p.id === promptEditingId ? { ...p, label, content, isDefault: false } : p
   );
-  await store.set('prompts', prompts);
+  await store.set('prompts', updated);
   closePromptEditModal();
-  render();
+  renderPrompts(updated);
 });
 
 document.getElementById('promptEditCancel').addEventListener('click', closePromptEditModal);
@@ -348,7 +351,7 @@ document.getElementById('promptAddBtn').addEventListener('click', async () => {
   await store.set('prompts', prompts);
   document.getElementById('promptAddLabel').value = '';
   document.getElementById('promptAddContent').value = '';
-  render();
+  renderPrompts(prompts);
 });
 
 function escapeHtml(str) {
