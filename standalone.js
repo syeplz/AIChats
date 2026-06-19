@@ -41,6 +41,7 @@ function createCellElement(chat) {
         ${chat.name}
       </div>
       <div class="cell-actions">
+        <button class="btn-refresh" title="刷新当前聊天站"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 2 22 8 16 8"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L22 8"/><circle cx="12" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg></button>
         <button title="在新标签页打开" data-url="${chat.url}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
       </div>
     </div>
@@ -169,6 +170,13 @@ function render() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       chrome.tabs.create({ url: btn.dataset.url });
+    });
+  });
+  document.querySelectorAll('.cell-actions .btn-refresh').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const iframe = btn.closest('.cell').querySelector('iframe');
+      if (iframe) iframe.src = iframe.src;
     });
   });
   document.querySelectorAll('.cell-overlay button[data-url]').forEach(btn => {
