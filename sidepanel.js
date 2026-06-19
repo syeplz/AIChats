@@ -42,7 +42,6 @@ async function loadConfig() {
   });
 
   select.value = targetId;
-  currentChatId = targetId;
   loadChatDirect(targetId);
 }
 
