@@ -226,7 +226,7 @@
     "description": "Prompts add form: label placeholder"
   },
   "options_promptsAddContent": {
-    "message": "提示内容，支持 {url} 和 {title} 变量",
+    "message": "提示内容，支持 {url}、{title} 和 {clipboard} 变量",
     "description": "Prompts add form: content placeholder"
   },
   "options_promptsAddBtn": {

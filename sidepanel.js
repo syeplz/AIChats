@@ -107,10 +107,14 @@ async function renderChips(prompts) {
     chip.className = 'chip';
     chip.textContent = p.label;
     chip.addEventListener('click', async () => {
+      let clipboardText = '';
+      try {
+        clipboardText = await navigator.clipboard.readText();
+      } catch {}
       const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
       const url = tab?.url || '';
       const title = tab?.title || '';
-      const text = p.content.replace(/\{url\}/g, url).replace(/\{title\}/g, title);
+      const text = p.content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText);
       try {
         await navigator.clipboard.writeText(text);
       } catch {

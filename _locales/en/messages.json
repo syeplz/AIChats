@@ -226,7 +226,7 @@
     "description": "Prompts add form: label placeholder"
   },
   "options_promptsAddContent": {
-    "message": "Prompt content — supports {url} and {title}",
+    "message": "Prompt content — supports {url}, {title} and {clipboard}",
     "description": "Prompts add form: content placeholder"
   },
   "options_promptsAddBtn": {

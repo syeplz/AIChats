@@ -8,7 +8,8 @@
     "storage",
     "sidePanel",
     "declarativeNetRequest",
-    "tabs"
+    "tabs",
+    "clipboardRead"
   ],
   "host_permissions": [
     "<all_urls>"
