@@ -60,6 +60,7 @@ select.addEventListener('change', () => {
 
 document.getElementById('btnExpand').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('standalone.html') });
+  window.close();
 });
 
 document.getElementById('btnSettings').addEventListener('click', () => {
