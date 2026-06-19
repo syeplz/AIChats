@@ -60,10 +60,11 @@ select.addEventListener('change', () => {
 
 document.getElementById('btnExpand').addEventListener('click', async () => {
   const url = chrome.runtime.getURL('standalone.html');
-  const tabs = await chrome.tabs.query({ url });
-  if (tabs.length > 0) {
-    await chrome.tabs.update(tabs[0].id, { active: true });
-    await chrome.windows.update(tabs[0].windowId, { focused: true });
+  const allTabs = await chrome.tabs.query({});
+  const existing = allTabs.find(t => t.url === url);
+  if (existing) {
+    await chrome.tabs.update(existing.id, { active: true });
+    await chrome.windows.update(existing.windowId, { focused: true });
   } else {
     await chrome.tabs.create({ url });
   }
