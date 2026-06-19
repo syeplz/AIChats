@@ -249,6 +249,14 @@
     "message": "请分析以下内容：{clipboard}",
     "description": "Default prompt: analyze clipboard content"
   },
+  "prompts_p_translate_label": {
+    "message": "翻译剪贴板",
+    "description": "Default prompt: translate clipboard label"
+  },
+  "prompts_p_translate_content": {
+    "message": "请将以下内容翻译成中文：{clipboard}",
+    "description": "Default prompt: translate clipboard content"
+  },
 
   "options_promptsSection": {
     "message": "快捷提示",

@@ -249,6 +249,14 @@
     "message": "Analyze the following content: {clipboard}",
     "description": "Default prompt: analyze clipboard content"
   },
+  "prompts_p_translate_label": {
+    "message": "Translate clipboard",
+    "description": "Default prompt: translate clipboard label"
+  },
+  "prompts_p_translate_content": {
+    "message": "Translate the following content into English: {clipboard}",
+    "description": "Default prompt: translate clipboard content"
+  },
 
   "options_promptsSection": {
     "message": "Quick Prompts",

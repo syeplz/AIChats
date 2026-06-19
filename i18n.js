@@ -35,7 +35,7 @@ function translatePage() {
   });
 }
 
-const DEFAULT_PROMPT_IDS = new Set(['p_intro', 'p_summarize', 'p_whatis', 'p_clipboard']);
+const DEFAULT_PROMPT_IDS = new Set(['p_intro', 'p_summarize', 'p_whatis', 'p_clipboard', 'p_translate']);
 
 function localizePrompt(p) {
   if (!p.isDefault) return p;

@@ -19,6 +19,7 @@ chrome.runtime.onInstalled.addListener(async () => {
       { id: 'p_summarize', isDefault: true, label: '总结一下', content: '请总结 {title} ({url}) 的核心内容。' },
       { id: 'p_whatis', isDefault: true, label: '这个 URL 是什么', content: '请解释 {url} 这个页面是关于什么的，以及它的核心功能和使用场景。' },
       { id: 'p_clipboard', isDefault: true, label: '分析剪贴板', content: '请分析以下内容：{clipboard}' },
+      { id: 'p_translate', isDefault: true, label: '翻译剪贴板', content: '请将以下内容翻译成中文：{clipboard}' },
     ]);
   }
   if (!(await store.get('prompts'))) {
@@ -27,6 +28,7 @@ chrome.runtime.onInstalled.addListener(async () => {
       { id: 'p_summarize', isDefault: true, label: '总结一下', content: '请总结 {title} ({url}) 的核心内容。' },
       { id: 'p_whatis', isDefault: true, label: '这个 URL 是什么', content: '请解释 {url} 这个页面是关于什么的，以及它的核心功能和使用场景。' },
       { id: 'p_clipboard', isDefault: true, label: '分析剪贴板', content: '请分析以下内容：{clipboard}' },
+      { id: 'p_translate', isDefault: true, label: '翻译剪贴板', content: '请将以下内容翻译成中文：{clipboard}' },
     ]);
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
