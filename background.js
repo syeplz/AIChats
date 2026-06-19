@@ -26,7 +26,10 @@ async function autoDetectFavicon(siteUrl) {
   for (const c of htmlCandidates) {
     try {
       const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
-      if (r.ok) return c;
+      if (r.ok) {
+        const ct = r.headers.get('Content-Type') || '';
+        if (!ct.startsWith('text/')) return c;
+      }
     } catch {}
   }
 
@@ -34,7 +37,10 @@ async function autoDetectFavicon(siteUrl) {
   for (const c of fallbacks) {
     try {
       const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
-      if (r.ok) return c;
+      if (r.ok) {
+        const ct = r.headers.get('Content-Type') || '';
+        if (!ct.startsWith('text/')) return c;
+      }
     } catch {}
   }
   return '';
