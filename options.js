@@ -11,6 +11,8 @@ const TEMPLATES = [
   { name: '文心一言',      url: 'https://yiyan.baidu.com',         icon: 'https://yiyan.baidu.com/favicon.ico' },
 ];
 
+let editingId = null;
+
 function generateId() {
   return 'chat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
 }
@@ -33,6 +35,11 @@ async function render() {
   renderTheme(theme);
 }
 
+async function saveChats(chats) {
+  await chrome.storage.sync.set({ chats });
+  render();
+}
+
 function renderChatList(chats) {
   const list = document.getElementById('chatList');
   list.innerHTML = '';
@@ -42,13 +49,15 @@ function renderChatList(chats) {
     return;
   }
 
-  chats.forEach(chat => {
+  chats.forEach((chat, i) => {
     const item = document.createElement('div');
     item.className = `chat-item${chat.enabled ? ' enabled' : ''}`;
 
     const firstChar = chat.name.charAt(0);
 
     item.innerHTML = `
+      <button class="btn-move" data-id="${chat.id}" data-dir="up" ${i === 0 ? 'disabled' : ''}>↑</button>
+      <button class="btn-move" data-id="${chat.id}" data-dir="down" ${i === chats.length - 1 ? 'disabled' : ''}>↓</button>
       <label class="chat-toggle">
         <input type="checkbox" ${chat.enabled ? 'checked' : ''} data-id="${chat.id}">
         <span class="slider"></span>
@@ -66,46 +75,84 @@ function renderChatList(chats) {
 
     list.appendChild(item);
 
-    // Enable toggle
     item.querySelector('.chat-toggle input').addEventListener('change', async (e) => {
       const data = await loadData();
       const list = data.chats || [];
       const target = list.find(c => c.id === e.target.dataset.id);
       if (target) target.enabled = e.target.checked;
-      await chrome.storage.sync.set({ chats: list });
-      render();
+      await saveChats(list);
     });
 
-    // Delete
     item.querySelector('.btn-danger').addEventListener('click', async (e) => {
       if (!confirm(`确定删除 "${chat.name}"？`)) return;
       const data = await loadData();
       const list = data.chats || [];
       const filtered = list.filter(c => c.id !== e.target.dataset.id);
-      await chrome.storage.sync.set({ chats: filtered });
-      render();
+      await saveChats(filtered);
     });
 
-    // Edit
     item.querySelector('.btn-edit').addEventListener('click', () => {
-      const name = prompt('名称:', chat.name);
-      if (!name) return;
-      const url = prompt('URL:', chat.url);
-      if (!url) return;
-      const icon = prompt('图标 URL (可选):', chat.icon) || chat.icon;
-      loadData().then(data => {
+      openEditModal(chat);
+    });
+
+    item.querySelectorAll('.btn-move').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.dataset.id;
+        const dir = e.currentTarget.dataset.dir;
+        const data = await loadData();
         const list = data.chats || [];
-        const target = list.find(c => c.id === chat.id);
-        if (target) {
-          target.name = name;
-          target.url = url;
-          target.icon = icon;
-        }
-        chrome.storage.sync.set({ chats: list }).then(render);
+        const idx = list.findIndex(c => c.id === id);
+        if (idx === -1) return;
+        const swap = dir === 'up' ? idx - 1 : idx + 1;
+        if (swap < 0 || swap >= list.length) return;
+        [list[idx], list[swap]] = [list[swap], list[idx]];
+        await saveChats(list);
       });
     });
   });
 }
+
+function openEditModal(chat) {
+  editingId = chat.id;
+  document.getElementById('editName').value = chat.name;
+  document.getElementById('editUrl').value = chat.url;
+  document.getElementById('editIcon').value = chat.icon;
+  document.getElementById('editModal').hidden = false;
+  document.getElementById('editName').focus();
+}
+
+function closeEditModal() {
+  editingId = null;
+  document.getElementById('editModal').hidden = true;
+}
+
+document.getElementById('editSave').addEventListener('click', async () => {
+  if (!editingId) return;
+  const name = document.getElementById('editName').value.trim();
+  const url = document.getElementById('editUrl').value.trim();
+  const icon = document.getElementById('editIcon').value.trim();
+  if (!name || !url) return;
+  const data = await loadData();
+  const list = data.chats || [];
+  const target = list.find(c => c.id === editingId);
+  if (target) {
+    target.name = name;
+    target.url = url;
+    target.icon = icon || `https://${new URL(url).hostname}/favicon.ico`;
+  }
+  await saveChats(list);
+  closeEditModal();
+});
+
+document.getElementById('editCancel').addEventListener('click', closeEditModal);
+
+document.getElementById('editModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeEditModal();
+});
+
+document.getElementById('editModal').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeEditModal();
+});
 
 function renderTemplates(chats) {
   const container = document.getElementById('templates');
@@ -129,8 +176,7 @@ function renderTemplates(chats) {
         icon: tpl.icon,
         enabled: true,
       });
-      await chrome.storage.sync.set({ chats: list });
-      render();
+      await saveChats(list);
     });
     container.appendChild(btn);
   });
@@ -187,13 +233,11 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
   }
 
   list.push({ id: generateId(), name, url, icon, enabled: true });
-  await chrome.storage.sync.set({ chats: list });
+  await saveChats(list);
 
   document.getElementById('addName').value = '';
   document.getElementById('addUrl').value = '';
   document.getElementById('addIcon').value = '';
-
-  await render();
 });
 
 document.getElementById('btnSave').addEventListener('click', async () => {
