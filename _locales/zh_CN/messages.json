@@ -290,5 +290,9 @@
   "sidepanel_promptCopied": {
     "message": "已复制！",
     "description": "Chip copy feedback tooltip/text"
+  },
+  "permission_required": {
+    "message": "需要权限才能嵌入此网站",
+    "description": "Alert when user denies permission request for a new domain"
   }
 }

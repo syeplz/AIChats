@@ -5,7 +5,7 @@
   "default_locale": "zh_CN",
   "description": "__MSG_appDesc__",
   "host_permissions": [
-    "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
     "https://chat.deepseek.com/*",
     "https://claude.ai/*",
     "https://kimi.moonshot.cn/*",
@@ -15,6 +15,10 @@
     "https://grok.com/*",
     "https://www.qianwen.com/*",
     "https://yiyan.baidu.com/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
   ],
   "permissions": [
     "storage",

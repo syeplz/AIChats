@@ -1,5 +1,5 @@
 const DEFAULT_CHATS = [
-  { id: 'chatgpt',  name: 'ChatGPT',  url: 'https://chat.openai.com',        icon: 'https://www.google.com/s2/favicons?domain=chat.openai.com&sz=32',    enabled: true },
+  { id: 'chatgpt',  name: 'ChatGPT',  url: 'https://chatgpt.com',            icon: 'https://www.google.com/s2/favicons?domain=chatgpt.com&sz=32',        enabled: true },
   { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com',       icon: 'https://www.google.com/s2/favicons?domain=chat.deepseek.com&sz=32',   enabled: true },
   { id: 'claude',   name: 'Claude',   url: 'https://claude.ai',               icon: 'https://www.google.com/s2/favicons?domain=claude.ai&sz=32',           enabled: true },
   { id: 'kimi',     name: 'Kimi',     url: 'https://kimi.moonshot.cn',        icon: 'https://www.google.com/s2/favicons?domain=kimi.moonshot.cn&sz=32',    enabled: false },

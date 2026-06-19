@@ -1,5 +1,5 @@
 const TEMPLATES = [
-  { name: 'ChatGPT',      url: 'https://chat.openai.com',        icon: 'https://chat.openai.com/favicon.ico' },
+  { name: 'ChatGPT',      url: 'https://chatgpt.com',            icon: 'https://chatgpt.com/favicon.ico' },
   { name: 'DeepSeek',     url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico' },
   { name: 'Claude',       url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico' },
   { name: 'Kimi',         url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico' },
@@ -142,8 +142,10 @@ document.getElementById('editSave').addEventListener('click', async () => {
   const url = document.getElementById('editUrl').value.trim();
   let icon = document.getElementById('editIcon').value.trim();
   if (!name || !url) return;
-  if (!icon) icon = await autoDetectFavicon(url) || `https://${new URL(url).hostname}/favicon.ico`;
   const data = await loadData();
+  const current = (data.chats || []).find(c => c.id === editingId);
+  if (current && current.url !== url && !await requestHostPermission(url)) return;
+  if (!icon) icon = await autoDetectFavicon(url) || `https://${new URL(url).hostname}/favicon.ico`;
   try {
     const updated = chatList.edit(data.chats || [], editingId, { name, url, icon });
     await saveChats(updated);
@@ -367,6 +369,7 @@ document.querySelectorAll('.btn-detect').forEach(btn => {
     const urlInput = targetId === 'addIcon' ? document.getElementById('addUrl') : document.getElementById('editUrl');
     const siteUrl = urlInput.value.trim();
     if (!siteUrl) { input.value = ''; return; }
+    if (!await requestHostPermission(siteUrl)) return;
     btn.disabled = true;
     btn.textContent = _('common_detecting');
     const iconUrl = await autoDetectFavicon(siteUrl);
@@ -384,9 +387,10 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = document.getElementById('addName').value.trim();
   const url = document.getElementById('addUrl').value.trim();
+  if (!name || !url) return;
+  if (!await requestHostPermission(url)) return;
   let icon = document.getElementById('addIcon').value.trim();
   if (!icon) icon = await autoDetectFavicon(url) || `https://${new URL(url).hostname}/favicon.ico`;
-  if (!name || !url) return;
   const data = await loadData();
   try {
     const updated = chatList.add(data.chats || [], { name, url, icon });
@@ -418,6 +422,21 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   status.className = 'save-status';
   setTimeout(() => { status.textContent = ''; }, 2000);
 });
+
+async function requestHostPermission(url) {
+  try {
+    const u = new URL(url);
+    const pattern = u.origin + '/*';
+    const has = await chrome.permissions.contains({ origins: [pattern] });
+    if (has) return true;
+    const granted = await chrome.permissions.request({ origins: [pattern] });
+    if (!granted) alert(_('permission_required'));
+    return granted;
+  } catch (e) {
+    console.error('requestHostPermission error:', e);
+    return false;
+  }
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   await initI18n();
