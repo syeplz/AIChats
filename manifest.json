@@ -4,6 +4,18 @@
   "version": "1.0.0",
   "default_locale": "zh_CN",
   "description": "__MSG_appDesc__",
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://chat.deepseek.com/*",
+    "https://claude.ai/*",
+    "https://kimi.moonshot.cn/*",
+    "https://www.doubao.com/*",
+    "https://gemini.google.com/*",
+    "https://www.perplexity.ai/*",
+    "https://grok.com/*",
+    "https://www.qianwen.com/*",
+    "https://yiyan.baidu.com/*"
+  ],
   "permissions": [
     "storage",
     "sidePanel",
