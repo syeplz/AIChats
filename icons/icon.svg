@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1a1a24"/>
-      <stop offset="100%" stop-color="#0a0a0f"/>
+      <stop offset="0%" stop-color="#141418"/>
+      <stop offset="100%" stop-color="#090a0d"/>
     </linearGradient>
     <linearGradient id="txt" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f87171"/>
-      <stop offset="40%" stop-color="#dc2626"/>
-      <stop offset="100%" stop-color="#991b1b"/>
+      <stop offset="0%" stop-color="#87c99a"/>
+      <stop offset="35%" stop-color="#518463"/>
+      <stop offset="100%" stop-color="#3a6047"/>
     </linearGradient>
   </defs>
-  <rect x="10" y="10" width="108" height="108" rx="26" ry="26" fill="url(#bg)" stroke="#2a2a36" stroke-width="1.5"/>
+  <rect x="10" y="10" width="108" height="108" rx="26" ry="26" fill="url(#bg)" stroke="#1e1e24" stroke-width="1.5"/>
   <text x="64" y="87" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="66" font-weight="bold" fill="url(#txt)" text-anchor="middle" letter-spacing="1">AI</text>
 </svg>
