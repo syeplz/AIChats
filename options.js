@@ -162,7 +162,19 @@ function renderTemplates(chats) {
   TEMPLATES.forEach(tpl => {
     const btn = document.createElement('button');
     btn.className = 'template-btn';
-    btn.innerHTML = `<img src="${tpl.icon}" alt="" loading="lazy"> ${tpl.name}`;
+    const img = document.createElement('img');
+    img.src = tpl.icon;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.addEventListener('error', () => {
+      if (img.dataset.retried) return;
+      img.dataset.retried = '1';
+      autoDetectFavicon(tpl.url).then(detected => {
+        if (detected) img.src = detected;
+      });
+    });
+    btn.appendChild(img);
+    btn.appendChild(document.createTextNode(' ' + tpl.name));
     btn.addEventListener('click', async () => {
       const data = await loadData();
       const list = data.chats || [];
@@ -241,10 +253,10 @@ async function autoDetectFavicon(siteUrl) {
   try { url = new URL(siteUrl); } catch { return ''; }
   const origin = url.origin;
 
-  try {
-    const resp = await fetch(origin, { signal: AbortSignal.timeout(4000) });
-    if (resp.ok) {
-      const html = await resp.text();
+  const probes = [
+    fetch(origin, { signal: AbortSignal.timeout(4000) }).then(async r => {
+      if (!r.ok) throw new Error();
+      const html = await r.text();
       const patterns = [
         /<link[^>]+rel=["'](?:shortcut )?icon["'][^>]+href=["']([^"']+)["']/i,
         /<link[^>]+rel=["']apple-touch-icon["'][^>]+href=["']([^"']+)["']/i,
@@ -257,17 +269,21 @@ async function autoDetectFavicon(siteUrl) {
           return href.startsWith('http') ? href : new URL(href, origin).href;
         }
       }
-    }
-  } catch {}
+      throw new Error();
+    }),
+    ...(['/favicon.ico', '/favicon.svg', '/favicon-32x32.png', '/favicon.png', '/apple-touch-icon.png'].map(p =>
+      fetch(origin + p, { method: 'HEAD', signal: AbortSignal.timeout(2000) }).then(r => {
+        if (!r.ok) throw new Error();
+        return origin + p;
+      })
+    )),
+  ];
 
-  const candidates = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
-  for (const c of candidates) {
-    try {
-      const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
-      if (r.ok) return c;
-    } catch {}
+  try {
+    return await Promise.any(probes);
+  } catch {
+    return '';
   }
-  return '';
 }
 
 document.querySelectorAll('.btn-detect').forEach(btn => {
