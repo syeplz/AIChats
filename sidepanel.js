@@ -59,7 +59,7 @@ select.addEventListener('change', () => {
 });
 
 document.getElementById('btnExpand').addEventListener('click', async () => {
-  chrome.runtime.sendMessage({ action: 'openStandalone' });
+  await chrome.runtime.sendMessage({ action: 'openStandalone' });
   window.close();
 });
 
@@ -79,10 +79,7 @@ async function handleTabSwitch() {
   const enabled = allChats.filter(c => c.enabled);
   const matched = enabled.find(c => tab.url.startsWith(c.url));
 
-  if (matched) {
-    select.value = matched.id;
-    loadChatDirect(matched.id);
-  } else {
+  if (!matched) {
     window.close();
   }
 }
@@ -104,17 +101,6 @@ async function init() {
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.theme) updateThemeSelect();
   });
-
-  // On initial open, load the chat matching current tab, if any
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (tab?.url) {
-    const enabled = allChats.filter(c => c.enabled);
-    const matched = enabled.find(c => tab.url.startsWith(c.url));
-    if (matched) {
-      select.value = matched.id;
-      loadChatDirect(matched.id);
-    }
-  }
 
   ready = true;
 

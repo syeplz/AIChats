@@ -11,7 +11,6 @@ const MIN_CELL_WIDTH = 380;
 let chats = [];
 let columns = 2;
 let currentPage = 0;
-let newTabOverride = true;
 let currentCols = 0;
 
 const track = document.getElementById('track');
@@ -25,10 +24,9 @@ const disabledMsg = document.getElementById('disabledMessage');
 const cellCache = new Map();
 
 async function loadConfig() {
-  const data = await chrome.storage.sync.get(['chats', 'columns', 'newTabOverride']);
+  const data = await chrome.storage.sync.get(['chats', 'columns']);
   chats = (data.chats || DEFAULT_CHATS).filter(c => c.enabled);
   columns = data.columns || 2;
-  newTabOverride = data.newTabOverride !== false;
 }
 
 function getEffectiveColumns() {
@@ -113,16 +111,10 @@ function layoutPages() {
   }
 
   track.style.transition = 'none';
-  track.style.transform = `translateX(-${currentPage * 100}%)`;
+  track.style.transform = `translateX(-${currentPage * 100}vw)`;
 }
 
 function render() {
-  if (!newTabOverride) {
-    app.hidden = true;
-    disabledMsg.hidden = false;
-    return;
-  }
-
   if (chats.length === 0) {
     app.hidden = false;
     disabledMsg.hidden = true;
@@ -212,14 +204,15 @@ function bindCellEvents() {
 }
 
 function goToPage(index) {
+  const cols = getEffectiveColumns();
   const pages = totalPages();
   if (index < 0) index = 0;
   if (index >= pages) index = pages - 1;
   if (index === currentPage) return;
   currentPage = index;
   track.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-  track.style.transform = `translateX(-${currentPage * 100}%)`;
-  renderThumbnails(columns, pages);
+  track.style.transform = `translateX(-${currentPage * 100}vw)`;
+  renderThumbnails(cols, pages);
   updateArrows(pages);
   syncGalleryHeight();
 }
@@ -304,7 +297,7 @@ async function init() {
   window.addEventListener('resize', onResize);
 
   chrome.storage.onChanged.addListener((changes) => {
-    if (changes.chats || changes.columns || changes.newTabOverride) {
+    if (changes.chats || changes.columns) {
       loadConfig().then(render);
     }
   });

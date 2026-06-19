@@ -70,6 +70,7 @@ html, body {
 .gallery-track {
   display: flex;
   height: 100%;
+  width: 100%;
 }
 
 .page {
