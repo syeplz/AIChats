@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIChats 设置</title>
+  <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
@@ -49,12 +50,26 @@
       </div>
     </section>
 
+    <section>
+      <h2>主题</h2>
+      <div class="field">
+        <label for="themeSelect">外观</label>
+        <div class="field-hint">选择浅色/深色模式，或跟随系统设置</div>
+        <select id="themeSelect">
+          <option value="system">跟随系统</option>
+          <option value="light">浅色</option>
+          <option value="dark">深色</option>
+        </select>
+      </div>
+    </section>
+
     <div class="actions">
       <button id="btnSave" class="btn-primary">保存设置</button>
       <span id="saveStatus" class="save-status"></span>
     </div>
   </div>
 
+  <script src="theme.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

@@ -16,7 +16,7 @@ function generateId() {
 }
 
 async function loadData() {
-  return chrome.storage.sync.get(['chats', 'columns', 'sidebarChat']);
+  return chrome.storage.sync.get(['chats', 'columns', 'sidebarChat', 'theme']);
 }
 
 async function render() {
@@ -24,11 +24,13 @@ async function render() {
   const chats = data.chats || [];
   const columns = data.columns || 2;
   const sidebarChat = data.sidebarChat || (chats.find(c => c.enabled)?.id || '');
+  const theme = data.theme || 'system';
 
   renderChatList(chats);
   renderTemplates(chats);
   renderSidebarSelect(chats, sidebarChat);
   renderColumns(columns);
+  renderTheme(theme);
 }
 
 function renderChatList(chats) {
@@ -36,7 +38,7 @@ function renderChatList(chats) {
   list.innerHTML = '';
 
   if (chats.length === 0) {
-    list.innerHTML = '<p style="color:#71717a;font-size:13px;">还没有聊天站点，从上方模板添加或手动添加。</p>';
+    list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">还没有聊天站点，从上方模板添加或手动添加。</p>';
     return;
   }
 
@@ -163,6 +165,11 @@ function renderColumns(val) {
   });
 }
 
+function renderTheme(val) {
+  const select = document.getElementById('themeSelect');
+  if (select) select.value = val;
+}
+
 document.getElementById('addForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = document.getElementById('addName').value.trim();
@@ -192,12 +199,14 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
 document.getElementById('btnSave').addEventListener('click', async () => {
   const columns = parseInt(document.getElementById('columns').value) || 2;
   const sidebarChat = document.getElementById('sidebarChat').value;
+  const theme = document.getElementById('themeSelect').value;
 
   const data = await loadData();
   const enabled = (data.chats || []).filter(c => c.enabled);
   const finalSidebar = sidebarChat || (enabled[0]?.id) || '';
 
-  await chrome.storage.sync.set({ columns, sidebarChat: finalSidebar });
+  await chrome.storage.sync.set({ columns, sidebarChat: finalSidebar, theme });
+  applyTheme(theme);
 
   const status = document.getElementById('saveStatus');
   status.textContent = '✓ 已保存';
@@ -205,4 +214,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   setTimeout(() => { status.textContent = ''; }, 2000);
 });
 
-document.addEventListener('DOMContentLoaded', render);
+document.addEventListener('DOMContentLoaded', async () => {
+  await initTheme();
+  render();
+});

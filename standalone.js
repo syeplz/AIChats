@@ -250,6 +250,7 @@ function syncGalleryHeight() {
 
 async function init() {
   await loadConfig();
+  await initTheme();
   syncGalleryHeight();
   render();
 

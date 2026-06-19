@@ -7,8 +7,8 @@
 html, body {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: #0f0f13;
-  color: #e4e4e7;
+  background: var(--bg-page);
+  color: var(--text-primary);
   overflow: hidden;
 }
 
@@ -30,17 +30,17 @@ html, body {
 
 .disabled-message h2 {
   font-size: 24px;
-  color: #6366f1;
+  color: var(--accent);
 }
 
 .disabled-message p {
-  color: #a1a1aa;
+  color: var(--text-dim);
   max-width: 400px;
 }
 
 .disabled-message button {
   padding: 8px 24px;
-  background: #6366f1;
+  background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -84,10 +84,10 @@ html, body {
 .cell {
   display: flex;
   flex-direction: column;
-  background: #16161e;
+  background: var(--bg-card);
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #27272a;
+  border: 1px solid var(--border);
   min-height: 0;
 }
 
@@ -96,8 +96,8 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 6px 12px;
-  background: #1c1c27;
-  border-bottom: 1px solid #27272a;
+  background: var(--bg-card-header);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
@@ -119,8 +119,8 @@ html, body {
   width: 16px;
   height: 16px;
   border-radius: 3px;
-  background: #6366f1;
-  color: #fff;
+  background: var(--accent);
+  color: var(--btn-primary-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,7 +136,7 @@ html, body {
 .cell-actions button {
   background: none;
   border: none;
-  color: #71717a;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
@@ -144,15 +144,15 @@ html, body {
 }
 
 .cell-actions button:hover {
-  background: #27272a;
-  color: #e4e4e7;
+  background: var(--btn-icon-hover-bg);
+  color: var(--text-primary);
 }
 
 .cell-content {
   flex: 1;
   position: relative;
   min-height: 0;
-  background: #111118;
+  background: var(--bg-card-content);
 }
 
 .cell-content iframe {
@@ -172,11 +172,11 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: rgba(15, 15, 19, 0.92);
+  background: var(--bg-overlay);
   padding: 20px;
   text-align: center;
   font-size: 13px;
-  color: #a1a1aa;
+  color: var(--text-dim);
 }
 
 .cell-overlay:not([hidden]) {
@@ -185,8 +185,8 @@ html, body {
 
 .cell-overlay button {
   padding: 6px 16px;
-  background: #6366f1;
-  color: #fff;
+  background: var(--accent);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -194,7 +194,7 @@ html, body {
 }
 
 .cell-overlay button:hover {
-  background: #4f46e5;
+  background: var(--accent-hover);
 }
 
 .arrow {
@@ -205,8 +205,8 @@ html, body {
   width: 36px;
   height: 64px;
   border: none;
-  background: rgba(26, 26, 35, 0.7);
-  color: #a1a1aa;
+  background: var(--arrow-bg);
+  color: var(--text-dim);
   font-size: 24px;
   cursor: pointer;
   border-radius: 8px;
@@ -218,8 +218,8 @@ html, body {
 }
 
 .arrow:hover {
-  background: rgba(99, 102, 241, 0.2);
-  color: #6366f1;
+  background: var(--thumb-active-bg);
+  color: var(--accent);
 }
 
 .arrow.arrow-left {
@@ -244,8 +244,8 @@ html, body {
   align-items: center;
   gap: 6px;
   padding: 8px 20px;
-  background: #1a1a23;
-  border-top: 1px solid #27272a;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
   overflow-x: auto;
   z-index: 5;
 }
@@ -262,21 +262,21 @@ html, body {
   border-radius: 6px;
   cursor: pointer;
   font-size: 11px;
-  color: #71717a;
+  color: var(--text-muted);
   transition: all 0.2s;
   white-space: nowrap;
   border: 1px solid transparent;
 }
 
 .thumb:hover {
-  color: #a1a1aa;
-  background: #27272a;
+  color: var(--text-dim);
+  background: var(--btn-icon-hover-bg);
 }
 
 .thumb.active {
-  color: #e4e4e7;
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--text-primary);
+  background: var(--thumb-active-bg);
+  border-color: var(--thumb-active-border);
 }
 
 .thumb img {
@@ -289,8 +289,8 @@ html, body {
   width: 14px;
   height: 14px;
   border-radius: 2px;
-  background: #6366f1;
-  color: #fff;
+  background: var(--accent);
+  color: var(--btn-primary-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,15 +305,15 @@ html, body {
   justify-content: center;
   height: 100%;
   gap: 12px;
-  color: #71717a;
+  color: var(--text-muted);
   padding: 32px;
   text-align: center;
 }
 
 .empty-state button {
   padding: 8px 24px;
-  background: #6366f1;
-  color: #fff;
+  background: var(--accent);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 8px;
   cursor: pointer;

@@ -86,8 +86,23 @@ async function handleTabSwitch() {
   }
 }
 
+async function updateThemeSelect() {
+  const sel = document.getElementById('themeSelect');
+  const { theme } = await chrome.storage.sync.get('theme');
+  sel.value = theme || 'system';
+}
+
 async function init() {
   await loadConfig();
+  await initTheme();
+  updateThemeSelect();
+
+  document.getElementById('themeSelect').addEventListener('change', async (e) => {
+    await setTheme(e.target.value);
+  });
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.theme) updateThemeSelect();
+  });
 
   // On initial open, load the chat matching current tab, if any
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });

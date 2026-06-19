@@ -4,12 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIChats Sidebar</title>
+  <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
   <div class="panel-header">
     <select id="chatSelect"></select>
     <button class="btn-icon" id="btnExpand" title="打开网格视图">⊞</button>
+    <select id="themeSelect" class="theme-select" title="切换主题">
+      <option value="system">☯ 跟随系统</option>
+      <option value="light">☀ 浅色</option>
+      <option value="dark">☾ 深色</option>
+    </select>
     <button class="btn-icon" id="btnSettings" title="设置">⚙</button>
   </div>
   <div class="panel-body">
@@ -19,6 +25,7 @@
       <button id="btnSidebarOptions">去设置</button>
     </div>
   </div>
+  <script src="theme.js"></script>
   <script src="sidepanel.js"></script>
 </body>
 </html>

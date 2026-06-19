@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(async () => {
       { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false },
       { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false },
     ];
-    await chrome.storage.sync.set({ chats: defaults, columns: 2, sidebarChat: 'chatgpt' });
+    await chrome.storage.sync.set({ chats: defaults, columns: 2, sidebarChat: 'chatgpt', theme: 'system' });
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });

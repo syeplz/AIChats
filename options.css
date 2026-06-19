@@ -6,8 +6,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: #0f0f13;
-  color: #e4e4e7;
+  background: var(--bg-page);
+  color: var(--text-primary);
   padding: 24px;
   max-width: 640px;
   margin: 0 auto;
@@ -16,7 +16,7 @@ body {
 
 h1 {
   font-size: 22px;
-  color: #6366f1;
+  color: var(--accent);
   margin-bottom: 24px;
 }
 
@@ -24,13 +24,13 @@ h2 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #d4d4d8;
+  color: var(--heading-color);
 }
 
 section {
   margin-bottom: 28px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #27272a;
+  border-bottom: 1px solid var(--border);
 }
 
 section:last-of-type {
@@ -43,13 +43,13 @@ details {
 
 summary {
   cursor: pointer;
-  color: #6366f1;
+  color: var(--accent);
   font-size: 13px;
   padding: 4px 0;
 }
 
 summary:hover {
-  color: #4f46e5;
+  color: var(--accent-hover);
 }
 
 .chat-item {
@@ -57,8 +57,8 @@ summary:hover {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: #16161e;
-  border: 1px solid #27272a;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 8px;
 }
@@ -86,7 +86,7 @@ summary:hover {
 
 .chat-item .chat-url {
   font-size: 11px;
-  color: #71717a;
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -100,8 +100,8 @@ summary:hover {
 
 .chat-item .chat-actions button {
   background: none;
-  border: 1px solid #3f3f46;
-  color: #a1a1aa;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
   cursor: pointer;
   padding: 4px 10px;
   border-radius: 4px;
@@ -109,13 +109,13 @@ summary:hover {
 }
 
 .chat-item .chat-actions button:hover {
-  background: #27272a;
-  color: #e4e4e7;
+  background: var(--btn-icon-hover-bg);
+  color: var(--text-primary);
 }
 
 .chat-item .chat-actions .btn-danger:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--danger-color);
+  color: var(--danger-color);
 }
 
 .chat-item .chat-toggle {
@@ -134,7 +134,7 @@ summary:hover {
 .chat-item .chat-toggle .slider {
   position: absolute;
   inset: 0;
-  background: #3f3f46;
+  background: var(--slider-bg);
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.2s;
@@ -147,18 +147,18 @@ summary:hover {
   height: 16px;
   left: 2px;
   top: 2px;
-  background: #a1a1aa;
+  background: var(--slider-dot);
   border-radius: 50%;
   transition: transform 0.2s, background 0.2s;
 }
 
 .chat-item .chat-toggle input:checked + .slider {
-  background: #6366f1;
+  background: var(--slider-active);
 }
 
 .chat-item .chat-toggle input:checked + .slider::after {
   transform: translateX(16px);
-  background: #fff;
+  background: var(--slider-dot-active);
 }
 
 .add-form {
@@ -170,22 +170,22 @@ summary:hover {
 
 .add-form input {
   padding: 8px 12px;
-  background: #16161e;
-  border: 1px solid #3f3f46;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  color: #e4e4e7;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
 }
 
 .add-form input:focus {
-  border-color: #6366f1;
+  border-color: var(--accent);
 }
 
 .add-form button {
   padding: 8px 16px;
-  background: #6366f1;
-  color: #fff;
+  background: var(--accent);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -194,7 +194,7 @@ summary:hover {
 }
 
 .add-form button:hover {
-  background: #4f46e5;
+  background: var(--accent-hover);
 }
 
 .templates {
@@ -206,9 +206,9 @@ summary:hover {
 
 .template-btn {
   padding: 6px 12px;
-  background: #16161e;
-  border: 1px solid #27272a;
-  color: #a1a1aa;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
   border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
@@ -218,8 +218,8 @@ summary:hover {
 }
 
 .template-btn:hover {
-  border-color: #6366f1;
-  color: #e4e4e7;
+  border-color: var(--accent);
+  color: var(--text-primary);
 }
 
 .template-btn img {
@@ -241,7 +241,7 @@ summary:hover {
 
 .field-hint {
   font-size: 11px;
-  color: #71717a;
+  color: var(--text-muted);
   margin-bottom: 6px;
 }
 
@@ -249,10 +249,10 @@ summary:hover {
 .field input[type="url"],
 .field input[type="text"] {
   padding: 6px 10px;
-  background: #16161e;
-  border: 1px solid #3f3f46;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  color: #e4e4e7;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
   width: 100%;
@@ -260,11 +260,11 @@ summary:hover {
 
 .field select:focus,
 .field input:focus {
-  border-color: #6366f1;
+  border-color: var(--accent);
 }
 
 .field input[type="range"] {
-  accent-color: #6366f1;
+  accent-color: var(--accent);
   width: 200px;
   vertical-align: middle;
 }
@@ -285,7 +285,7 @@ summary:hover {
 .toggle-row input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #6366f1;
+  accent-color: var(--accent);
 }
 
 .actions {
@@ -297,8 +297,8 @@ summary:hover {
 
 .btn-primary {
   padding: 10px 24px;
-  background: #6366f1;
-  color: #fff;
+  background: var(--accent);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -307,14 +307,14 @@ summary:hover {
 }
 
 .btn-primary:hover {
-  background: #4f46e5;
+  background: var(--accent-hover);
 }
 
 .save-status {
   font-size: 13px;
-  color: #22c55e;
+  color: var(--save-color);
 }
 
 .save-status.error {
-  color: #ef4444;
+  color: var(--danger-color);
 }
