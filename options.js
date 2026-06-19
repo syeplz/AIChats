@@ -6,7 +6,7 @@ const TEMPLATES = [
   { name: '豆包',          url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico' },
   { name: 'Gemini',       url: 'https://gemini.google.com',       icon: 'https://gemini.google.com/favicon.ico' },
   { name: 'Perplexity',   url: 'https://www.perplexity.ai',       icon: 'https://www.perplexity.ai/favicon.ico' },
-  { name: 'Grok',         url: 'https://grok.com',                icon: 'https://grok.com/favicon.ico' },
+  { name: 'Grok',         url: 'https://grok.com',                icon: 'https://grok.com/images/favicon.ico' },
   { name: '通义千问',      url: 'https://tongyi.aliyun.com',       icon: 'https://tongyi.aliyun.com/favicon.ico' },
   { name: '文心一言',      url: 'https://yiyan.baidu.com',         icon: 'https://yiyan.baidu.com/favicon.ico' },
 ];
@@ -263,10 +263,11 @@ async function autoDetectFavicon(siteUrl) {
 
   for (const c of htmlCandidates) {
     try {
-      const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
+      const r = await fetch(c, { signal: AbortSignal.timeout(2000) });
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) return c;
+        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
+        r.body?.cancel();
       }
     } catch {}
   }
@@ -274,10 +275,11 @@ async function autoDetectFavicon(siteUrl) {
   const fallbacks = [`${origin}/favicon.ico`, `${origin}/favicon.svg`, `${origin}/favicon-32x32.png`];
   for (const c of fallbacks) {
     try {
-      const r = await fetch(c, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
+      const r = await fetch(c, { signal: AbortSignal.timeout(2000) });
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) return c;
+        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
+        r.body?.cancel();
       }
     } catch {}
   }
