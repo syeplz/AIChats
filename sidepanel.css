@@ -46,17 +46,19 @@ body {
 
 .btn-icon {
   background: none;
-  border: none;
+  border: 1px solid var(--border-light);
   color: var(--text-dim);
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 15px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 17px;
+  line-height: 1;
 }
 
 .btn-icon:hover {
   background: var(--btn-icon-hover-bg);
   color: var(--text-primary);
+  border-color: var(--border);
 }
 
 .btn-icon.active {
