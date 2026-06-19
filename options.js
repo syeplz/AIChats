@@ -5,7 +5,7 @@ const TEMPLATES = [
   { name: 'Kimi',         url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico' },
   { name: '豆包',          url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico' },
   { name: 'Gemini',       url: 'https://gemini.google.com',       icon: 'https://gemini.google.com/favicon.ico' },
-  { name: 'Perplexity',   url: 'https://www.perplexity.ai',       icon: 'https://www.perplexity.ai/favicon.ico' },
+  { name: 'Perplexity',   url: 'https://www.perplexity.ai',       icon: 'https://www.google.com/s2/favicons?domain=perplexity.ai&sz=32' },
   { name: 'Grok',         url: 'https://grok.com',                icon: 'https://www.google.com/s2/favicons?domain=grok.com&sz=32' },
   { name: '通义千问',      url: 'https://tongyi.aliyun.com',       icon: 'https://tongyi.aliyun.com/favicon.ico' },
   { name: '文心一言',      url: 'https://yiyan.baidu.com',         icon: 'https://yiyan.baidu.com/favicon.ico' },
@@ -62,7 +62,7 @@ function renderChatList(chats) {
         <input type="checkbox" ${chat.enabled ? 'checked' : ''} data-id="${chat.id}">
         <span class="slider"></span>
       </label>
-      <img class="chat-icon" src="${chat.icon}" alt="" onerror="this.alt='${firstChar}'" loading="lazy">
+      <img class="chat-icon" src="${chat.icon}" alt="" loading="lazy">
       <div class="chat-info">
         <div class="chat-name">${chat.name}</div>
         <div class="chat-url">${chat.url}</div>
@@ -74,6 +74,13 @@ function renderChatList(chats) {
     `;
 
     list.appendChild(item);
+
+    const iconImg = item.querySelector('.chat-icon');
+    iconImg.addEventListener('error', () => {
+      if (iconImg.dataset.resolved) return;
+      iconImg.dataset.resolved = '1';
+      upgradeChatIcon(iconImg, chat);
+    });
 
     item.querySelector('.chat-toggle input').addEventListener('change', async (e) => {
       const data = await loadData();
@@ -211,6 +218,40 @@ async function setFaviconSrc(img, iconUrl, siteUrl) {
     img.src = URL.createObjectURL(blob);
   } catch {
     img.src = `https://www.google.com/s2/favicons?domain=${new URL(siteUrl).hostname}&sz=32`;
+  }
+}
+
+async function upgradeChatIcon(img, chat) {
+  const hostname = new URL(chat.url).hostname;
+  const googlePrefix = 'https://www.google.com/s2/favicons?domain=';
+
+  if (chat.icon.startsWith(googlePrefix)) return;
+
+  const origin = new URL(chat.url).origin;
+
+  try {
+    const resp = await fetch(chat.icon, {
+      signal: AbortSignal.timeout(3000),
+      headers: { 'Referer': origin + '/' }
+    });
+    if (resp.ok) {
+      const ct = resp.headers.get('Content-Type') || '';
+      if (!ct.startsWith('text/')) {
+        const blob = await resp.blob();
+        img.src = URL.createObjectURL(blob);
+        return;
+      }
+    }
+  } catch {}
+
+  const googleUrl = `${googlePrefix}${hostname}&sz=32`;
+  img.src = googleUrl;
+  const data = await loadData();
+  const list = data.chats || [];
+  const target = list.find(c => c.id === chat.id);
+  if (target) {
+    target.icon = googleUrl;
+    await chrome.storage.sync.set({ chats: list });
   }
 }
 

@@ -1,9 +1,9 @@
 const DEFAULT_CHATS = [
-  { id: 'chatgpt',  name: 'ChatGPT',  url: 'https://chat.openai.com',        icon: 'https://chat.openai.com/favicon.ico',    enabled: true },
-  { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico',   enabled: true },
-  { id: 'claude',   name: 'Claude',   url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico',           enabled: true },
-  { id: 'kimi',     name: 'Kimi',     url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false },
-  { id: 'doubao',   name: '豆包',      url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false },
+  { id: 'chatgpt',  name: 'ChatGPT',  url: 'https://chat.openai.com',        icon: 'https://www.google.com/s2/favicons?domain=chat.openai.com&sz=32',    enabled: true },
+  { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com',       icon: 'https://www.google.com/s2/favicons?domain=chat.deepseek.com&sz=32',   enabled: true },
+  { id: 'claude',   name: 'Claude',   url: 'https://claude.ai',               icon: 'https://www.google.com/s2/favicons?domain=claude.ai&sz=32',           enabled: true },
+  { id: 'kimi',     name: 'Kimi',     url: 'https://kimi.moonshot.cn',        icon: 'https://www.google.com/s2/favicons?domain=kimi.moonshot.cn&sz=32',    enabled: false },
+  { id: 'doubao',   name: '豆包',      url: 'https://www.doubao.com/chat',     icon: 'https://www.google.com/s2/favicons?domain=doubao.com&sz=32',      enabled: false },
 ];
 
 const MIN_CELL_WIDTH = 380;
@@ -36,7 +36,7 @@ function createCellElement(chat) {
   cell.innerHTML = `
     <div class="cell-header">
       <div class="cell-name">
-        <img src="${chat.icon}" alt="" loading="lazy">
+        <img src="${chat.icon}" alt="" loading="lazy" data-icon="${chat.icon}">
         <span class="fallback-icon" style="display:none">${firstChar}</span>
         ${chat.name}
       </div>
@@ -59,10 +59,23 @@ function createCellElement(chat) {
 
 function ensureCells() {
   chats.forEach(chat => {
-    if (!cellCache.has(chat.id)) {
-      const cell = createCellElement(chat);
-      cellCache.set(chat.id, cell);
+    if (cellCache.has(chat.id)) {
+      const cell = cellCache.get(chat.id);
+      const img = cell.querySelector('.cell-name img');
+      if (img && img.dataset.icon !== chat.icon) {
+        img.dataset.icon = chat.icon;
+        img.dataset.resolved = '';
+        img.src = chat.icon;
+        img.style.display = '';
+        const fallback = img.nextElementSibling;
+        if (fallback?.classList.contains('fallback-icon')) {
+          fallback.style.display = 'none';
+        }
+      }
+      return;
     }
+    const cell = createCellElement(chat);
+    cellCache.set(chat.id, cell);
   });
   for (const [id, el] of cellCache) {
     if (!chats.some(c => c.id === id)) {
@@ -75,13 +88,56 @@ function ensureCells() {
 function bindImgError(container) {
   container.querySelectorAll('img').forEach(img => {
     img.addEventListener('error', () => {
-      img.style.display = 'none';
-      const fallback = img.nextElementSibling;
-      if (fallback && fallback.classList.contains('fallback-icon')) {
-        fallback.style.display = 'flex';
+      if (img.dataset.resolved) {
+        img.style.display = 'none';
+        const fallback = img.nextElementSibling;
+        if (fallback?.classList.contains('fallback-icon')) {
+          fallback.style.display = 'flex';
+        }
+        return;
       }
+      img.dataset.resolved = '1';
+      const cell = container.closest('.cell');
+      const chatId = cell?.dataset.chatId;
+      const chat = chats.find(c => c.id === chatId);
+      if (chat) upgradeIcon(img, chat);
     });
   });
+}
+
+async function upgradeIcon(img, chat) {
+  const hostname = new URL(chat.url).hostname;
+  const googlePrefix = 'https://www.google.com/s2/favicons?domain=';
+
+  if (chat.icon.startsWith(googlePrefix)) return;
+
+  const origin = new URL(chat.url).origin;
+
+  try {
+    const resp = await fetch(chat.icon, {
+      signal: AbortSignal.timeout(3000),
+      headers: { 'Referer': origin + '/' }
+    });
+    if (resp.ok) {
+      const ct = resp.headers.get('Content-Type') || '';
+      if (!ct.startsWith('text/')) {
+        const blob = await resp.blob();
+        img.src = URL.createObjectURL(blob);
+        return;
+      }
+    }
+  } catch {}
+
+  const googleUrl = `${googlePrefix}${hostname}&sz=32`;
+  img.src = googleUrl;
+  try {
+    const { chats: saved } = await chrome.storage.sync.get('chats');
+    const target = saved?.find(c => c.id === chat.id);
+    if (target) {
+      target.icon = googleUrl;
+      await chrome.storage.sync.set({ chats: saved });
+    }
+  } catch {}
 }
 
 function render() {
