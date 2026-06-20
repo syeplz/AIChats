@@ -362,6 +362,11 @@ summary:hover {
   color: var(--danger-color);
 }
 
+.save-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
 .btn-move {
   background: none;
   border: 1px solid var(--border-light);

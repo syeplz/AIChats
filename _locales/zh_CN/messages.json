@@ -157,6 +157,10 @@
     "message": "✓ 已保存",
     "description": "Save success status"
   },
+  "options_saveHint": {
+    "message": "列数、侧边栏和主题的更改需点击保存；站点和提示的增删改即时生效",
+    "description": "Hint below the save button explaining what needs saving"
+  },
   "options_chatListEmpty": {
     "message": "还没有聊天站点，从上方模板添加或手动添加。",
     "description": "Empty state in chat list"

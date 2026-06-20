@@ -157,6 +157,10 @@
     "message": "✓ Saved",
     "description": "Save success status"
   },
+  "options_saveHint": {
+    "message": "Changes to columns, sidebar, and theme need Save; site and prompt edits take effect immediately",
+    "description": "Hint below the save button explaining what needs saving"
+  },
   "options_chatListEmpty": {
     "message": "No chat sites yet. Add one from the templates above or manually.",
     "description": "Empty state in chat list"
