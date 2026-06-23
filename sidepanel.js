@@ -65,9 +65,8 @@ document.getElementById('btnRefresh').addEventListener('click', () => {
   frame.src = frame.src;
 });
 
-document.getElementById('btnExpand').addEventListener('click', async () => {
-  await chrome.runtime.sendMessage({ action: 'openStandalone' });
-  window.close();
+document.getElementById('btnExpand').addEventListener('click', () => {
+  chrome.runtime.sendMessage({ action: 'openStandalone' });
 });
 
 document.getElementById('btnSettings').addEventListener('click', () => {
