@@ -61,6 +61,10 @@ select.addEventListener('change', () => {
   store.set('sidebarChat', select.value);
 });
 
+document.getElementById('btnRefresh').addEventListener('click', () => {
+  frame.src = frame.src;
+});
+
 document.getElementById('btnExpand').addEventListener('click', async () => {
   await chrome.runtime.sendMessage({ action: 'openStandalone' });
   window.close();
@@ -73,19 +77,6 @@ document.getElementById('btnSettings').addEventListener('click', () => {
 document.getElementById('btnSidebarOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
-
-async function handleTabSwitch() {
-  if (!ready) return;
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (!tab?.url) return;
-
-  const enabled = allChats.filter(c => c.enabled);
-  const matched = enabled.find(c => tab.url.startsWith(c.url));
-
-  if (!matched) {
-    window.close();
-  }
-}
 
 async function updateThemeSelect() {
   const sel = document.getElementById('themeSelect');
@@ -161,8 +152,6 @@ async function init() {
   });
 
   ready = true;
-
-  chrome.tabs.onActivated.addListener(handleTabSwitch);
 
   store.subscribe('chats', loadConfig);
   store.subscribe('sidebarChat', loadConfig);
