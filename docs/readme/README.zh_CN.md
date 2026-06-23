@@ -3,7 +3,7 @@
 **在单一视图中嵌入多个 AI 聊天网站** — 在 Chrome 侧栏或独立网格视图中快速切换 ChatGPT、DeepSeek、Claude、Kimi、豆包等 AI 聊天，内置智能快捷提示提升效率。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](../../LICENSE)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue)]()
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
 [![GitHub stars](https://img.shields.io/github/stars/syeplz/AIChats?style=social)](https://github.com/syeplz/AIChats)
 
 > **其他语言:** [English](../../README.md)
@@ -38,7 +38,7 @@
 ## 安装
 
 ### 从 Chrome 网上应用店
-*即将上线。*
+[从 Chrome 网上应用店安装](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
 
 ### 手动安装（开发者模式）
 1. 下载或克隆本仓库：
