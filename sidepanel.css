@@ -83,13 +83,15 @@ body {
 
 .panel-body {
   flex: 1;
-  position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
 #chatFrame {
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: 100%;
   border: none;
 }
 
@@ -98,7 +100,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   gap: 12px;
   color: var(--text-muted);
   padding: 24px;
