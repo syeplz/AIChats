@@ -68,7 +68,29 @@
     return best.el;
   }
 
+  function setCursorAtEnd(el) {
+    try {
+      if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+        el.setSelectionRange(el.value.length, el.value.length);
+      } else if (el.isContentEditable) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    } catch (e) {
+      console.warn('[AIChats] setCursorAtEnd failed:', e);
+    }
+  }
+
   function fillInput(el, text) {
+    if (!text) {
+      el.focus();
+      log('fillInput: empty text, focus only');
+      return;
+    }
     el.focus();
     if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
       el.value = text;
@@ -80,7 +102,10 @@
       log('fillInput: set textContent on', desc(el), 'length=' + text.length);
     } else {
       warn('fillInput: unsupported element type', desc(el));
+      return;
     }
+    setCursorAtEnd(el);
+    requestAnimationFrame(() => setCursorAtEnd(el));
   }
 
   function findSubmitButton(input) {
