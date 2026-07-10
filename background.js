@@ -1,5 +1,25 @@
 importScripts('store.js');
 
+async function updateChatScripts() {
+  const chats = await store.get('chats') || [];
+  const targets = chats.filter(c => c.enabled && c.inject);
+  try { await chrome.scripting.unregisterContentScripts({ ids: ['aichats-content'] }); } catch {}
+  if (targets.length === 0) return;
+  const matches = targets.map(c => {
+    const url = c.url.endsWith('/') ? c.url : c.url + '/';
+    return url + '*';
+  });
+  try {
+    await chrome.scripting.registerContentScripts([{
+      id: 'aichats-content',
+      js: ['content.js'],
+      matches,
+      runAt: 'document_idle',
+      allFrames: true,
+    }]);
+  } catch (e) { console.error('registerContentScripts error:', e); }
+}
+
 chrome.runtime.onInstalled.addListener(async () => {
   const chats = await store.get('chats');
   if (!chats) {
@@ -32,10 +52,13 @@ chrome.runtime.onInstalled.addListener(async () => {
     ]);
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  await updateChatScripts();
 });
 
 chrome.runtime.onMessage.addListener(async (msg) => {
-  if (msg.action === 'openStandalone') {
+  if (msg.action === 'updateContentScripts') {
+    await updateChatScripts();
+  } else if (msg.action === 'openStandalone') {
     const url = chrome.runtime.getURL('standalone.html');
     const allTabs = await chrome.tabs.query({});
     const existing = allTabs.find(t => t.url === url);

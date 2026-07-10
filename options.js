@@ -46,6 +46,7 @@ async function saveChats(chats) {
   renderChatList(chats);
   renderSidebarSelect(chats, sidebarChat);
   renderTemplates(chats);
+  chrome.runtime.sendMessage({ action: 'updateContentScripts' });
 }
 
 function renderChatList(chats) {
@@ -69,6 +70,10 @@ function renderChatList(chats) {
       <label class="chat-toggle">
         <input type="checkbox" ${chat.enabled ? 'checked' : ''} data-id="${chat.id}">
         <span class="slider"></span>
+      </label>
+      <label class="inject-toggle" title="${_('options_chatInjectHint')}">
+        <input type="checkbox" ${chat.inject ? 'checked' : ''} data-id="${chat.id}">
+        <span class="inject-slider"></span>
       </label>
       <img class="chat-icon" src="${chat.icon}" alt="" loading="lazy">
       <div class="chat-info">
@@ -96,6 +101,19 @@ function renderChatList(chats) {
       const data = await loadData();
       const updated = chatList.setEnabled(data.chats || [], id, checked);
       await saveChats(updated);
+      chrome.runtime.sendMessage({ action: 'updateContentScripts' });
+    });
+
+    item.querySelector('.inject-toggle input').addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      const checked = e.target.checked;
+      const data = await loadData();
+      const updated = (data.chats || []).map(c =>
+        c.id === id ? { ...c, inject: checked } : c
+      );
+      await store.set('chats', updated);
+      renderChatList(updated);
+      chrome.runtime.sendMessage({ action: 'updateContentScripts' });
     });
 
     item.querySelector('.btn-danger').addEventListener('click', async (e) => {
@@ -257,6 +275,10 @@ function renderPrompts(prompts) {
       <div class="prompt-info">
         <div class="prompt-label">${escapeHtml(resolved.label)}</div>
         <div class="prompt-preview">${escapeHtml(resolved.content)}</div>
+        <div class="prompt-status">
+          <span class="${p.fillInput !== false ? 'status-on' : 'status-off'}">${p.fillInput !== false ? '✓' : '✕'} ${_('options_promptFillInput')}</span>
+          <span class="${p.autoSubmit !== false ? 'status-on' : 'status-off'}">${p.autoSubmit !== false ? '✓' : '✕'} ${_('options_promptAutoSubmit')}</span>
+        </div>
       </div>
       <div class="prompt-actions">
         <button class="btn-edit" data-pid="${p.id}">${_('common_edit')}</button>
@@ -311,6 +333,8 @@ function openPromptEditModal(p) {
   promptEditingId = p.id;
   document.getElementById('promptEditLabel').value = resolved.label;
   document.getElementById('promptEditContent').value = resolved.content;
+  document.getElementById('promptEditFillInput').checked = p.fillInput !== false;
+  document.getElementById('promptEditAutoSubmit').checked = p.autoSubmit !== false;
   document.getElementById('promptEditModal').hidden = false;
   document.getElementById('promptEditLabel').focus();
 }
@@ -325,9 +349,11 @@ document.getElementById('promptEditSave').addEventListener('click', async () => 
   const label = document.getElementById('promptEditLabel').value.trim();
   const content = document.getElementById('promptEditContent').value.trim();
   if (!label || !content) return;
+  const fillInput = document.getElementById('promptEditFillInput').checked;
+  const autoSubmit = document.getElementById('promptEditAutoSubmit').checked;
   const data = await loadData();
   const updated = (data.prompts || []).map(p =>
-    p.id === promptEditingId ? { ...p, label, content, isDefault: false } : p
+    p.id === promptEditingId ? { ...p, label, content, isDefault: false, fillInput, autoSubmit } : p
   );
   await store.set('prompts', updated);
   closePromptEditModal();
@@ -349,7 +375,7 @@ document.getElementById('promptAddBtn').addEventListener('click', async () => {
   const data = await loadData();
   const prompts = data.prompts || [];
   const id = 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  prompts.push({ id, label, content, enabled: true });
+  prompts.push({ id, label, content, enabled: true, fillInput: true, autoSubmit: true });
   await store.set('prompts', prompts);
   document.getElementById('promptAddLabel').value = '';
   document.getElementById('promptAddContent').value = '';

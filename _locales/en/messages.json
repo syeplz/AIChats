@@ -291,6 +291,19 @@
     "description": "Confirmation dialog when deleting a prompt"
   },
 
+  "options_chatInjectHint": {
+    "message": "Inject script to enable auto-fill and submit",
+    "description": "Inject toggle tooltip"
+  },
+  "options_promptFillInput": {
+    "message": "Fill input",
+    "description": "Prompt config: fill input checkbox"
+  },
+  "options_promptAutoSubmit": {
+    "message": "Auto submit",
+    "description": "Prompt config: auto submit checkbox"
+  },
+
   "sidepanel_promptCopied": {
     "message": "Copied!",
     "description": "Chip copy feedback tooltip/text"

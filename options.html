@@ -58,6 +58,14 @@
         <div class="modal-fields">
           <input type="text" id="promptEditLabel" data-i18n-placeholder="options_promptsAddLabel" placeholder="标签文本" required>
           <textarea id="promptEditContent" data-i18n-placeholder="options_promptsAddContent" placeholder="提示内容" rows="3" required></textarea>
+          <label class="toggle-row">
+            <input type="checkbox" id="promptEditFillInput" checked>
+            <span data-i18n="options_promptFillInput">填充输入框</span>
+          </label>
+          <label class="toggle-row">
+            <input type="checkbox" id="promptEditAutoSubmit" checked>
+            <span data-i18n="options_promptAutoSubmit">自动提交</span>
+          </label>
         </div>
         <div class="modal-actions">
           <button id="promptEditCancel" class="btn-secondary" data-i18n="common_cancel">取消</button>

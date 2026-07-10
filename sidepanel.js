@@ -119,6 +119,17 @@ async function renderChips(prompts) {
         document.execCommand('copy');
         ta.remove();
       }
+      if (p.fillInput !== false) {
+        const iframe = document.getElementById('chatFrame');
+        if (iframe?.contentWindow) {
+          iframe.contentWindow.postMessage({
+            source: 'aichats-chipbar',
+            type: 'fill-input',
+            text,
+            autoSubmit: p.autoSubmit !== false
+          }, '*');
+        }
+      }
       chip.classList.add('copied');
       chip.textContent = _('sidepanel_promptCopied');
       setTimeout(() => {

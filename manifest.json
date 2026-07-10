@@ -25,6 +25,7 @@
     "sidePanel",
     "declarativeNetRequest",
     "tabs",
+    "scripting",
     "clipboardRead"
   ],
   "background": {

@@ -291,6 +291,19 @@
     "description": "Confirmation dialog when deleting a prompt"
   },
 
+  "options_chatInjectHint": {
+    "message": "注入脚本以支持自动填充和提交",
+    "description": "Inject toggle tooltip"
+  },
+  "options_promptFillInput": {
+    "message": "填入输入框",
+    "description": "Prompt config: fill input checkbox"
+  },
+  "options_promptAutoSubmit": {
+    "message": "自动提交",
+    "description": "Prompt config: auto submit checkbox"
+  },
+
   "sidepanel_promptCopied": {
     "message": "已复制！",
     "description": "Chip copy feedback tooltip/text"
