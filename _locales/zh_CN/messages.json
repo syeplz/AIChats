@@ -295,6 +295,10 @@
     "message": "注入脚本以支持自动填充和提交",
     "description": "Inject toggle tooltip"
   },
+  "options_chatEnterHint": {
+    "message": "直接使用回车键提交（跳过按钮点击）",
+    "description": "Submit by Enter toggle tooltip"
+  },
   "options_promptFillInput": {
     "message": "填入输入框",
     "description": "Prompt config: fill input checkbox"

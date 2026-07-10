@@ -75,6 +75,10 @@ function renderChatList(chats) {
         <input type="checkbox" ${chat.inject ? 'checked' : ''} data-id="${chat.id}">
         <span class="inject-slider"></span>
       </label>
+      <label class="enter-toggle" title="${_('options_chatEnterHint')}">
+        <input type="checkbox" ${chat.submitByEnter ? 'checked' : ''} data-id="${chat.id}">
+        <span class="enter-slider">↵</span>
+      </label>
       <img class="chat-icon" src="${chat.icon}" alt="" loading="lazy">
       <div class="chat-info">
         <div class="chat-name">${chat.name}</div>
@@ -110,6 +114,18 @@ function renderChatList(chats) {
       const data = await loadData();
       const updated = (data.chats || []).map(c =>
         c.id === id ? { ...c, inject: checked } : c
+      );
+      await store.set('chats', updated);
+      renderChatList(updated);
+      chrome.runtime.sendMessage({ action: 'updateContentScripts' });
+    });
+
+    item.querySelector('.enter-toggle input').addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      const checked = e.target.checked;
+      const data = await loadData();
+      const updated = (data.chats || []).map(c =>
+        c.id === id ? { ...c, submitByEnter: checked } : c
       );
       await store.set('chats', updated);
       renderChatList(updated);

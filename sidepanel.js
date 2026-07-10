@@ -125,13 +125,15 @@ async function renderChips(prompts) {
       if (p.fillInput !== false) {
         const iframe = document.getElementById('chatFrame');
         if (iframe?.contentWindow) {
+          const chat = allChats.find(c => c.id === currentChatId);
           iframe.contentWindow.postMessage({
             source: 'aichats-chipbar',
             type: 'fill-input',
             text,
-            autoSubmit: p.autoSubmit !== false
+            autoSubmit: p.autoSubmit !== false,
+            submitByEnter: chat?.submitByEnter === true
           }, '*');
-          console.log('[AIChats] postMessage sent');
+          console.log('[AIChats] postMessage sent, submitByEnter=' + (chat?.submitByEnter === true));
         } else {
           console.warn('[AIChats] postMessage skipped: iframe not ready');
         }

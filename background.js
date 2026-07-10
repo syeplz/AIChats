@@ -24,11 +24,11 @@ chrome.runtime.onInstalled.addListener(async () => {
   const chats = await store.get('chats');
   if (!chats) {
     const defaults = [
-      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chatgpt.com',            icon: 'https://chatgpt.com/favicon.ico',    enabled: true },
-      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico',   enabled: true },
-      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico',           enabled: true },
-      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false },
-      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false },
+      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chatgpt.com',            icon: 'https://chatgpt.com/favicon.ico',    enabled: true, submitByEnter: false },
+      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico',   enabled: true, submitByEnter: false },
+      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico',           enabled: true, submitByEnter: false },
+      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false, submitByEnter: false },
+      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false, submitByEnter: false },
     ];
     await store.set('chats', defaults);
     await store.set('columns', 2);

@@ -295,6 +295,10 @@
     "message": "Inject script to enable auto-fill and submit",
     "description": "Inject toggle tooltip"
   },
+  "options_chatEnterHint": {
+    "message": "Submit with Enter key directly (skip button click)",
+    "description": "Submit by Enter toggle tooltip"
+  },
   "options_promptFillInput": {
     "message": "Fill input",
     "description": "Prompt config: fill input checkbox"

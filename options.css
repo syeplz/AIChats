@@ -211,6 +211,38 @@ summary:hover {
   color: var(--slider-dot-active);
 }
 
+.enter-toggle {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.enter-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.enter-toggle .enter-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--slider-bg);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.enter-toggle input:checked + .enter-slider {
+  background: var(--slider-active);
+  color: var(--slider-dot-active);
+}
+
 .add-form {
   display: flex;
   flex-direction: column;

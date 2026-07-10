@@ -112,14 +112,22 @@
     return null;
   }
 
-  function submit(input) {
+  function submit(input, submitByEnter) {
+    if (submitByEnter) {
+      log('submit: dispatching Enter (submitByEnter=true)');
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
+        bubbles: true, cancelable: true
+      }));
+      return;
+    }
     const btn = findSubmitButton(input);
     if (btn) {
       log('submit: clicking', desc(btn));
       btn.click();
       return;
     }
-    log('submit: dispatching Enter on input');
+    log('submit: no button found, dispatching Enter');
     input.dispatchEvent(new KeyboardEvent('keydown', {
       key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
       bubbles: true, cancelable: true
@@ -129,7 +137,7 @@
   window.addEventListener('message', (event) => {
     const msg = event.data;
     if (!msg || msg.source !== SOURCE || msg.type !== 'fill-input') return;
-    log('message received, autoSubmit=' + msg.autoSubmit, 'text.length=' + msg.text.length);
+    log('message received, autoSubmit=' + msg.autoSubmit, 'text.length=' + msg.text.length, 'submitByEnter=' + msg.submitByEnter);
     const input = findInput();
     if (!input) {
       warn('message: input not found, abort');
@@ -137,7 +145,7 @@
     }
     fillInput(input, msg.text);
     if (msg.autoSubmit) {
-      setTimeout(() => submit(input), 150);
+      setTimeout(() => submit(input, msg.submitByEnter), 150);
     }
   });
 })();
