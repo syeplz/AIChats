@@ -86,34 +86,29 @@
   function findSubmitButton(input) {
     const container = input.closest('form') || input.closest('[class*="input"]') || input.closest('[class*="footer"]') || input.parentElement;
     if (container) {
-      const btns = container.querySelectorAll('button:not([disabled])');
-      for (const btn of btns) {
+      for (const btn of container.querySelectorAll('button:not([disabled])')) {
         const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
         if (/send|submit|发送|提交/.test(aria)) {
           log('findSubmitButton: found by aria-label in container', desc(btn));
           return btn;
         }
       }
-      const lastBtn = btns[btns.length - 1];
-      if (lastBtn) {
-        log('findSubmitButton: fallback to last button in container', desc(lastBtn));
-        return lastBtn;
+    }
+    for (const btn of document.querySelectorAll('button:not([disabled])')) {
+      const testId = (btn.getAttribute('data-testid') || '').toLowerCase();
+      if (/send|submit/.test(testId)) {
+        log('findSubmitButton: found by data-testid', desc(btn));
+        return btn;
       }
     }
-    const allBtns = document.querySelectorAll('button:not([disabled])');
-    for (const btn of allBtns) {
+    for (const btn of document.querySelectorAll('button:not([disabled])')) {
       const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
       if (/send|submit|发送|提交/.test(aria)) {
         log('findSubmitButton: found by aria-label globally', desc(btn));
         return btn;
       }
     }
-    const lastBtn = allBtns[allBtns.length - 1];
-    if (lastBtn) {
-      log('findSubmitButton: fallback to last button on page', desc(lastBtn));
-      return lastBtn;
-    }
-    warn('findSubmitButton: no button found at all');
+    warn('findSubmitButton: no submit button found (will fallback to Enter)');
     return null;
   }
 
@@ -124,8 +119,11 @@
       btn.click();
       return;
     }
-    warn('submit: no button found, dispatching Enter key');
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true }));
+    log('submit: dispatching Enter on input');
+    input.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
+      bubbles: true, cancelable: true
+    }));
   }
 
   window.addEventListener('message', (event) => {
