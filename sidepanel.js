@@ -107,8 +107,10 @@ async function renderChips(prompts) {
       const url = tab?.url || '';
       const title = tab?.title || '';
       const text = resolved.content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText);
+      console.log('[AIChats] chip click: prompt=' + resolved.label, 'fillInput=' + (p.fillInput !== false), 'autoSubmit=' + (p.autoSubmit !== false), 'text.length=' + text.length);
       try {
         await navigator.clipboard.writeText(text);
+        console.log('[AIChats] clipboard write: OK');
       } catch {
         const ta = document.createElement('textarea');
         ta.value = text;
@@ -118,6 +120,7 @@ async function renderChips(prompts) {
         ta.select();
         document.execCommand('copy');
         ta.remove();
+        console.log('[AIChats] clipboard write: fallback execCommand');
       }
       if (p.fillInput !== false) {
         const iframe = document.getElementById('chatFrame');
@@ -128,7 +131,12 @@ async function renderChips(prompts) {
             text,
             autoSubmit: p.autoSubmit !== false
           }, '*');
+          console.log('[AIChats] postMessage sent');
+        } else {
+          console.warn('[AIChats] postMessage skipped: iframe not ready');
         }
+      } else {
+        console.log('[AIChats] fillInput disabled, skip postMessage');
       }
       chip.classList.add('copied');
       chip.textContent = _('sidepanel_promptCopied');

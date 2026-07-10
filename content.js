@@ -1,6 +1,17 @@
 (function() {
   const SOURCE = 'aichats-chipbar';
 
+  function log(...args) { console.log('[AIChats]', ...args); }
+  function warn(...args) { console.warn('[AIChats]', ...args); }
+  function error(...args) { console.error('[AIChats]', ...args); }
+
+  function desc(el) {
+    let s = el.tagName;
+    if (el.id) s += '#' + el.id;
+    if (el.className && typeof el.className === 'string') s += '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.');
+    return s;
+  }
+
   function isVisible(el) {
     const style = window.getComputedStyle(el);
     if (style.display === 'none' || style.visibility === 'hidden') return false;
@@ -27,8 +38,14 @@
         }
       } catch (e) {}
     }
-    if (candidates.length === 0) return null;
-    if (candidates.length === 1) return candidates[0].el;
+    if (candidates.length === 0) {
+      warn('findInput: no candidates found');
+      return null;
+    }
+    if (candidates.length === 1) {
+      log('findInput: single candidate', desc(candidates[0].el));
+      return candidates[0].el;
+    }
 
     for (const c of candidates) {
       let score = 0;
@@ -46,7 +63,9 @@
     }
 
     candidates.sort((a, b) => b.score - a.score);
-    return candidates[0].el;
+    const best = candidates[0];
+    log('findInput: scored', candidates.length, 'candidates, picked', desc(best.el), 'score=' + best.score);
+    return best.el;
   }
 
   function fillInput(el, text) {
@@ -54,9 +73,13 @@
     if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
       el.value = text;
       el.dispatchEvent(new Event('input', { bubbles: true }));
+      log('fillInput: set value on', desc(el), 'length=' + text.length);
     } else if (el.isContentEditable) {
       el.textContent = text;
       el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+      log('fillInput: set textContent on', desc(el), 'length=' + text.length);
+    } else {
+      warn('fillInput: unsupported element type', desc(el));
     }
   }
 
@@ -66,35 +89,54 @@
       const btns = container.querySelectorAll('button:not([disabled])');
       for (const btn of btns) {
         const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
-        if (/send|submit|发送|提交/.test(aria)) return btn;
+        if (/send|submit|发送|提交/.test(aria)) {
+          log('findSubmitButton: found by aria-label in container', desc(btn));
+          return btn;
+        }
       }
       const lastBtn = btns[btns.length - 1];
-      if (lastBtn) return lastBtn;
+      if (lastBtn) {
+        log('findSubmitButton: fallback to last button in container', desc(lastBtn));
+        return lastBtn;
+      }
     }
     const allBtns = document.querySelectorAll('button:not([disabled])');
     for (const btn of allBtns) {
       const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
-      if (/send|submit|发送|提交/.test(aria)) return btn;
+      if (/send|submit|发送|提交/.test(aria)) {
+        log('findSubmitButton: found by aria-label globally', desc(btn));
+        return btn;
+      }
     }
     const lastBtn = allBtns[allBtns.length - 1];
-    if (lastBtn) return lastBtn;
+    if (lastBtn) {
+      log('findSubmitButton: fallback to last button on page', desc(lastBtn));
+      return lastBtn;
+    }
+    warn('findSubmitButton: no button found at all');
     return null;
   }
 
   function submit(input) {
     const btn = findSubmitButton(input);
     if (btn) {
+      log('submit: clicking', desc(btn));
       btn.click();
       return;
     }
+    warn('submit: no button found, dispatching Enter key');
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true }));
   }
 
   window.addEventListener('message', (event) => {
     const msg = event.data;
     if (!msg || msg.source !== SOURCE || msg.type !== 'fill-input') return;
+    log('message received, autoSubmit=' + msg.autoSubmit, 'text.length=' + msg.text.length);
     const input = findInput();
-    if (!input) return;
+    if (!input) {
+      warn('message: input not found, abort');
+      return;
+    }
     fillInput(input, msg.text);
     if (msg.autoSubmit) {
       setTimeout(() => submit(input), 150);
