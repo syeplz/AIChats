@@ -1,5 +1,19 @@
 importScripts('store.js');
 
+async function migrateFromSync() {
+  const localData = await chrome.storage.local.get('chats');
+  if (localData.chats) return;
+  const keys = ['chats', 'columns', 'sidebarChat', 'theme', 'prompts', 'locale'];
+  const syncData = await chrome.storage.sync.get(keys);
+  const toSet = {};
+  for (const k of keys) {
+    if (syncData[k] !== undefined) toSet[k] = syncData[k];
+  }
+  if (Object.keys(toSet).length > 0) {
+    await chrome.storage.local.set(toSet);
+  }
+}
+
 async function updateChatScripts() {
   const chats = await store.get('chats') || [];
   const targets = chats.filter(c => c.enabled && c.inject);
@@ -21,6 +35,7 @@ async function updateChatScripts() {
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
+  await migrateFromSync();
   const chats = await store.get('chats');
   if (!chats) {
     const defaults = [

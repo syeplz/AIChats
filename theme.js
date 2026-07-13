@@ -10,7 +10,7 @@ function applyTheme(mode) {
 }
 
 async function getStoredTheme() {
-  const { theme } = await chrome.storage.sync.get(THEME_KEY);
+  const theme = await store.get(THEME_KEY);
   return theme || 'system';
 }
 
@@ -27,6 +27,6 @@ async function initTheme() {
 }
 
 async function setTheme(mode) {
-  await chrome.storage.sync.set({ theme: mode });
+  await store.set(THEME_KEY, mode);
   applyTheme(mode);
 }
