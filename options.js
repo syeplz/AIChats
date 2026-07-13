@@ -71,18 +71,18 @@ function renderChatList(chats) {
         <input type="checkbox" ${chat.enabled ? 'checked' : ''} data-id="${chat.id}">
         <span class="slider"></span>
       </label>
-      <label class="inject-toggle" title="${_('options_chatInjectHint')}">
-        <input type="checkbox" ${chat.inject ? 'checked' : ''} data-id="${chat.id}">
-        <span class="inject-slider"></span>
-      </label>
-      <label class="enter-toggle" title="${_('options_chatEnterHint')}">
-        <input type="checkbox" ${chat.submitByEnter ? 'checked' : ''} data-id="${chat.id}">
-        <span class="enter-slider">↵</span>
-      </label>
       <img class="chat-icon" src="${chat.icon}" alt="" loading="lazy">
       <div class="chat-info">
         <div class="chat-name">${chat.name}</div>
         <div class="chat-url">${chat.url}</div>
+        <div class="chat-status">
+          <span class="status-toggle${chat.inject ? ' status-on' : ' status-off'}" data-id="${chat.id}" data-field="inject" data-tip="${_('options_chatInjectHint')}">
+            ${chat.inject ? '✓' : '✕'} ${_('options_chatInjectLabel')}
+          </span>
+          <span class="status-toggle${chat.submitByEnter ? ' status-on' : ' status-off'}" data-id="${chat.id}" data-field="submitByEnter" data-tip="${_('options_chatEnterHint')}">
+            ${chat.submitByEnter ? '✓' : '✕'} ${_('options_chatEnterLabel')}
+          </span>
+        </div>
       </div>
       <div class="chat-actions">
         <button class="btn-edit" data-id="${chat.id}">${_('common_edit')}</button>
@@ -105,30 +105,6 @@ function renderChatList(chats) {
       const data = await loadData();
       const updated = chatList.setEnabled(data.chats || [], id, checked);
       await saveChats(updated);
-      chrome.runtime.sendMessage({ action: 'updateContentScripts' });
-    });
-
-    item.querySelector('.inject-toggle input').addEventListener('change', async (e) => {
-      const id = e.target.dataset.id;
-      const checked = e.target.checked;
-      const data = await loadData();
-      const updated = (data.chats || []).map(c =>
-        c.id === id ? { ...c, inject: checked } : c
-      );
-      await store.set('chats', updated);
-      renderChatList(updated);
-      chrome.runtime.sendMessage({ action: 'updateContentScripts' });
-    });
-
-    item.querySelector('.enter-toggle input').addEventListener('change', async (e) => {
-      const id = e.target.dataset.id;
-      const checked = e.target.checked;
-      const data = await loadData();
-      const updated = (data.chats || []).map(c =>
-        c.id === id ? { ...c, submitByEnter: checked } : c
-      );
-      await store.set('chats', updated);
-      renderChatList(updated);
       chrome.runtime.sendMessage({ action: 'updateContentScripts' });
     });
 
@@ -155,6 +131,41 @@ function renderChatList(chats) {
     });
   });
 }
+
+document.getElementById('chatList').addEventListener('click', async (e) => {
+  const toggle = e.target.closest('.status-toggle');
+  if (!toggle) return;
+  const id = toggle.dataset.id;
+  const field = toggle.dataset.field;
+  const data = await loadData();
+  const updated = (data.chats || []).map(c => {
+    if (c.id !== id) return c;
+    return { ...c, [field]: !c[field] };
+  });
+  await store.set('chats', updated);
+  renderChatList(updated);
+  chrome.runtime.sendMessage({ action: 'updateContentScripts' });
+});
+
+const tipEl = document.createElement('div');
+tipEl.className = 'tip';
+document.body.appendChild(tipEl);
+
+let tipTimer = null;
+document.addEventListener('mouseover', (e) => {
+  const toggle = e.target.closest('.status-toggle[data-tip]');
+  if (!toggle) { tipEl.hidden = true; clearTimeout(tipTimer); return; }
+  tipEl.textContent = toggle.dataset.tip;
+  tipEl.hidden = false;
+  const r = toggle.getBoundingClientRect();
+  tipEl.style.left = r.left + 'px';
+  tipEl.style.top = r.bottom + 6 + 'px';
+});
+document.addEventListener('mouseout', (e) => {
+  if (e.target.closest('.status-toggle[data-tip]')) {
+    tipEl.hidden = true;
+  }
+});
 
 function openEditModal(chat) {
   editingId = chat.id;
@@ -292,8 +303,12 @@ function renderPrompts(prompts) {
         <div class="prompt-label">${escapeHtml(resolved.label)}</div>
         <div class="prompt-preview">${escapeHtml(resolved.content)}</div>
         <div class="prompt-status">
-          <span class="${p.fillInput !== false ? 'status-on' : 'status-off'}">${p.fillInput !== false ? '✓' : '✕'} ${_('options_promptFillInput')}</span>
-          <span class="${p.autoSubmit !== false ? 'status-on' : 'status-off'}">${p.autoSubmit !== false ? '✓' : '✕'} ${_('options_promptAutoSubmit')}</span>
+          <span class="status-toggle${p.fillInput !== false ? ' status-on' : ' status-off'}" data-pid="${p.id}" data-field="fillInput" data-tip="${_('options_promptFillInputHint')}">
+            ${p.fillInput !== false ? '✓' : '✕'} ${_('options_promptFillInput')}
+          </span>
+          <span class="status-toggle${p.autoSubmit !== false ? ' status-on' : ' status-off'}" data-pid="${p.id}" data-field="autoSubmit" data-tip="${_('options_promptAutoSubmitHint')}">
+            ${p.autoSubmit !== false ? '✓' : '✕'} ${_('options_promptAutoSubmit')}
+          </span>
         </div>
       </div>
       <div class="prompt-actions">
@@ -343,6 +358,20 @@ function renderPrompts(prompts) {
     list.appendChild(item);
   });
 }
+
+document.getElementById('promptList').addEventListener('click', async (e) => {
+  const toggle = e.target.closest('.status-toggle');
+  if (!toggle) return;
+  const id = toggle.dataset.pid;
+  const field = toggle.dataset.field;
+  const data = await loadData();
+  const updated = (data.prompts || []).map(p => {
+    if (p.id !== id) return p;
+    return { ...p, [field]: p[field] === false };
+  });
+  await store.set('prompts', updated);
+  renderPrompts(updated);
+});
 
 function openPromptEditModal(p) {
   const resolved = localizePrompt(p);

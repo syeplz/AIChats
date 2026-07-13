@@ -295,17 +295,33 @@
     "message": "注入脚本以支持自动填充和提交",
     "description": "Inject toggle tooltip"
   },
+  "options_chatInjectLabel": {
+    "message": "注入脚本",
+    "description": "Inject status label"
+  },
   "options_chatEnterHint": {
     "message": "直接使用回车键提交（跳过按钮点击）",
     "description": "Submit by Enter toggle tooltip"
+  },
+  "options_chatEnterLabel": {
+    "message": "回车提交",
+    "description": "Submit by Enter status label"
   },
   "options_promptFillInput": {
     "message": "填入输入框",
     "description": "Prompt config: fill input checkbox"
   },
+  "options_promptFillInputHint": {
+    "message": "点击切换是否自动填充到输入框",
+    "description": "Fill input status label tooltip"
+  },
   "options_promptAutoSubmit": {
     "message": "自动提交",
     "description": "Prompt config: auto submit checkbox"
+  },
+  "options_promptAutoSubmitHint": {
+    "message": "点击切换是否自动提交",
+    "description": "Auto submit status label tooltip"
   },
 
   "sidepanel_promptCopied": {

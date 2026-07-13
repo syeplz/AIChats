@@ -161,86 +161,45 @@ summary:hover {
   background: var(--slider-dot-active);
 }
 
-.inject-toggle {
-  position: relative;
-  width: 28px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-.inject-toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.inject-toggle .inject-slider {
-  position: absolute;
-  inset: 0;
-  background: var(--slider-bg);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.inject-toggle .inject-slider::after {
-  content: '⊥';
+.chat-status {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  left: 2px;
-  top: 2px;
-  position: absolute;
-  background: var(--slider-dot);
-  border-radius: 50%;
-  font-size: 8px;
-  transition: transform 0.2s, background 0.2s;
-  color: var(--text-muted);
-  line-height: 1;
+  gap: 10px;
+  margin-top: 3px;
 }
 
-.inject-toggle input:checked + .inject-slider {
-  background: var(--slider-active);
-}
-
-.inject-toggle input:checked + .inject-slider::after {
-  transform: translateX(12px);
-  background: var(--slider-dot-active);
-  color: var(--slider-dot-active);
-}
-
-.enter-toggle {
-  position: relative;
-  width: 28px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-.enter-toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.enter-toggle .enter-slider {
-  position: absolute;
-  inset: 0;
-  background: var(--slider-bg);
-  border-radius: 8px;
+.status-toggle {
+  font-size: 11px;
   cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.status-toggle:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.status-toggle.status-on {
+  color: var(--accent);
+}
+
+.status-toggle.status-off {
   color: var(--text-muted);
 }
 
-.enter-toggle input:checked + .enter-slider {
-  background: var(--slider-active);
-  color: var(--slider-dot-active);
+.tip {
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .add-form {
@@ -604,14 +563,6 @@ summary:hover {
   margin-top: 3px;
   display: flex;
   gap: 10px;
-}
-
-.prompt-item .prompt-status .status-on {
-  color: var(--accent);
-}
-
-.prompt-item .prompt-status .status-off {
-  color: var(--text-muted);
 }
 
 .prompt-item .prompt-label {
