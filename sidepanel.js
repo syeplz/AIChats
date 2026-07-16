@@ -10,8 +10,27 @@ let allChats = [];
 let currentChatId = null;
 let ready = false;
 
-const select = document.getElementById('chatSelect');
+const chatSelect = document.getElementById('chatSelect');
+const chatSelectTrigger = document.getElementById('chatSelectTrigger');
+const chatSelectDropdown = document.getElementById('chatSelectDropdown');
 const frame = document.getElementById('chatFrame');
+
+function createLogoHTML(chat) {
+  if (!chat.icon) return '<span class="ai-badge">AI</span>';
+  return `<img class="chat-logo" src="${chat.icon}" alt="" loading="lazy"
+    onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ai-badge',textContent:'AI'}))">`;
+}
+
+function renderTrigger(chat) {
+  chatSelectTrigger.innerHTML =
+    createLogoHTML(chat) +
+    `<span class="chat-name">${chat.name}</span>` +
+    '<svg class="arrow" width="10" height="10" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function closeDropdown() {
+  chatSelect.classList.remove('open');
+}
 
 async function loadConfig() {
   const [chats, sidebarChat] = await Promise.all([
@@ -21,10 +40,10 @@ async function loadConfig() {
   allChats = chats || DEFAULT_CHATS;
   const enabled = allChats.filter(c => c.enabled);
 
-  select.innerHTML = '';
+  chatSelectDropdown.innerHTML = '';
 
   if (enabled.length === 0) {
-    select.innerHTML = `<option value="">${_('sidepanel_noChat')}</option>`;
+    chatSelectTrigger.innerHTML = '<span class="chat-name" style="color:var(--text-muted)">' + _('sidepanel_noChat') + '</span>';
     frame.src = 'about:blank';
     frame.hidden = true;
     document.getElementById('emptyState').hidden = false;
@@ -33,19 +52,35 @@ async function loadConfig() {
   frame.hidden = false;
   document.getElementById('emptyState').hidden = true;
 
-  const currentVal = select.value || sidebarChat || enabled[0].id;
+  const currentVal = currentChatId || sidebarChat || enabled[0].id;
   const hasCurrent = enabled.some(c => c.id === currentVal);
   const targetId = hasCurrent ? currentVal : enabled[0].id;
 
   enabled.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.name;
-    select.appendChild(opt);
+    const opt = document.createElement('div');
+    opt.className = 'custom-select-option' + (c.id === targetId ? ' active' : '');
+    opt.dataset.id = c.id;
+    opt.innerHTML = createLogoHTML(c) + `<span class="chat-name">${c.name}</span>`;
+    opt.addEventListener('click', () => {
+      selectChat(c.id);
+      closeDropdown();
+    });
+    chatSelectDropdown.appendChild(opt);
   });
 
-  select.value = targetId;
+  const targetChat = enabled.find(c => c.id === targetId);
+  renderTrigger(targetChat);
   loadChatDirect(targetId);
+}
+
+function selectChat(id) {
+  chatSelectDropdown.querySelectorAll('.custom-select-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.id === id);
+  });
+  const chat = allChats.find(c => c.id === id);
+  if (chat) renderTrigger(chat);
+  loadChatDirect(id);
+  store.set('sidebarChat', id);
 }
 
 function loadChatDirect(id) {
@@ -56,10 +91,16 @@ function loadChatDirect(id) {
   frame.src = chat.url;
 }
 
-select.addEventListener('change', () => {
-  loadChatDirect(select.value);
-  store.set('sidebarChat', select.value);
+chatSelectTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  chatSelect.classList.toggle('open');
 });
+
+document.addEventListener('click', (e) => {
+  if (!chatSelect.contains(e.target)) closeDropdown();
+});
+
+window.addEventListener('blur', closeDropdown);
 
 document.getElementById('btnRefresh').addEventListener('click', () => {
   frame.src = frame.src;
