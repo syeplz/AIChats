@@ -167,14 +167,24 @@ async function renderChips(prompts) {
     chip.className = 'chip';
     chip.textContent = resolved.label;
     chip.addEventListener('click', async () => {
-      let clipboardText = '';
-      try {
-        clipboardText = await navigator.clipboard.readText();
-      } catch {}
-      const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-      const url = tab?.url || '';
-      const title = tab?.title || '';
-      const text = resolved.content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText);
+      const content = resolved.content;
+      const needUrl = /\{url\}/.test(content);
+      const needTitle = /\{title\}/.test(content);
+      const needClipboard = /\{clipboard\}/.test(content);
+
+      let url = '', title = '', clipboardText = '';
+
+      if (needUrl || needTitle) {
+        const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+        url = tab?.url || '';
+        title = tab?.title || '';
+      }
+
+      if (needClipboard) {
+        try { clipboardText = await navigator.clipboard.readText(); } catch {}
+      }
+
+      const text = content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText);
       console.log('[AIChats] chip click: prompt=' + resolved.label, 'fillInput=' + (p.fillInput !== false), 'autoSubmit=' + (p.autoSubmit !== false), 'text.length=' + text.length);
       try {
         await navigator.clipboard.writeText(text);
