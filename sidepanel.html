@@ -41,6 +41,11 @@
   <div class="panel-body">
     <div id="chipBar" class="chip-bar" hidden></div>
     <iframe id="chatFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allow="clipboard-read; clipboard-write"></iframe>
+    <div id="loadingOverlay" class="loading-overlay" hidden>
+      <div class="loading-logo" id="loadingLogo"></div>
+      <div class="loading-label" id="loadingLabel"></div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
     <div id="emptyState" class="empty-state" hidden>
       <p data-i18n="sidepanel_emptyText">还没有启用聊天站点</p>
       <button id="btnSidebarOptions" data-i18n="sidepanel_goSettings">去设置</button>

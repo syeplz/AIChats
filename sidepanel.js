@@ -14,6 +14,9 @@ const chatSelect = document.getElementById('chatSelect');
 const chatSelectTrigger = document.getElementById('chatSelectTrigger');
 const chatSelectDropdown = document.getElementById('chatSelectDropdown');
 const frame = document.getElementById('chatFrame');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingLabel = document.getElementById('loadingLabel');
+const loadingLogo = document.getElementById('loadingLogo');
 
 function createLogoHTML(chat) {
   if (!chat.icon) return '<span class="ai-badge">AI</span>';
@@ -83,13 +86,33 @@ function selectChat(id) {
   store.set('sidebarChat', id);
 }
 
+function hideLoading() {
+  loadingOverlay.classList.add('fade-out');
+  setTimeout(() => {
+    loadingOverlay.hidden = true;
+    loadingOverlay.classList.remove('fade-out');
+  }, 250);
+}
+
 function loadChatDirect(id) {
   if (currentChatId === id) return;
   const chat = allChats.find(c => c.id === id);
   if (!chat) return;
   currentChatId = id;
+
+  loadingLogo.innerHTML = chat.icon
+    ? `<img src="${chat.icon}" alt="" onerror="this.outerHTML='<span class=ai-badge-lg>AI</span>'">`
+    : '<span class="ai-badge-lg">AI</span>';
+  loadingLabel.textContent = chat.name;
+  loadingOverlay.hidden = false;
+  loadingOverlay.classList.remove('fade-out');
+
   frame.src = chat.url;
 }
+
+frame.addEventListener('load', () => {
+  if (!loadingOverlay.hidden) hideLoading();
+});
 
 chatSelectTrigger.addEventListener('click', (e) => {
   e.stopPropagation();
