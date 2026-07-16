@@ -159,6 +159,27 @@ body {
   border-color: var(--accent);
 }
 
+.btn-github {
+  border-color: #3b82f633;
+}
+
+.btn-github:hover {
+  background: #3b82f612;
+  border-color: #3b82f655;
+  filter: drop-shadow(0 0 4px #3b82f688);
+}
+
+.btn-github svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  transition: filter 0.2s;
+}
+
+.btn-github:hover svg {
+  filter: brightness(1.2);
+}
+
 .chip.copied {
   background: #22c55e;
   color: #fff;

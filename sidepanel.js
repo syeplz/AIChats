@@ -73,6 +73,10 @@ document.getElementById('btnSettings').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
+document.getElementById('btnGithub').addEventListener('click', () => {
+  chrome.tabs.create({ url: 'https://github.com/syeplz/AIChats' });
+});
+
 document.getElementById('btnSidebarOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
