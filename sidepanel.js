@@ -171,20 +171,41 @@ async function renderChips(prompts) {
       const needUrl = /\{url\}/.test(content);
       const needTitle = /\{title\}/.test(content);
       const needClipboard = /\{clipboard\}/.test(content);
+      const needHtml = /\{html\}/.test(content);
 
-      let url = '', title = '', clipboardText = '';
+      let url = '', title = '', clipboardText = '', html = '';
 
-      if (needUrl || needTitle) {
+      if (needUrl || needTitle || needHtml) {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         url = tab?.url || '';
         title = tab?.title || '';
+        if (needHtml && tab?.id && url) {
+          try {
+            const origin = new URL(url).origin + '/*';
+            const has = await chrome.permissions.contains({ origins: [origin] });
+            if (!has) {
+              const granted = await chrome.permissions.request({ origins: [origin] });
+              if (!granted) {
+                alert(_('permission_html_required'));
+                return;
+              }
+            }
+            const [result] = await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              func: () => document.documentElement.outerHTML,
+            });
+            html = result?.result || '';
+          } catch (e) {
+            console.warn('[AIChats] {html} fetch failed:', e.message);
+          }
+        }
       }
 
       if (needClipboard) {
         try { clipboardText = await navigator.clipboard.readText(); } catch {}
       }
 
-      const text = content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText);
+      const text = content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText).replace(/\{html\}/g, html);
       console.log('[AIChats] chip click: prompt=' + resolved.label, 'fillInput=' + (p.fillInput !== false), 'autoSubmit=' + (p.autoSubmit !== false), 'text.length=' + text.length);
       try {
         await navigator.clipboard.writeText(text);

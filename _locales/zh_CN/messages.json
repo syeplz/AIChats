@@ -271,7 +271,7 @@
     "description": "Prompts add form: label placeholder"
   },
   "options_promptsAddContent": {
-    "message": "提示内容，支持 {url}、{title} 和 {clipboard} 变量",
+    "message": "提示内容，支持 {url}、{title}、{clipboard} 和 {html} 变量",
     "description": "Prompts add form: content placeholder"
   },
   "options_promptsAddBtn": {
@@ -331,5 +331,9 @@
   "permission_required": {
     "message": "需要权限才能嵌入此网站",
     "description": "Alert when user denies permission request for a new domain"
+  },
+  "permission_html_required": {
+    "message": "需要权限才能读取页面内容",
+    "description": "Alert when user denies permission request for reading page HTML"
   }
 }

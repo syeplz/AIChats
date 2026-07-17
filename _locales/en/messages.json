@@ -271,7 +271,7 @@
     "description": "Prompts add form: label placeholder"
   },
   "options_promptsAddContent": {
-    "message": "Prompt content — supports {url}, {title} and {clipboard}",
+    "message": "Prompt content — supports {url}, {title}, {clipboard} and {html}",
     "description": "Prompts add form: content placeholder"
   },
   "options_promptsAddBtn": {
@@ -331,5 +331,9 @@
   "permission_required": {
     "message": "Permission required to embed this site",
     "description": "Alert when user denies permission request for a new domain"
+  },
+  "permission_html_required": {
+    "message": "Permission required to read page content",
+    "description": "Alert when user denies permission request for reading page HTML"
   }
 }
