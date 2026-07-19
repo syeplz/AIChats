@@ -163,6 +163,7 @@ async function renderChips(prompts) {
   chipBar.innerHTML = '';
   prompts.forEach(p => {
     const resolved = localizePrompt(p);
+    if (!resolved) return;
     const chip = document.createElement('button');
     chip.className = 'chip';
     chip.textContent = resolved.label;

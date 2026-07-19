@@ -35,13 +35,15 @@ function translatePage() {
   });
 }
 
-const DEFAULT_PROMPT_IDS = new Set(['p_intro', 'p_summarize', 'p_whatis', 'p_clipboard', 'p_translate']);
+// >>> SYNCED_PROMPT_IDS_START
+const DEFAULT_PROMPT_IDS = new Set(['p_pageAnalysis', 'p_clipboardAnalysis', 'p_clipboardTranslation', 'p_diagnose', 'p_polishTranslate', 'p_reply', 'p_replyPlus']);
+// >>> SYNCED_PROMPT_IDS_END
 
 function localizePrompt(p) {
   if (!p.isDefault) return p;
   const labelKey = `prompts_${p.id}_label`;
   const contentKey = `prompts_${p.id}_content`;
   const localizedLabel = _(labelKey);
-  if (localizedLabel === labelKey) return p;
+  if (localizedLabel === labelKey) return null;
   return { ...p, label: localizedLabel, content: _(contentKey) };
 }

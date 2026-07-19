@@ -289,6 +289,7 @@ function renderPrompts(prompts) {
 
   prompts.forEach((p, i) => {
     const resolved = localizePrompt(p);
+    if (!resolved) return;
     const item = document.createElement('div');
     item.className = 'prompt-item';
 
@@ -374,7 +375,7 @@ document.getElementById('promptList').addEventListener('click', async (e) => {
 });
 
 function openPromptEditModal(p) {
-  const resolved = localizePrompt(p);
+  const resolved = localizePrompt(p) || p;
   promptEditingId = p.id;
   document.getElementById('promptEditLabel').value = resolved.label;
   document.getElementById('promptEditContent').value = resolved.content;
