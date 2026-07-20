@@ -6,7 +6,7 @@ AIChats does **not** collect, store, or transmit any personal data to any server
 
 ## Data Stored Locally
 
-AIChats uses `chrome.storage.sync` to store the following data **only on your local device** and synced across your Chrome browsers via your Google account:
+AIChats uses `chrome.storage.local` to store the following data **only on your local device**:
 
 - Your list of enabled/disabled AI chat sites (URLs, labels, icons)
 - Your layout preference (columns count)
@@ -19,7 +19,7 @@ AIChats uses `chrome.storage.sync` to store the following data **only on your lo
 
 **`clipboardRead`** — Used **solely** to paste text from your clipboard into a chat input field when you click the paste button within the extension. This permission is activated only on that specific user action. No clipboard data is ever read automatically, stored, or transmitted outside the extension.
 
-**`storage`** — Used to persist your preferences (chat site list, theme, layout, quick prompts) locally via `chrome.storage.sync`. Data is synced across your Chrome browsers through your Google account; it is never sent to any AIChats server.
+**`storage`** — Used to persist your preferences (chat site list, theme, layout, quick prompts) locally via `chrome.storage.local`. Data is never sent to any AIChats server.
 
 **`sidePanel`** — Used to open the extension in Chrome's side panel. No data is collected.
 
@@ -31,7 +31,7 @@ AIChats uses `chrome.storage.sync` to store the following data **only on your lo
 
 ## Data Sharing
 
-AIChats does **not** sell, share, or transmit your data to any third party. All data remains on your device and within your Chrome browser's sync infrastructure.
+AIChats does **not** sell, share, or transmit your data to any third party. All data remains on your device.
 
 ## External Websites
 
