@@ -87,7 +87,7 @@ function updateBackgroundJs(prompts) {
     const comma = i < prompts.length - 1 ? ',' : '';
     const label = p.label.replace(/'/g, "\\'");
     const content = p.content.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-    return `      { id: '${p.id}', isDefault: ${p.isDefault === 'true'}, enabled: ${p.enabled === 'true'}, label: '${label}', content: \`${content}\` }${comma}`;
+    return `      { id: '${p.id}', isDefault: ${p.isDefault === 'true'}, enabled: ${p.enabled === 'true'}, fillInput: ${p.fillInput !== 'false'}, autoSubmit: ${p.autoSubmit !== 'false'}, label: '${label}', content: \`${content}\` }${comma}`;
   });
   const block = `${startMarker}\n${lines.join('\n')}\n      ${endMarker}`;
 
