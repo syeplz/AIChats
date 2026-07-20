@@ -1,17 +1,34 @@
 const TEMPLATES = [
-  { name: 'ChatGPT',      url: 'https://chatgpt.com',            icon: 'https://chatgpt.com/favicon.ico' },
-  { name: 'DeepSeek',     url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico' },
-  { name: 'Claude',       url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico' },
-  { name: 'Kimi',         url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico' },
-  { name: '豆包',          url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico' },
-  { name: 'Gemini',       url: 'https://gemini.google.com',       icon: 'https://gemini.google.com/favicon.ico' },
-  { name: 'Perplexity',   url: 'https://www.perplexity.ai',       icon: 'https://www.google.com/s2/favicons?domain=perplexity.ai&sz=32' },
-  { name: 'Grok',         url: 'https://grok.com',                icon: 'https://www.google.com/s2/favicons?domain=grok.com&sz=32' },
-  { name: '通义千问',      url: 'https://www.qianwen.com/',          icon: 'https://www.qianwen.com/favicon.ico' },
-  { name: '文心一言',      url: 'https://yiyan.baidu.com',         icon: 'https://yiyan.baidu.com/favicon.ico' },
+  { name: 'ChatGPT',      url: 'https://chatgpt.com',            icon: '' },
+  { name: 'DeepSeek',     url: 'https://chat.deepseek.com',       icon: '' },
+  { name: 'Claude',       url: 'https://claude.ai',               icon: '' },
+  { name: 'Kimi',         url: 'https://kimi.moonshot.cn',        icon: '' },
+  { name: '豆包',          url: 'https://www.doubao.com/chat',     icon: '' },
+  { name: 'Gemini',       url: 'https://gemini.google.com',       icon: '' },
+  { name: 'Perplexity',   url: 'https://www.perplexity.ai',       icon: '' },
+  { name: 'Grok',         url: 'https://grok.com',                icon: '' },
+  { name: '通义千问',      url: 'https://www.qianwen.com/',          icon: '' },
+  { name: '文心一言',      url: 'https://yiyan.baidu.com',         icon: '' },
 ];
 
 let editingId = null;
+
+async function loadTemplateCache() {
+  return await store.get('templateCache') || {};
+}
+
+async function saveTemplateIcon(url, icon) {
+  const cache = await loadTemplateCache();
+  cache[url] = icon;
+  await store.set('templateCache', cache);
+}
+
+async function fetchTemplateIconWithTimeout(url, timeoutMs = 5000) {
+  return Promise.race([
+    autoDetectFavicon(url),
+    new Promise(resolve => setTimeout(() => resolve(''), timeoutMs))
+  ]);
+}
 
 async function loadData() {
   const [chats, columns, sidebarChat, theme, prompts] = await Promise.all([
@@ -71,7 +88,9 @@ function renderChatList(chats) {
         <input type="checkbox" ${chat.enabled ? 'checked' : ''} data-id="${chat.id}">
         <span class="slider"></span>
       </label>
-      <img class="chat-icon" src="${chat.icon}" alt="" loading="lazy">
+      ${chat.icon
+        ? `<img class="chat-icon" src="${chat.icon}" alt="" loading="lazy">`
+        : `<span class="ai-badge">AI</span>`}
       <div class="chat-info">
         <div class="chat-name">${chat.name}</div>
         <div class="chat-url">${chat.url}</div>
@@ -91,13 +110,6 @@ function renderChatList(chats) {
     `;
 
     list.appendChild(item);
-
-    const iconImg = item.querySelector('.chat-icon');
-    iconImg.addEventListener('error', () => {
-      if (iconImg.dataset.resolved) return;
-      iconImg.dataset.resolved = '1';
-      upgradeIcon(iconImg, chat);
-    });
 
     item.querySelector('.chat-toggle input').addEventListener('change', async (e) => {
       const id = e.target.dataset.id;
@@ -210,19 +222,36 @@ document.getElementById('editModal').addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeEditModal();
 });
 
-function renderTemplates(chats) {
+async function renderTemplates(chats) {
   const container = document.getElementById('templates');
   container.innerHTML = '';
+
+  const cache = await loadTemplateCache();
 
   TEMPLATES.forEach(tpl => {
     const btn = document.createElement('button');
     btn.className = 'template-btn';
-    btn.innerHTML = `<img src="${tpl.icon}" alt="" loading="lazy"> ${tpl.name}`;
+
+    const cachedIcon = cache[tpl.url];
+    btn.innerHTML = `${cachedIcon
+      ? `<img src="${cachedIcon}" alt="" loading="lazy">`
+      : '<span class="ai-badge">AI</span>'} ${tpl.name}`;
+
+    if (!cachedIcon) {
+      fetchTemplateIconWithTimeout(tpl.url).then(icon => {
+        if (icon) {
+          btn.innerHTML = `<img src="${icon}" alt="" loading="lazy"> ${tpl.name}`;
+          saveTemplateIcon(tpl.url, icon);
+        }
+      });
+    }
+
     btn.addEventListener('click', async () => {
-      const data = await loadData();
       try {
+        if (!await requestHostPermission(tpl.url)) return;
         const detected = await autoDetectFavicon(tpl.url);
-        const icon = detected || tpl.icon;
+        const icon = detected || '';
+        const data = await loadData();
         const updated = chatList.add(data.chats || [], { name: tpl.name, url: tpl.url, icon });
         await saveChats(updated);
       } catch (e) {
@@ -230,15 +259,6 @@ function renderTemplates(chats) {
       }
     });
     container.appendChild(btn);
-  });
-
-  TEMPLATES.forEach((tpl, i) => {
-    autoDetectFavicon(tpl.url).then(detected => {
-      if (detected && detected !== tpl.icon) {
-        const imgs = container.querySelectorAll('img');
-        if (imgs[i]) setFaviconSrc(imgs[i], detected, tpl.url);
-      }
-    });
   });
 }
 

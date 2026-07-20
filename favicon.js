@@ -1,3 +1,7 @@
+function isImageCT(ct) {
+  return !ct.startsWith('text/') || ct === 'text/xml';
+}
+
 async function autoDetectFavicon(siteUrl) {
   let url;
   try { url = new URL(siteUrl); } catch { return ''; }
@@ -29,7 +33,7 @@ async function autoDetectFavicon(siteUrl) {
       const r = await fetch(c, reqInit);
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
+        if (isImageCT(ct)) { r.body?.cancel(); return c; }
         r.body?.cancel();
       }
     } catch {}
@@ -41,16 +45,15 @@ async function autoDetectFavicon(siteUrl) {
       const r = await fetch(c, reqInit);
       if (r.ok) {
         const ct = r.headers.get('Content-Type') || '';
-        if (!ct.startsWith('text/')) { r.body?.cancel(); return c; }
+        if (isImageCT(ct)) { r.body?.cancel(); return c; }
         r.body?.cancel();
       }
     } catch {}
   }
-  return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
+  return '';
 }
 
 async function upgradeIcon(img, chat) {
-  const hostname = new URL(chat.url).hostname;
   const googlePrefix = 'https://www.google.com/s2/favicons?domain=';
 
   if (chat.icon.startsWith(googlePrefix)) return;
@@ -64,7 +67,7 @@ async function upgradeIcon(img, chat) {
     });
     if (resp.ok) {
       const ct = resp.headers.get('Content-Type') || '';
-      if (!ct.startsWith('text/')) {
+      if (isImageCT(ct)) {
         const blob = await resp.blob();
         img.src = URL.createObjectURL(blob);
         return;
@@ -72,16 +75,8 @@ async function upgradeIcon(img, chat) {
     }
   } catch {}
 
-  const googleUrl = `${googlePrefix}${hostname}&sz=32`;
-  img.src = googleUrl;
-  try {
-    const saved = await store.get('chats');
-    const target = saved?.find(c => c.id === chat.id);
-    if (target) {
-      target.icon = googleUrl;
-      await store.set('chats', saved);
-    }
-  } catch {}
+  const hostname = new URL(chat.url).hostname;
+  img.src = `${googlePrefix}${hostname}&sz=32`;
 }
 
 async function setFaviconSrc(img, iconUrl, siteUrl) {

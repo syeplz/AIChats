@@ -1,9 +1,9 @@
 const DEFAULT_CHATS = [
-  { id: 'chatgpt',  name: 'ChatGPT',  url: 'https://chatgpt.com',            icon: 'https://chatgpt.com/favicon.ico',        enabled: true },
-  { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico',   enabled: true },
-  { id: 'claude',   name: 'Claude',   url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico',           enabled: true },
-  { id: 'kimi',     name: 'Kimi',     url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false },
-  { id: 'doubao',   name: '豆包',      url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false },
+  { id: 'chatgpt',  name: 'ChatGPT',  url: 'https://chatgpt.com',            icon: '',  enabled: true },
+  { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com',       icon: '',  enabled: true },
+  { id: 'claude',   name: 'Claude',   url: 'https://claude.ai',               icon: '',  enabled: true },
+  { id: 'kimi',     name: 'Kimi',     url: 'https://kimi.moonshot.cn',        icon: '',  enabled: false },
+  { id: 'doubao',   name: '豆包',      url: 'https://www.doubao.com/chat',     icon: '',  enabled: false },
 ];
 
 let allChats = [];
@@ -18,17 +18,32 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 const loadingLabel = document.getElementById('loadingLabel');
 const loadingLogo = document.getElementById('loadingLogo');
 
+function createAIBadge() {
+  const span = document.createElement('span');
+  span.className = 'ai-badge';
+  span.textContent = 'AI';
+  return span;
+}
+
 function createLogoHTML(chat) {
-  if (!chat.icon) return '<span class="ai-badge">AI</span>';
-  return `<img class="chat-logo" src="${chat.icon}" alt="" loading="lazy"
-    onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ai-badge',textContent:'AI'}))">`;
+  if (!chat.icon) return createAIBadge();
+  const img = document.createElement('img');
+  img.className = 'chat-logo';
+  img.src = chat.icon;
+  img.alt = '';
+  img.loading = 'lazy';
+  return img;
 }
 
 function renderTrigger(chat) {
-  chatSelectTrigger.innerHTML =
-    createLogoHTML(chat) +
-    `<span class="chat-name">${chat.name}</span>` +
-    '<svg class="arrow" width="10" height="10" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  chatSelectTrigger.innerHTML = '';
+  chatSelectTrigger.appendChild(createLogoHTML(chat));
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'chat-name';
+  nameSpan.textContent = chat.name;
+  chatSelectTrigger.appendChild(nameSpan);
+  chatSelectTrigger.insertAdjacentHTML('beforeend',
+    '<svg class="arrow" width="10" height="10" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
 }
 
 function closeDropdown() {
@@ -63,7 +78,12 @@ async function loadConfig() {
     const opt = document.createElement('div');
     opt.className = 'custom-select-option' + (c.id === targetId ? ' active' : '');
     opt.dataset.id = c.id;
-    opt.innerHTML = createLogoHTML(c) + `<span class="chat-name">${c.name}</span>`;
+    opt.innerHTML = '';
+    opt.appendChild(createLogoHTML(c));
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'chat-name';
+    nameSpan.textContent = c.name;
+    opt.appendChild(nameSpan);
     opt.addEventListener('click', () => {
       selectChat(c.id);
       closeDropdown();
@@ -100,9 +120,26 @@ function loadChatDirect(id) {
   if (!chat) return;
   currentChatId = id;
 
-  loadingLogo.innerHTML = chat.icon
-    ? `<img src="${chat.icon}" alt="" onerror="this.outerHTML='<span class=ai-badge-lg>AI</span>'">`
-    : '<span class="ai-badge-lg">AI</span>';
+  loadingLogo.innerHTML = '';
+  if (chat.icon) {
+    const img = document.createElement('img');
+    img.src = chat.icon;
+    img.alt = '';
+    img.width = 40;
+    img.height = 40;
+    img.addEventListener('error', () => {
+      const badge = document.createElement('span');
+      badge.className = 'ai-badge-lg';
+      badge.textContent = 'AI';
+      img.replaceWith(badge);
+    }, { once: true });
+    loadingLogo.appendChild(img);
+  } else {
+    const badge = document.createElement('span');
+    badge.className = 'ai-badge-lg';
+    badge.textContent = 'AI';
+    loadingLogo.appendChild(badge);
+  }
   loadingLabel.textContent = chat.name;
   loadingOverlay.hidden = false;
   loadingOverlay.classList.remove('fade-out');

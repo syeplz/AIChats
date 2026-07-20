@@ -1,4 +1,5 @@
 importScripts('store.js');
+importScripts('favicon.js');
 
 async function migrateFromSync() {
   const localData = await chrome.storage.local.get('chats');
@@ -34,16 +35,46 @@ async function updateChatScripts() {
   } catch (e) { console.error('registerContentScripts error:', e); }
 }
 
+async function prefetchIcons() {
+  const chats = await store.get('chats');
+  if (!Array.isArray(chats)) return;
+  const reqInit = { signal: AbortSignal.timeout(3000) };
+  let changed = false;
+  await Promise.all(chats.map(async (chat) => {
+    let newIcon = '';
+    try {
+      newIcon = await autoDetectFavicon(chat.url);
+    } catch {}
+    if (!newIcon) {
+      const hostname = new URL(chat.url).hostname;
+      const googleUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
+      try {
+        const r = await fetch(googleUrl, reqInit);
+        if (r.ok) {
+          const ct = r.headers.get('Content-Type') || '';
+          if (!ct.startsWith('text/')) { newIcon = googleUrl; }
+          r.body?.cancel();
+        }
+      } catch {}
+    }
+    if (newIcon !== chat.icon) {
+      chat.icon = newIcon;
+      changed = true;
+    }
+  }));
+  if (changed) await store.set('chats', chats);
+}
+
 chrome.runtime.onInstalled.addListener(async () => {
   await migrateFromSync();
   const chats = await store.get('chats');
   if (!chats) {
     const defaults = [
-      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chatgpt.com',            icon: 'https://chatgpt.com/favicon.ico',    enabled: true, submitByEnter: true, inject: true },
-      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       icon: 'https://chat.deepseek.com/favicon.ico',   enabled: true, submitByEnter: true, inject: true },
-      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               icon: 'https://claude.ai/favicon.ico',           enabled: true, submitByEnter: false, inject: true },
-      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        icon: 'https://kimi.moonshot.cn/favicon.ico',    enabled: false, submitByEnter: true, inject: true },
-      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.doubao.com/favicon.ico',      enabled: false, submitByEnter: true, inject: true },
+      { id: 'chatgpt',  name: 'ChatGPT', url: 'https://chatgpt.com',            icon: 'https://www.google.com/s2/favicons?domain=chatgpt.com&sz=32',    enabled: true, submitByEnter: true, inject: true },
+      { id: 'deepseek', name: 'DeepSeek',url: 'https://chat.deepseek.com',       icon: 'https://www.google.com/s2/favicons?domain=chat.deepseek.com&sz=32',   enabled: true, submitByEnter: true, inject: true },
+      { id: 'claude',   name: 'Claude',  url: 'https://claude.ai',               icon: 'https://www.google.com/s2/favicons?domain=claude.ai&sz=32',           enabled: true, submitByEnter: false, inject: true },
+      { id: 'kimi',     name: 'Kimi',    url: 'https://kimi.moonshot.cn',        icon: 'https://www.google.com/s2/favicons?domain=kimi.moonshot.cn&sz=32',    enabled: false, submitByEnter: true, inject: true },
+      { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.google.com/s2/favicons?domain=www.doubao.com&sz=32',      enabled: false, submitByEnter: true, inject: true },
     ];
     await store.set('chats', defaults);
     await store.set('columns', 2);
@@ -748,6 +779,11 @@ English version:
   }
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   await updateChatScripts();
+  prefetchIcons();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  prefetchIcons();
 });
 
 chrome.runtime.onMessage.addListener(async (msg) => {

@@ -6,7 +6,7 @@ const chatList = {
   add(list, { name, url, icon }) {
     if (!name || !url) throw new Error(_('chatList_errorNameUrlRequired'));
     if (list.some(c => c.url === url)) throw new Error(_('chatList_errorDuplicateUrl'));
-    return [...list, { id: chatList.generateId(), name, url, icon: icon || '', enabled: true, submitByEnter: true }];
+    return [...list, { id: chatList.generateId(), name, url, icon: icon || '', enabled: true, inject: true, submitByEnter: true }];
   },
 
   edit(list, id, { name, url, icon }) {

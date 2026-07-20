@@ -74,6 +74,21 @@ summary:hover {
   flex-shrink: 0;
 }
 
+.chat-item .ai-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #a855f7, #3b82f6, #06b6d4);
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
 .chat-item .chat-info {
   flex: 1;
   min-width: 0;
@@ -310,6 +325,21 @@ summary:hover {
   width: 16px;
   height: 16px;
   border-radius: 2px;
+}
+
+.template-btn .ai-badge {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #a855f7, #3b82f6, #06b6d4);
+  color: #fff;
+  letter-spacing: -0.5px;
 }
 
 .field {
