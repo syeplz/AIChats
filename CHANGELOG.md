@@ -12,9 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   site stays alive in the background, preserving drafts and conversations.
 - New chat button in the side panel: starts a fresh conversation on the current
   site by dropping the saved snapshot and navigating to the site's new-chat page.
-- Right-click context menu: select text on any page and ask a chosen AI chat
-  (one item per enabled site), or translate the selection. The panel opens on
-  that chat and fills the text in automatically.
+- Right-click context menu: select text on any page and ask AI via a quick
+  prompt, send the raw selection, or translate it. The panel opens on the
+  current chat and fills the text in automatically.
 - Context-menu messages reuse the retrying fill pipeline, so they arrive
   reliably even on slow chat sites.
 

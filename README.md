@@ -18,7 +18,7 @@ Open AI chats in Chrome's side panel with a dropdown to instantly switch between
 **Keep-alive sessions** — switching chats never reloads the page. Each site you visit stays alive in the background, so your drafts and conversations survive switches, and going back is instant.
 
 ### Right-click to Ask
-Select text on any page, right-click, and pick **Ask AI with selected text** → a chat site, or **Translate selected text**. The side panel opens on that chat and the selection is sent immediately.
+Select text on any page, right-click, and pick from the **Ask AI with selected text** menu: a quick prompt, **Send selected text**, or **Translate selected text**. The side panel opens on your current chat and the selection is sent immediately (quick prompts auto-send only when that setting is on).
 
 ### Quick Prompts
 Pre-built template prompts that auto-fill with your current page context. Supports `{url}`, `{title}`, `{clipboard}` and `{html}` variables — click a chip to copy the expanded prompt to your clipboard. When a chat site has the inject script enabled, the prompt is also automatically filled into the chat input box, and optionally auto-submitted. The extension restores your original clipboard content after the prompt is filled into the input, so a `{clipboard}` prompt always reads your own copied content — never a previously generated prompt (a snapshot is kept in session memory only and cleared when the browser restarts).
@@ -74,7 +74,7 @@ English and Simplified Chinese with a runtime language switcher.
 1. Click the AIChats icon in the Chrome toolbar to open the side panel
 2. Use the dropdown to switch between AI chat sites — conversations are kept alive when you switch
 3. Use the **Quick Prompts** chips to copy pre-built prompts to your clipboard (and auto-fill them into the chat when supported)
-4. Right-click any selected text and choose **Ask AI with selected text** to send it straight to a chat
+4. Right-click any selected text and choose **Ask AI with selected text** to send it to your current chat
 5. Right-click the icon and select **Options** to customize sites, prompts, and theme
 
 ---
