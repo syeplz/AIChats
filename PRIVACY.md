@@ -17,9 +17,9 @@ AIChats uses `chrome.storage.local` to store the following data **only on your l
 
 ### Permissions Explanation
 
-**`clipboardRead`** — Used **solely** to paste text from your clipboard into a chat input field when you click the paste button within the extension. This permission is activated only on that specific user action. No clipboard data is ever read automatically, stored, or transmitted outside the extension.
+**`clipboardRead`** — Used **solely** to paste text from your clipboard into a chat input field when you click the paste button within the extension, and to snapshot your clipboard text when you click a quick prompt so the prompt can be copied without permanently overwriting your original clipboard content. This permission is activated only on that specific user action. No clipboard data is ever read automatically, stored, or transmitted outside the extension.
 
-**`storage`** — Used to persist your preferences (chat site list, theme, layout, quick prompts) locally via `chrome.storage.local`. Data is never sent to any AIChats server.
+**`storage`** — Used to persist your preferences (chat site list, theme, layout, quick prompts) locally via `chrome.storage.local`. Data is never sent to any AIChats server. When you click a quick prompt, a snapshot of your clipboard text and the last prompt written by the extension is kept **only in memory** via `chrome.storage.session`; it is automatically cleared when the browser restarts.
 
 **`sidePanel`** — Used to open the extension in Chrome's side panel. No data is collected.
 

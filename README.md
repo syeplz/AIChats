@@ -19,7 +19,7 @@ Open AI chats in Chrome's side panel with a dropdown to instantly switch between
 Launch multiple AI chats simultaneously in a full-page gallery view. Scroll-snapping per screen for easy comparison across different models. Each cell has its own refresh and "open in new tab" buttons, with an error overlay and fallback option when a site fails to load.
 
 ### Quick Prompts
-Pre-built template prompts that auto-fill with your current page context. Supports `{url}`, `{title}`, `{clipboard}` and `{html}` variables — click a chip to copy the expanded prompt to your clipboard. When a chat site has the inject script enabled, the prompt is also automatically filled into the chat input box, and optionally auto-submitted.
+Pre-built template prompts that auto-fill with your current page context. Supports `{url}`, `{title}`, `{clipboard}` and `{html}` variables — click a chip to copy the expanded prompt to your clipboard. When a chat site has the inject script enabled, the prompt is also automatically filled into the chat input box, and optionally auto-submitted. The extension restores your original clipboard content after the prompt is filled into the input, so a `{clipboard}` prompt always reads your own copied content — never a previously generated prompt (a snapshot is kept in session memory only and cleared when the browser restarts).
 
 ### Customizable
 - Add any AI chat website you like, or pick from **10 pre-configured templates**: ChatGPT, DeepSeek, Claude, Kimi, Doubao, Gemini, Perplexity, Grok, Tongyi Qianwen, Wenxin Yiyan

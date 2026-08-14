@@ -169,6 +169,12 @@
       return;
     }
     fillInput(input, msg.text);
+    try {
+      window.parent.postMessage({ source: 'aichats-content', type: 'fill-input-ack', gen: msg.gen }, '*');
+      log('fill-input-ack sent, gen=' + msg.gen);
+    } catch (e) {
+      warn('fill-input-ack send failed:', e);
+    }
     if (msg.autoSubmit) {
       setTimeout(() => submit(input, msg.submitByEnter), 150);
     }

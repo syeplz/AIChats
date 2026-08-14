@@ -189,6 +189,80 @@ async function updateThemeSelect() {
 
 const chipBar = document.getElementById('chipBar');
 
+// Clipboard guard: keep the user's clipboard from being polluted by our own prompt writes.
+const CLIPBOARD_GUARD_KEY = 'clipboardGuard';
+let cbGuard = { saved: null, lastWritten: null, gen: 0 };
+let pendingGen = null;
+let pendingTimer = null;
+
+async function loadClipboardGuard() {
+  try {
+    const stored = await chrome.storage.session.get(CLIPBOARD_GUARD_KEY) || {};
+    const guard = stored[CLIPBOARD_GUARD_KEY] || {};
+    cbGuard = {
+      saved: guard.saved ?? null,
+      lastWritten: guard.lastWritten ?? null,
+      gen: guard.gen || 0,
+    };
+  } catch {}
+}
+
+function saveClipboardGuard() {
+  try { chrome.storage.session.set({ [CLIPBOARD_GUARD_KEY]: cbGuard }); } catch {}
+}
+
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch { return false; }
+}
+
+async function readClipboardSafe() {
+  try { return await navigator.clipboard.readText(); } catch { return null; }
+}
+
+// Read the clipboard for template expansion. If the live clipboard still holds our own
+// last write (a copy-only residue), substitute the saved user content instead.
+async function snapshotClipboard() {
+  const live = await readClipboardSafe();
+  if (cbGuard.lastWritten !== null && live === cbGuard.lastWritten) {
+    return { clipboardText: cbGuard.saved || '', snapshotOk: cbGuard.saved !== null, dirty: true };
+  }
+  cbGuard.saved = live;
+  cbGuard.lastWritten = null;
+  return { clipboardText: live || '', snapshotOk: live !== null, dirty: false };
+}
+
+window.addEventListener('message', async (event) => {
+  const data = event.data;
+  if (!data || data.source !== 'aichats-content' || data.type !== 'fill-input-ack') return;
+  if (event.source !== frame.contentWindow || pendingGen === null || data.gen !== pendingGen) return;
+  pendingGen = null;
+  clearTimeout(pendingTimer);
+  if (cbGuard.saved === null) return;
+  const live = await readClipboardSafe();
+  if (live !== cbGuard.lastWritten) {
+    console.log('[AIChats] fill-input-ack: clipboard changed externally, skip restore');
+    return;
+  }
+  await writeClipboard(cbGuard.saved);
+  cbGuard.lastWritten = null;
+  saveClipboardGuard();
+  console.log('[AIChats] fill-input-ack: clipboard restored');
+});
+
 async function renderChips(prompts) {
   if (!Array.isArray(prompts)) prompts = await store.get('prompts') || [];
   prompts = prompts.filter(p => p.enabled !== false);
@@ -239,26 +313,25 @@ async function renderChips(prompts) {
         }
       }
 
-      if (needClipboard) {
-        try { clipboardText = await navigator.clipboard.readText(); } catch {}
+      const snap = await snapshotClipboard();
+      if (snap.dirty && snap.snapshotOk) {
+        await writeClipboard(cbGuard.saved);
       }
+      if (needClipboard) clipboardText = snap.clipboardText;
 
       const text = content.replace(/\{url\}/g, url).replace(/\{title\}/g, title).replace(/\{clipboard\}/g, clipboardText).replace(/\{html\}/g, html);
-      console.log('[AIChats] chip click: prompt=' + resolved.label, 'fillInput=' + (p.fillInput !== false), 'autoSubmit=' + (p.autoSubmit !== false), 'text.length=' + text.length);
-      try {
-        await navigator.clipboard.writeText(text);
-        console.log('[AIChats] clipboard write: OK');
-      } catch {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        console.log('[AIChats] clipboard write: fallback execCommand');
+
+      cbGuard.gen += 1;
+      const gen = cbGuard.gen;
+
+      let wrote = false;
+      if (snap.snapshotOk) {
+        wrote = await writeClipboard(text);
+        if (wrote) cbGuard.lastWritten = text;
       }
+      saveClipboardGuard();
+      console.log('[AIChats] chip click: prompt=' + resolved.label, 'fillInput=' + (p.fillInput !== false), 'autoSubmit=' + (p.autoSubmit !== false), 'text.length=' + text.length, 'clipboardWrite=' + (wrote ? 'OK' : 'skipped'));
+
       if (p.fillInput !== false) {
         const iframe = document.getElementById('chatFrame');
         if (iframe?.contentWindow) {
@@ -268,21 +341,35 @@ async function renderChips(prompts) {
             type: 'fill-input',
             text,
             autoSubmit: p.autoSubmit !== false,
-            submitByEnter: chat?.submitByEnter === true
+            submitByEnter: chat?.submitByEnter === true,
+            gen,
           }, '*');
-          console.log('[AIChats] postMessage sent, submitByEnter=' + (chat?.submitByEnter === true));
+          console.log('[AIChats] postMessage sent, gen=' + gen, 'submitByEnter=' + (chat?.submitByEnter === true));
+          pendingGen = gen;
+          clearTimeout(pendingTimer);
+          pendingTimer = setTimeout(() => { if (pendingGen === gen) pendingGen = null; }, 800);
         } else {
           console.warn('[AIChats] postMessage skipped: iframe not ready');
         }
       } else {
         console.log('[AIChats] fillInput disabled, skip postMessage');
       }
-      chip.classList.add('copied');
-      chip.textContent = _('sidepanel_promptCopied');
-      setTimeout(() => {
-        chip.textContent = resolved.label;
-        chip.classList.remove('copied');
-      }, 1200);
+
+      if (!wrote) {
+        chip.textContent = _('sidepanel_clipboardSkipped');
+        chip.classList.add('copied');
+        setTimeout(() => {
+          chip.textContent = resolved.label;
+          chip.classList.remove('copied');
+        }, 2000);
+      } else {
+        chip.classList.add('copied');
+        chip.textContent = _('sidepanel_promptCopied');
+        setTimeout(() => {
+          chip.textContent = resolved.label;
+          chip.classList.remove('copied');
+        }, 1200);
+      }
     });
     chipBar.appendChild(chip);
   });
@@ -294,6 +381,7 @@ async function init() {
   await loadConfig();
   await initTheme();
   updateThemeSelect();
+  await loadClipboardGuard();
   await renderChips();
 
   document.getElementById('themeSelect').addEventListener('change', async (e) => {
