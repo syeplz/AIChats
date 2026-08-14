@@ -4,12 +4,36 @@
     "description": "Extension name"
   },
   "appDesc": {
-    "message": "在 Chrome 侧边栏中集中使用多个 AI 聊天网站",
+    "message": "在 Chrome 侧边栏中集中使用多个 AI 聊天网站，右键选中文本即可问 AI 或翻译",
     "description": "Extension description"
   },
   "appTitle": {
     "message": "AIChats",
     "description": "Tooltip on toolbar icon"
+  },
+  "contextMenu_title": {
+    "message": "用选中文本问 AI",
+    "description": "Right-click context menu parent item"
+  },
+  "contextMenu_translateTitle": {
+    "message": "翻译选中文本",
+    "description": "Right-click context menu translate item"
+  },
+  "contextMenu_sendRawTitle": {
+    "message": "直接发送选中文本",
+    "description": "Right-click context menu item: send selected text without a prompt"
+  },
+  "contextMenu_noPrompt": {
+    "message": "无可用提示词",
+    "description": "Right-click context menu disabled item when no eligible prompts exist"
+  },
+  "translate_wrap_toEn": {
+    "message": "请把下面的内容翻译成英文，只输出译文，不要加任何解释。",
+    "description": "Instruction template for the translate-to-English context menu command"
+  },
+  "translate_wrap_toZh": {
+    "message": "请把下面的内容翻译成中文，只输出译文，不要加任何解释。",
+    "description": "Instruction template for the translate-to-Chinese context menu command"
   },
   "common_themeSystem": {
     "message": "☯ 跟随系统",
@@ -111,18 +135,6 @@
     "message": "图标 URL（可选，留空自动获取）",
     "description": "Edit modal: icon placeholder"
   },
-  "options_layout": {
-    "message": "布局",
-    "description": "Section heading: layout"
-  },
-  "options_columnsLabel": {
-    "message": "每页列数",
-    "description": "Columns field label"
-  },
-  "options_columnsHint": {
-    "message": "每行显示几个聊天站（1~4）",
-    "description": "Columns field hint"
-  },
   "options_sidebar": {
     "message": "侧边栏",
     "description": "Section heading: sidebar"
@@ -156,7 +168,7 @@
     "description": "Save success status"
   },
   "options_saveHint": {
-    "message": "列数、侧边栏和主题的更改需点击保存；站点和提示的增删改即时生效",
+    "message": "侧边栏和主题的更改需点击保存；站点和提示的增删改即时生效",
     "description": "Hint below the save button explaining what needs saving"
   },
   "options_chatListEmpty": {
@@ -175,9 +187,9 @@
     "message": "AIChats Sidebar",
     "description": "Side panel <title>"
   },
-  "sidepanel_expandTitle": {
-    "message": "打开网格视图",
-    "description": "Expand button tooltip"
+  "sidepanel_newChat": {
+    "message": "新建会话",
+    "description": "Start a new conversation button tooltip"
   },
   "sidepanel_emptyText": {
     "message": "还没有启用聊天站点",
@@ -190,22 +202,6 @@
   "sidepanel_noChat": {
     "message": "— 无聊天站 —",
     "description": "Dropdown placeholder when no chats available"
-  },
-  "standalone_title": {
-    "message": "AIChats",
-    "description": "Standalone page <title>"
-  },
-  "standalone_errorOverlay": {
-    "message": "无法加载，请尝试在新标签页打开",
-    "description": "Error overlay when iframe fails to load"
-  },
-  "standalone_emptyText": {
-    "message": "还没有添加聊天站点，请在扩展图标右键菜单中打开设置",
-    "description": "Empty state when no chats configured"
-  },
-  "standalone_screenDotLabel": {
-    "message": "第 $1 屏",
-    "description": "Aria-label for screen navigation dots. $1 is the screen number."
   },
   "chatList_errorNameUrlRequired": {
     "message": "名称和 URL 不能为空",
@@ -281,7 +277,11 @@
   },
   "sidepanel_clipboardSkipped": {
     "message": "剪贴板内容非文本，未覆盖",
-    "description": "Chip feedback when clipboard is not text and was left untouched"
+    "description": "Chip tooltip when clipboard is not text and was left untouched"
+  },
+  "sidepanel_clipboardSkippedShort": {
+    "message": "未覆盖",
+    "description": "Chip text when clipboard is not text and was left untouched"
   },
   "permission_required": {
     "message": "需要权限才能嵌入此网站",

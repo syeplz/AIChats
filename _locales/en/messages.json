@@ -4,12 +4,36 @@
     "description": "Extension name"
   },
   "appDesc": {
-    "message": "Use multiple AI chat websites in the Chrome side panel",
+    "message": "Use multiple AI chat websites in the Chrome side panel — select any text and ask AI or translate",
     "description": "Extension description"
   },
   "appTitle": {
     "message": "AIChats",
     "description": "Tooltip on toolbar icon"
+  },
+  "contextMenu_title": {
+    "message": "Ask AI with selected text",
+    "description": "Right-click context menu parent item"
+  },
+  "contextMenu_translateTitle": {
+    "message": "Translate selected text",
+    "description": "Right-click context menu translate item"
+  },
+  "contextMenu_sendRawTitle": {
+    "message": "Send selected text",
+    "description": "Right-click context menu item: send selected text without a prompt"
+  },
+  "contextMenu_noPrompt": {
+    "message": "No available prompts",
+    "description": "Right-click context menu disabled item when no eligible prompts exist"
+  },
+  "translate_wrap_toEn": {
+    "message": "Translate the following content into English; output only the translation, no extra explanation.",
+    "description": "Instruction template for the translate-to-English context menu command"
+  },
+  "translate_wrap_toZh": {
+    "message": "Translate the following content into Chinese; output only the translation, no extra explanation.",
+    "description": "Instruction template for the translate-to-Chinese context menu command"
   },
   "common_themeSystem": {
     "message": "☯ System",
@@ -111,18 +135,6 @@
     "message": "Icon URL (optional, auto-detect if empty)",
     "description": "Edit modal: icon placeholder"
   },
-  "options_layout": {
-    "message": "Layout",
-    "description": "Section heading: layout"
-  },
-  "options_columnsLabel": {
-    "message": "Columns per page",
-    "description": "Columns field label"
-  },
-  "options_columnsHint": {
-    "message": "Chat sites per row (1~4)",
-    "description": "Columns field hint"
-  },
   "options_sidebar": {
     "message": "Sidebar",
     "description": "Section heading: sidebar"
@@ -156,7 +168,7 @@
     "description": "Save success status"
   },
   "options_saveHint": {
-    "message": "Changes to columns, sidebar, and theme need Save; site and prompt edits take effect immediately",
+    "message": "Changes to sidebar and theme need Save; site and prompt edits take effect immediately",
     "description": "Hint below the save button explaining what needs saving"
   },
   "options_chatListEmpty": {
@@ -175,9 +187,9 @@
     "message": "AIChats Sidebar",
     "description": "Side panel <title>"
   },
-  "sidepanel_expandTitle": {
-    "message": "Open grid view",
-    "description": "Expand button tooltip"
+  "sidepanel_newChat": {
+    "message": "New chat",
+    "description": "Start a new conversation button tooltip"
   },
   "sidepanel_emptyText": {
     "message": "No chat sites enabled",
@@ -190,22 +202,6 @@
   "sidepanel_noChat": {
     "message": "— No chat —",
     "description": "Dropdown placeholder when no chats available"
-  },
-  "standalone_title": {
-    "message": "AIChats",
-    "description": "Standalone page <title>"
-  },
-  "standalone_errorOverlay": {
-    "message": "Failed to load. Try opening in a new tab.",
-    "description": "Error overlay when iframe fails to load"
-  },
-  "standalone_emptyText": {
-    "message": "No chat sites configured. Add sites from the extension options.",
-    "description": "Empty state when no chats configured"
-  },
-  "standalone_screenDotLabel": {
-    "message": "Screen $1",
-    "description": "Aria-label for screen navigation dots. $1 is the screen number."
   },
   "chatList_errorNameUrlRequired": {
     "message": "Name and URL are required",
@@ -281,7 +277,11 @@
   },
   "sidepanel_clipboardSkipped": {
     "message": "Clipboard is not text; not overwritten",
-    "description": "Chip feedback when clipboard is not text and was left untouched"
+    "description": "Chip tooltip when clipboard is not text and was left untouched"
+  },
+  "sidepanel_clipboardSkippedShort": {
+    "message": "Not overwritten",
+    "description": "Chip text when clipboard is not text and was left untouched"
   },
   "permission_required": {
     "message": "Permission required to embed this site",

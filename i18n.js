@@ -9,7 +9,9 @@ async function initI18n() {
     const resp = await fetch('_locales/zh_CN/messages.json');
     messages = await resp.json();
   }
-  document.documentElement.lang = (savedLocale === 'zh_CN' ? 'zh-CN' : savedLocale);
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = (savedLocale === 'zh_CN' ? 'zh-CN' : savedLocale);
+  }
 }
 
 function _(key, subs = []) {
@@ -44,6 +46,7 @@ function localizePrompt(p) {
   const labelKey = `prompts_${p.id}_label`;
   const contentKey = `prompts_${p.id}_content`;
   const localizedLabel = _(labelKey);
-  if (localizedLabel === labelKey) return null;
-  return { ...p, label: localizedLabel, content: _(contentKey) };
+  const localizedContent = _(contentKey);
+  if (localizedLabel === labelKey || localizedContent === contentKey) return null;
+  return { ...p, label: localizedLabel, content: localizedContent };
 }

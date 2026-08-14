@@ -5,6 +5,32 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2026-08-14
+
+### Added
+- Keep-alive sessions: switching chats no longer reloads the page — each visited
+  site stays alive in the background, preserving drafts and conversations.
+- New chat button in the side panel: starts a fresh conversation on the current
+  site by dropping the saved snapshot and navigating to the site's new-chat page.
+- Right-click context menu: select text on any page and ask a chosen AI chat
+  (one item per enabled site), or translate the selection. The panel opens on
+  that chat and fills the text in automatically.
+- Context-menu messages reuse the retrying fill pipeline, so they arrive
+  reliably even on slow chat sites.
+
+### Changed
+- Removed the standalone grid view (standalone page, expand button, columns
+  setting, openStandalone message, related i18n strings) to keep the extension
+  focused on the side panel.
+
+### Fixed
+- fill-input race: the panel re-sends a prompt until the chat page acks (up to
+  5s), and the content script retries finding the input box, dedupes by message
+  gen, and waits longer before submitting. Prompts no longer silently vanish on
+  slow or first-load sites.
+- Favicon prefetch no longer runs a full site crawl on every browser start; it
+  now skips sites whose icon was fetched within the last 7 days.
+
 ## [1.0.4] - 2026-08-14
 
 ### Added

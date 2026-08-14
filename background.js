@@ -1,10 +1,19 @@
 importScripts('store.js');
 importScripts('favicon.js');
+importScripts('i18n.js');
+
+// Let content scripts read/write the session snapshot (conversation restore).
+try {
+  const p = chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+  if (p && p.catch) p.catch((e) => console.error('[AIChats] setAccessLevel:', e));
+} catch (e) {
+  console.error('[AIChats] setAccessLevel:', e);
+}
 
 async function migrateFromSync() {
   const localData = await chrome.storage.local.get('chats');
   if (localData.chats) return;
-  const keys = ['chats', 'columns', 'sidebarChat', 'theme', 'prompts', 'locale'];
+  const keys = ['chats', 'sidebarChat', 'theme', 'prompts', 'locale'];
   const syncData = await chrome.storage.sync.get(keys);
   const toSet = {};
   for (const k of keys) {
@@ -35,12 +44,18 @@ async function updateChatScripts() {
   } catch (e) { console.error('registerContentScripts error:', e); }
 }
 
+const ICON_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+
 async function prefetchIcons() {
   const chats = await store.get('chats');
   if (!Array.isArray(chats)) return;
+  const cache = await store.get('iconCache') || {};
+  const now = Date.now();
   const reqInit = { signal: AbortSignal.timeout(3000) };
   let changed = false;
   await Promise.all(chats.map(async (chat) => {
+    const last = cache[chat.id] || 0;
+    if (chat.icon && now - last < ICON_CACHE_TTL) return;
     let newIcon = '';
     try {
       newIcon = await autoDetectFavicon(chat.url);
@@ -57,13 +72,179 @@ async function prefetchIcons() {
         }
       } catch {}
     }
+    cache[chat.id] = now;
     if (newIcon !== chat.icon) {
       chat.icon = newIcon;
       changed = true;
     }
   }));
   if (changed) await store.set('chats', chats);
+  await store.set('iconCache', cache);
 }
+
+function menuMsg(key, fallback) {
+  const v = _(key);
+  if (v && v !== key) return v;
+  return chrome.i18n.getMessage(key) || fallback;
+}
+
+async function refreshMenu() {
+  await initI18n();
+  await rebuildContextMenus();
+}
+
+async function rebuildContextMenus() {
+  chrome.contextMenus.removeAll(() => {});
+  const title = menuMsg('contextMenu_title', 'AIChats');
+  chrome.contextMenus.create({
+    id: 'aichats-parent',
+    title,
+    contexts: ['selection'],
+  });
+
+  const prompts = await store.get('prompts') || [];
+  const clipboardPrompts = (Array.isArray(prompts) ? prompts : [])
+    .filter(p => p.enabled !== false
+      && typeof p.content === 'string'
+      && p.content.includes('{clipboard}')
+      && p.fillInput !== false
+      && !p.content.includes('{html}'));
+
+  let addedAny = false;
+  for (const p of clipboardPrompts) {
+    const resolved = localizePrompt(p);
+    if (!resolved) continue;
+    chrome.contextMenus.create({
+      id: 'aichats-prompt-' + p.id,
+      parentId: 'aichats-parent',
+      title: resolved.label,
+      contexts: ['selection'],
+    });
+    addedAny = true;
+  }
+  if (!addedAny) {
+    chrome.contextMenus.create({
+      id: 'aichats-none',
+      parentId: 'aichats-parent',
+      title: menuMsg('contextMenu_noPrompt', 'No available prompts'),
+      enabled: false,
+      contexts: ['selection'],
+    });
+  }
+
+  chrome.contextMenus.create({
+    id: 'aichats-sep1',
+    parentId: 'aichats-parent',
+    type: 'separator',
+    contexts: ['selection'],
+  });
+  chrome.contextMenus.create({
+    id: 'aichats-ask-raw',
+    parentId: 'aichats-parent',
+    title: menuMsg('contextMenu_sendRawTitle', 'Send selected text'),
+    contexts: ['selection'],
+  });
+  chrome.contextMenus.create({
+    id: 'aichats-sep2',
+    parentId: 'aichats-parent',
+    type: 'separator',
+    contexts: ['selection'],
+  });
+  chrome.contextMenus.create({
+    id: 'aichats-translate',
+    parentId: 'aichats-parent',
+    title: menuMsg('contextMenu_translateTitle', 'Translate selected text'),
+    contexts: ['selection'],
+  });
+}
+
+function wrapTranslate(text) {
+  const toEn = /[\u4e00-\u9fff]/.test(text);
+  const key = toEn ? 'translate_wrap_toEn' : 'translate_wrap_toZh';
+  const fallback = toEn
+    ? 'Translate the following content into English; output only the translation, no extra explanation.'
+    : 'Translate the following content into Chinese; output only the translation, no extra explanation.';
+  const tmpl = _(key);
+  return `${(tmpl && tmpl !== key ? tmpl : fallback)}\n\n${text}`;
+}
+
+async function expandPrompt(content, selectionText) {
+  let url = '', title = '';
+  if (/\{url\}/.test(content) || /\{title\}/.test(content)) {
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    url = tab?.url || '';
+    title = tab?.title || '';
+  }
+  return content
+    .replace(/\{clipboard\}/g, selectionText)
+    .replace(/\{url\}/g, url)
+    .replace(/\{title\}/g, title)
+    .replace(/\{html\}/g, '');
+}
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (!info.selectionText) return;
+  const id = info.menuItemId;
+  let promptId = null;
+  let translate = false;
+  if (typeof id === 'string' && id.startsWith('aichats-prompt-')) {
+    promptId = id.slice('aichats-prompt-'.length);
+  } else if (id === 'aichats-ask-raw') {
+    // raw send: keep selection text as-is
+  } else if (id === 'aichats-translate') {
+    translate = true;
+  }
+
+  // sidePanel.open() must be called synchronously within the user gesture;
+  // any await before it makes Chrome reject the call.
+  const windowId = tab?.windowId;
+  if (windowId) {
+    chrome.sidePanel.open({ windowId }).catch(e => console.warn('[AIChats] sidePanel.open failed:', e));
+  }
+
+  await initI18n();
+
+  const chats = await store.get('chats') || [];
+  const enabled = chats.filter(c => c.enabled);
+  const sidebarChat = await store.get('sidebarChat');
+  let chatId = sidebarChat || enabled[0]?.id || null;
+  if (!chatId || !enabled.some(c => c.id === chatId)) {
+    chatId = enabled[0]?.id || null;
+  }
+  if (!chatId) return;
+
+  let text = info.selectionText;
+  let autoSubmit = true;
+  if (translate) {
+    text = wrapTranslate(info.selectionText);
+  } else if (promptId) {
+    const prompts = await store.get('prompts') || [];
+    const prompt = (Array.isArray(prompts) ? prompts : []).find(p => p.id === promptId);
+    if (!prompt) return;
+    autoSubmit = prompt.autoSubmit !== false;
+    const resolved = localizePrompt(prompt);
+    if (!resolved) return;
+    text = await expandPrompt(resolved.content, info.selectionText);
+  }
+
+  const payload = { chatId, text, autoSubmit };
+  await chrome.storage.session.set({ aichatsPendingFill: payload });
+
+  if (!windowId) {
+    try {
+      const wId = (await chrome.windows.getLastFocused()).id;
+      await chrome.sidePanel.open({ windowId: wId });
+    } catch (e) {
+      console.warn('[AIChats] sidePanel.open failed:', e);
+    }
+  }
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && (changes.chats || changes.prompts || changes.locale)) {
+    refreshMenu();
+  }
+});
 
 chrome.runtime.onInstalled.addListener(async () => {
   await migrateFromSync();
@@ -77,7 +258,6 @@ chrome.runtime.onInstalled.addListener(async () => {
       { id: 'doubao',   name: '豆包',     url: 'https://www.doubao.com/chat',     icon: 'https://www.google.com/s2/favicons?domain=www.doubao.com&sz=32',      enabled: false, submitByEnter: true, inject: true },
     ];
     await store.set('chats', defaults);
-    await store.set('columns', 2);
     await store.set('sidebarChat', 'chatgpt');
     await store.set('theme', 'system');
     await store.set('prompts', [
@@ -780,6 +960,7 @@ English version:
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   await updateChatScripts();
   prefetchIcons();
+  await refreshMenu();
 });
 
 chrome.runtime.onStartup.addListener(() => {
@@ -789,16 +970,5 @@ chrome.runtime.onStartup.addListener(() => {
 chrome.runtime.onMessage.addListener(async (msg) => {
   if (msg.action === 'updateContentScripts') {
     await updateChatScripts();
-  } else if (msg.action === 'openStandalone') {
-    const url = chrome.runtime.getURL('standalone.html');
-    const allTabs = await chrome.tabs.query({});
-    const existing = allTabs.find(t => t.url === url);
-    if (existing) {
-      await chrome.tabs.highlight({ windowId: existing.windowId, tabs: existing.index });
-      await chrome.windows.update(existing.windowId, { focused: true });
-    } else {
-      const tab = await chrome.tabs.create({ url });
-      await chrome.tabs.update(tab.id, { autoDiscardable: false });
-    }
   }
 });

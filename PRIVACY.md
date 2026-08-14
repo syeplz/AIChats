@@ -9,7 +9,6 @@ AIChats does **not** collect, store, or transmit any personal data to any server
 AIChats uses `chrome.storage.local` to store the following data **only on your local device**:
 
 - Your list of enabled/disabled AI chat sites (URLs, labels, icons)
-- Your layout preference (columns count)
 - Your theme preference (dark/light/system)
 - Your custom quick prompts (labels and content)
 
@@ -25,9 +24,11 @@ AIChats uses `chrome.storage.local` to store the following data **only on your l
 
 **`declarativeNetRequest`** — Used to remove `X-Frame-Options` and `Content-Security-Policy` response headers from subframes so that AI chat websites can be loaded in iframes. This modifies network responses locally; no request data is collected or transmitted.
 
-**`tabs`** — Used to open the standalone grid view in a new tab or focus an existing one. No tab data is collected.
+**`tabs`** — Used to read the current tab's URL/title for quick-prompt variables (`{url}`, `{title}`, `{html}`) and to open the project's GitHub page. No tab data is collected.
 
-**Host permissions** (`https://chatgpt.com/*`, `https://chat.deepseek.com/*`, etc.) — Required to embed these sites in iframes within the extension. The extension accesses these URLs only to display them in the side panel or grid view; it does not collect, store, or transmit any data from them.
+**`contextMenus`** — Adds a "Ask AI with selected text" right-click menu. The selected text is used only to fill a chat input when you click the menu item; it is never stored or transmitted outside the extension.
+
+**Host permissions** (`https://chatgpt.com/*`, `https://chat.deepseek.com/*`, etc.) — Required to embed these sites in iframes within the extension. The extension accesses these URLs only to display them in the side panel; it does not collect, store, or transmit any data from them.
 
 ## Data Sharing
 

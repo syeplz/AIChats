@@ -1,6 +1,6 @@
 # AIChats
 
-**Use multiple AI chat websites in the Chrome side panel** — switch between ChatGPT, DeepSeek, Claude, Kimi, Doubao and more, or open a standalone grid view, with smart quick prompts to speed up your workflow.
+**Use multiple AI chat websites in the Chrome side panel** — switch between ChatGPT, DeepSeek, Claude, Kimi, Doubao and more, send messages or right-click any selected text to ask AI, with smart quick prompts to speed up your workflow.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
@@ -15,8 +15,10 @@
 ### Side Panel
 Open AI chats in Chrome's side panel with a dropdown to instantly switch between sites. Includes a refresh button to reload the current chat and a GitHub button to visit the project repo. No need to juggle tabs.
 
-### Grid View
-Launch multiple AI chats simultaneously in a full-page gallery view. Scroll-snapping per screen for easy comparison across different models. Each cell has its own refresh and "open in new tab" buttons, with an error overlay and fallback option when a site fails to load.
+**Keep-alive sessions** — switching chats never reloads the page. Each site you visit stays alive in the background, so your drafts and conversations survive switches, and going back is instant.
+
+### Right-click to Ask
+Select text on any page, right-click, and pick **Ask AI with selected text** → a chat site, or **Translate selected text**. The side panel opens on that chat and the selection is sent immediately.
 
 ### Quick Prompts
 Pre-built template prompts that auto-fill with your current page context. Supports `{url}`, `{title}`, `{clipboard}` and `{html}` variables — click a chip to copy the expanded prompt to your clipboard. When a chat site has the inject script enabled, the prompt is also automatically filled into the chat input box, and optionally auto-submitted. The extension restores your original clipboard content after the prompt is filled into the input, so a `{clipboard}` prompt always reads your own copied content — never a previously generated prompt (a snapshot is kept in session memory only and cleared when the browser restarts).
@@ -27,7 +29,6 @@ Pre-built template prompts that auto-fill with your current page context. Suppor
 - Per-site settings: toggle script injection and Enter-to-submit behavior
 - Create your own quick prompt templates
 - Per-prompt settings: toggle input filling and auto-submit behavior
-- Adjustable grid columns (1–4) for the standalone view
 - Custom favicon auto-detection
 
 ### Built-in Prompts
@@ -71,10 +72,10 @@ English and Simplified Chinese with a runtime language switcher.
 ## Usage
 
 1. Click the AIChats icon in the Chrome toolbar to open the side panel
-2. Use the dropdown to switch between AI chat sites
-3. Click the **⊞** button to open the grid view with all enabled sites
-4. Use the **Quick Prompts** chips to copy pre-built prompts to your clipboard (and auto-fill them into the chat when supported)
-5. Right-click the icon and select **Options** to customize sites, prompts, layout, and theme
+2. Use the dropdown to switch between AI chat sites — conversations are kept alive when you switch
+3. Use the **Quick Prompts** chips to copy pre-built prompts to your clipboard (and auto-fill them into the chat when supported)
+4. Right-click any selected text and choose **Ask AI with selected text** to send it straight to a chat
+5. Right-click the icon and select **Options** to customize sites, prompts, and theme
 
 ---
 

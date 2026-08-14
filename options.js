@@ -31,20 +31,18 @@ async function fetchTemplateIconWithTimeout(url, timeoutMs = 5000) {
 }
 
 async function loadData() {
-  const [chats, columns, sidebarChat, theme, prompts] = await Promise.all([
+  const [chats, sidebarChat, theme, prompts] = await Promise.all([
     store.get('chats'),
-    store.get('columns'),
     store.get('sidebarChat'),
     store.get('theme'),
     store.get('prompts'),
   ]);
-  return { chats, columns, sidebarChat, theme, prompts };
+  return { chats, sidebarChat, theme, prompts };
 }
 
 async function render() {
   const data = await loadData();
   const chats = data.chats || [];
-  const columns = data.columns || 2;
   const sidebarChat = data.sidebarChat || (chats.find(c => c.enabled)?.id || '');
   const theme = data.theme || 'system';
   const prompts = data.prompts || [];
@@ -52,7 +50,6 @@ async function render() {
   renderChatList(chats);
   renderTemplates(chats);
   renderSidebarSelect(chats, sidebarChat);
-  renderColumns(columns);
   renderTheme(theme);
   renderPrompts(prompts);
 }
@@ -281,16 +278,6 @@ function renderSidebarSelect(chats, selected) {
   });
 }
 
-function renderColumns(val) {
-  const slider = document.getElementById('columns');
-  const display = document.getElementById('columnsValue');
-  slider.value = val;
-  display.textContent = val;
-  slider.addEventListener('input', () => {
-    display.textContent = slider.value;
-  });
-}
-
 function renderTheme(val) {
   const select = document.getElementById('themeSelect');
   if (select) select.value = val;
@@ -496,7 +483,6 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
 });
 
 document.getElementById('btnSave').addEventListener('click', async () => {
-  const columns = parseInt(document.getElementById('columns').value) || 2;
   const sidebarChat = document.getElementById('sidebarChat').value;
   const theme = document.getElementById('themeSelect').value;
 
@@ -504,7 +490,6 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const enabled = (data.chats || []).filter(c => c.enabled);
   const finalSidebar = sidebarChat || (enabled[0]?.id) || '';
 
-  await store.set('columns', columns);
   await store.set('sidebarChat', finalSidebar);
   await store.set('theme', theme);
   applyTheme(theme);

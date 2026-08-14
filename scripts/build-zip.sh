@@ -29,15 +29,12 @@ FILES=(
   i18n.js
   options.js
   sidepanel.js
-  standalone.js
   store.js
   theme.js
   options.css
   options.html
   sidepanel.css
   sidepanel.html
-  standalone.css
-  standalone.html
   theme.css
   README.md
   PRIVACY.md
