@@ -1,6 +1,6 @@
 # AIChats
 
-**Embed multiple AI chat websites in a single view** — switch between ChatGPT, DeepSeek, Claude, Kimi, Doubao and more from Chrome's side panel or a standalone grid view, with smart quick prompts to speed up your workflow.
+**Use multiple AI chat websites in the Chrome side panel** — switch between ChatGPT, DeepSeek, Claude, Kimi, Doubao and more, or open a standalone grid view, with smart quick prompts to speed up your workflow.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)

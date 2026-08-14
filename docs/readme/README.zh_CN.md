@@ -1,6 +1,6 @@
 # AIChats
 
-**在单一视图中嵌入多个 AI 聊天网站** — 在 Chrome 侧栏或独立网格视图中快速切换 ChatGPT、DeepSeek、Claude、Kimi、豆包等 AI 聊天，内置智能快捷提示提升效率。
+**在 Chrome 侧边栏中集中使用多个 AI 聊天网站** — 快速切换 ChatGPT、DeepSeek、Claude、Kimi、豆包等 AI 聊天，或打开独立网格视图，内置智能快捷提示提升效率。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](../../LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
