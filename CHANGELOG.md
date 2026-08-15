@@ -66,3 +66,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `autoSubmit` and `fillInput` included in synced prompt objects.
 - Enter used as primary submit fallback (removed last-button fallback).
+
+## [1.0.2] - 2026-06-24
+
+### Fixed
+- Side panel content is no longer clipped at the bottom: `panel-body` is now a
+  flex container.
+
+## [1.0.1] - 2026-06-23
+
+Initial release to the Chrome Web Store.
+
+### Added
+- MV3 extension: use multiple AI chat websites in the Chrome side panel.
+- Dark/light theme system with CSS variables and follow-system preference.
+- Side panel: keep-alive iframe caching, refresh button, and no auto-close when
+  switching tabs.
+- Standalone grid view with scroll-snap pagination dots and per-cell refresh
+  button.
+- Options page: edit modal, reorder buttons, save hints, and prompt enable
+  toggle.
+- Quick prompts: chip bar with clipboard copy, `{clipboard}` variable, and a
+  translate-clipboard default prompt.
+- i18n: self-fetching locale files with runtime language switcher and localized
+  default prompts.
+- Favicon auto-detection for default chats and newly added templates.
+- Dynamic host permission request when adding custom chat sites.
+- English and Chinese READMEs.
+
+### Changed
+- Redesigned extension icon.
+- Replaced `<all_urls>` host permission with specific AI chat domains to reduce
+  the permissions warning.
+
+### Fixed
+- Side panel blank page on chat switch caused by a redundant `currentChatId`
+  assignment.
+- Favicon detection returning HTML responses or failing on Cloudflare-protected
+  sites like Grok.
+- Auto-scroll to bottom on tab switch in the grid view.
+- Grid view tab lookup and cell relayout on resize.
+- Tongyi Qianwen preset link (`tongyi.aliyun.com` → `www.qianwen.com`).
+- Sidebar closing when clicking the expand button; iframe sandbox to prevent
+  frame-busting escapes.

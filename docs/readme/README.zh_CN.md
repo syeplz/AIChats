@@ -3,8 +3,10 @@
 **在 Chrome 侧边栏中集中使用多个 AI 聊天网站** — 快速切换 ChatGPT、DeepSeek、Claude、Kimi、豆包等 AI 聊天，直接发送消息或右键选中文本问 AI，内置智能快捷提示提升效率。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](../../LICENSE)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
+[![Users](https://img.shields.io/chrome-web-store/users/bflhgadnamnmpcpjhgcimnioelhbacpd?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
+[![Version](https://img.shields.io/chrome-web-store/v/bflhgadnamnmpcpjhgcimnioelhbacpd?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
 [![GitHub stars](https://img.shields.io/github/stars/syeplz/AIChats?style=social)](https://github.com/syeplz/AIChats)
+[![GitHub last commit](https://img.shields.io/github/last-commit/syeplz/AIChats)](https://github.com/syeplz/AIChats/commits)
 
 > **其他语言:** [English](../../README.md)
 
@@ -76,6 +78,12 @@
 3. 使用快捷提示芯片一键复制处理后的提示到剪贴板（支持的站点会自动填充到聊天输入框）
 4. 在任意网页选中文本，右键选择 **用选中文本问 AI** 直接发送给当前聊天
 5. 右键点击图标 → **选项**，自定义站点、提示和主题
+
+---
+
+## 更新日志
+
+版本历史见 [CHANGELOG.md](../../CHANGELOG.md)。
 
 ---
 

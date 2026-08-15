@@ -3,8 +3,10 @@
 **Use multiple AI chat websites in the Chrome side panel** — switch between ChatGPT, DeepSeek, Claude, Kimi, Doubao and more, send messages or right-click any selected text to ask AI, with smart quick prompts to speed up your workflow.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
+[![Users](https://img.shields.io/chrome-web-store/users/bflhgadnamnmpcpjhgcimnioelhbacpd?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
+[![Version](https://img.shields.io/chrome-web-store/v/bflhgadnamnmpcpjhgcimnioelhbacpd?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
 [![GitHub stars](https://img.shields.io/github/stars/syeplz/AIChats?style=social)](https://github.com/syeplz/AIChats)
+[![GitHub last commit](https://img.shields.io/github/last-commit/syeplz/AIChats)](https://github.com/syeplz/AIChats/commits)
 
 > **Other languages:** [简体中文](docs/readme/README.zh_CN.md)
 
@@ -76,6 +78,12 @@ English and Simplified Chinese with a runtime language switcher.
 3. Use the **Quick Prompts** chips to copy pre-built prompts to your clipboard (and auto-fill them into the chat when supported)
 4. Right-click any selected text and choose **Ask AI with selected text** to send it to your current chat
 5. Right-click the icon and select **Options** to customize sites, prompts, and theme
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ---
 
