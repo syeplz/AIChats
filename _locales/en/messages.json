@@ -283,6 +283,14 @@
     "message": "Not overwritten",
     "description": "Chip text when clipboard is not text and was left untouched"
   },
+  "sidepanel_clipboardEmpty": {
+    "message": "Clipboard empty",
+    "description": "Chip warning when clipboard is empty and {clipboard} variable was expected"
+  },
+  "sidepanel_clipboardNonText": {
+    "message": "Non-text skipped",
+    "description": "Chip warning when clipboard contains non-text content"
+  },
   "permission_required": {
     "message": "Permission required to embed this site",
     "description": "Alert when user denies permission request for a new domain"

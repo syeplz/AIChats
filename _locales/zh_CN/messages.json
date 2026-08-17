@@ -283,6 +283,14 @@
     "message": "未覆盖",
     "description": "Chip text when clipboard is not text and was left untouched"
   },
+  "sidepanel_clipboardEmpty": {
+    "message": "剪贴板为空",
+    "description": "Chip warning when clipboard is empty and {clipboard} variable was expected"
+  },
+  "sidepanel_clipboardNonText": {
+    "message": "非文本已跳过",
+    "description": "Chip warning when clipboard contains non-text content"
+  },
   "permission_required": {
     "message": "需要权限才能嵌入此网站",
     "description": "Alert when user denies permission request for a new domain"

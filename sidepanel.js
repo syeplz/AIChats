@@ -356,11 +356,11 @@ async function readClipboardSafe() {
 async function snapshotClipboard() {
   const live = await readClipboardSafe();
   if (cbGuard.lastWritten !== null && live === cbGuard.lastWritten) {
-    return { clipboardText: cbGuard.saved || '', snapshotOk: cbGuard.saved !== null, dirty: true };
+    return { clipboardText: cbGuard.saved || '', snapshotOk: cbGuard.saved !== null, dirty: true, clipboardEmpty: false };
   }
   cbGuard.saved = live;
   cbGuard.lastWritten = null;
-  return { clipboardText: live || '', snapshotOk: live !== null, dirty: false };
+  return { clipboardText: live || '', snapshotOk: live !== null, dirty: false, clipboardEmpty: live === '' };
 }
 
 window.addEventListener('message', async (event) => {
@@ -443,6 +443,73 @@ function fillIntoChat(text, autoSubmit) {
   scheduleResend(gen, msg, Date.now());
 }
 
+/**
+ * Show an animated SVG checkmark with glow on a chip.
+ * The SVG is absolutely positioned inside the chip and auto-removes after animation.
+ * @param {HTMLElement} chip
+ */
+function showChipSuccess(chip) {
+  chip.classList.add('chip-success');
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 20 20');
+
+  const check = document.createElementNS(ns, 'path');
+  check.setAttribute('d', 'M5.5 10.8 L8.5 13.8 L14.5 6.8');
+  check.classList.add('check');
+
+  svg.appendChild(check);
+
+  const wrapper = document.createElement('span');
+  wrapper.className = 'chip-glow';
+  wrapper.appendChild(svg);
+  chip.appendChild(wrapper);
+
+  wrapper.addEventListener('animationend', (e) => {
+    if (e.animationName === 'chipGlowOut') {
+      chip.classList.remove('chip-success');
+      wrapper.remove();
+    }
+  });
+}
+
+/**
+ * Show a floating bubble near a chip. Does not occupy layout space.
+ * @param {HTMLElement} chip
+ * @param {string} text - message to display
+ */
+function showFloatBubble(chip, text) {
+  const bubble = document.createElement('div');
+  bubble.className = 'float-bubble';
+  bubble.textContent = `⚠ ${text}`;
+  document.body.appendChild(bubble);
+
+  const rect = chip.getBoundingClientRect();
+  const bubbleWidth = bubble.getBoundingClientRect().width;
+  const half = bubbleWidth / 2;
+  const pad = 8;
+
+  let left = rect.left + rect.width / 2 - half;
+  if (left + bubbleWidth > window.innerWidth - pad) {
+    left = window.innerWidth - bubbleWidth - pad;
+  } else if (left < pad) {
+    left = pad;
+  }
+  bubble.style.left = `${left}px`;
+
+  const bubbleHeight = bubble.getBoundingClientRect().height;
+  if (rect.bottom + bubbleHeight + 4 > window.innerHeight) {
+    bubble.style.top = `${rect.top - bubbleHeight - 4}px`;
+  } else {
+    bubble.style.top = `${rect.bottom + 4}px`;
+  }
+
+  bubble.addEventListener('animationend', (e) => {
+    if (e.animationName === 'bubbleOut') bubble.remove();
+  });
+}
+
 async function renderChips(prompts) {
   if (!Array.isArray(prompts)) prompts = await store.get('prompts') || [];
   prompts = prompts.filter(p => p.enabled !== false);
@@ -463,12 +530,14 @@ async function renderChips(prompts) {
       const vars = await collectPageVars(content);
       if (vars === null) return;
 
+      const hasClipboardVar = /\{clipboard\}/.test(content);
+
       const snap = await snapshotClipboard();
       if (snap.dirty && snap.snapshotOk) {
         await writeClipboard(cbGuard.saved);
       }
       let clipboardText = '';
-      if (/\{clipboard\}/.test(content)) clipboardText = snap.clipboardText;
+      if (hasClipboardVar) clipboardText = snap.clipboardText;
 
       const text = content.replace(/\{url\}/g, vars.url).replace(/\{title\}/g, vars.title).replace(/\{clipboard\}/g, clipboardText).replace(/\{html\}/g, vars.html);
 
@@ -486,23 +555,28 @@ async function renderChips(prompts) {
         console.log('[AIChats] fillInput disabled, skip postMessage');
       }
 
-      if (!wrote) {
-        chip.textContent = _('sidepanel_clipboardSkippedShort');
-        chip.title = _('sidepanel_clipboardSkipped');
-        chip.classList.add('skipped');
-        setTimeout(() => {
-          chip.textContent = resolved.label;
-          chip.title = '';
-          chip.classList.remove('skipped');
-        }, 2000);
+      const fillEnabled = p.fillInput !== false;
+      if (fillEnabled) {
+        if (hasClipboardVar && !snap.snapshotOk) {
+          const warnLabel = snap.clipboardEmpty
+            ? _('sidepanel_clipboardEmpty')
+            : _('sidepanel_clipboardNonText');
+          showFloatBubble(chip, warnLabel);
+        } else {
+          showChipSuccess(chip);
+        }
       } else {
-        chip.title = '';
-        chip.classList.add('copied');
-        chip.textContent = _('sidepanel_promptCopied');
-        setTimeout(() => {
-          chip.textContent = resolved.label;
-          chip.classList.remove('copied');
-        }, 1200);
+        if (wrote) {
+          showChipSuccess(chip);
+        } else if (hasClipboardVar && !snap.snapshotOk) {
+          const warnLabel = snap.clipboardEmpty
+            ? _('sidepanel_clipboardEmpty')
+            : _('sidepanel_clipboardNonText');
+          showFloatBubble(chip, warnLabel);
+        } else {
+          chip.classList.add('error-flash');
+          chip.addEventListener('animationend', () => chip.classList.remove('error-flash'), { once: true });
+        }
       }
     });
     chipBar.appendChild(chip);
