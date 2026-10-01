@@ -423,6 +423,12 @@ body {
   filter: brightness(1.2);
 }
 
+.btn-opentab svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
 /* ── Chip success glow animation ───────────────────────── */
 .chip-glow {
   position: absolute;

@@ -191,6 +191,10 @@
     "message": "新建会话",
     "description": "Start a new conversation button tooltip"
   },
+  "sidepanel_openInNewTab": {
+    "message": "在浏览器标签页打开当前站点",
+    "description": "Open the current chat site in a browser tab"
+  },
   "sidepanel_emptyText": {
     "message": "还没有启用聊天站点",
     "description": "Empty state text when no chats enabled"

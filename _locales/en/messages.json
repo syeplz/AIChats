@@ -191,6 +191,10 @@
     "message": "New chat",
     "description": "Start a new conversation button tooltip"
   },
+  "sidepanel_openInNewTab": {
+    "message": "Open current site in a new tab",
+    "description": "Open the current chat site in a browser tab"
+  },
   "sidepanel_emptyText": {
     "message": "No chat sites enabled",
     "description": "Empty state text when no chats enabled"

@@ -258,6 +258,16 @@ document.getElementById('btnGithub').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://github.com/syeplz/AIChats' });
 });
 
+document.getElementById('btnOpenTab').addEventListener('click', async () => {
+  const chat = allChats.find(c => c.id === getActiveChatId());
+  if (!chat) return;
+  const url = await resolveFrameSrc(chat);
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  const opts = { url };
+  if (typeof tab?.index === 'number') opts.index = tab.index + 1;
+  chrome.tabs.create(opts);
+});
+
 document.getElementById('btnSidebarOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
