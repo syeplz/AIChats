@@ -15,7 +15,7 @@
 ## Features
 
 ### Side Panel
-Open AI chats in Chrome's side panel with a dropdown to instantly switch between sites. Includes a refresh button to reload the current chat and a GitHub button to visit the project repo. No need to juggle tabs.
+Open AI chats in Chrome's side panel with a dropdown to instantly switch between sites. Includes a refresh button to reload the current chat, a button to open the current site in a new browser tab, and a GitHub button to visit the project repo. No need to juggle tabs.
 
 **Keep-alive sessions** — switching chats never reloads the page. Each site you visit stays alive in the background, so your drafts and conversations survive switches, and going back is instant.
 
@@ -77,7 +77,8 @@ English and Simplified Chinese with a runtime language switcher.
 2. Use the dropdown to switch between AI chat sites — conversations are kept alive when you switch
 3. Use the **Quick Prompts** chips to copy pre-built prompts to your clipboard (and auto-fill them into the chat when supported)
 4. Right-click any selected text and choose **Ask AI with selected text** to send it to your current chat
-5. Right-click the icon and select **Options** to customize sites, prompts, and theme
+5. Click the ↗ button to move the current site to a full-width browser tab
+6. Right-click the icon and select **Options** to customize sites, prompts, and theme
 
 ---
 

@@ -5,6 +5,34 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-10-01
+
+### Added
+- Open in new tab: a header button in the side panel opens the current chat
+  site in a browser tab, right next to your current one, for tasks that need
+  a full-width window.
+- Chip click feedback: clicking a quick prompt now plays an animated checkmark
+  with a glow ring, and clipboard problems are reported in a floating bubble
+  ("Clipboard empty" / "Non-text skipped") instead of overwriting the chip
+  label.
+
+### Changed
+- Icon buttons in the side panel header use inline SVG icons (the settings gear
+  is now a sliders glyph) and expose `aria-label` alongside `title`; the
+  duplicated icon-button SVG rules were consolidated into one CSS block.
+
+### Fixed
+- Polish & Translate template: replaced a stray straight quote in the Chinese
+  prompt with the proper “中文润色版” quotation marks (both the locale file
+  and the bundled default in `background.js`).
+
+### Docs and metadata
+- Store users/version badges, GitHub last-commit badge, and a changelog link in
+  the English and Chinese READMEs.
+- Added a justification for the `contextMenus` permission and corrected the
+  right-click menu description (items act on the current chat, not one item per
+  site).
+
 ## [1.0.5] - 2026-08-14
 
 ### Added
