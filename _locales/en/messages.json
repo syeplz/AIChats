@@ -295,6 +295,66 @@
     "message": "Non-text skipped",
     "description": "Chip warning when clipboard contains non-text content"
   },
+  "sidepanel_manualPrompt": {
+    "message": "Custom",
+    "description": "Split button main area label: open manual prompt composer"
+  },
+  "sidepanel_manualPromptTitle": {
+    "message": "Write a prompt manually",
+    "description": "Split button main area tooltip"
+  },
+  "sidepanel_historyTitle": {
+    "message": "Prompt history",
+    "description": "Split button arrow tooltip: prompt history"
+  },
+  "sidepanel_historyEmpty": {
+    "message": "No history yet",
+    "description": "History popover empty state"
+  },
+  "sidepanel_historyClear": {
+    "message": "Clear",
+    "description": "History popover clear-all button"
+  },
+  "sidepanel_historyClearConfirm": {
+    "message": "Clear all prompt history?",
+    "description": "Confirm dialog before clearing prompt history"
+  },
+  "sidepanel_historyNew": {
+    "message": "New prompt",
+    "description": "History popover button to open the composer"
+  },
+  "sidepanel_historyEdit": {
+    "message": "Load into editor",
+    "description": "History item button: load entry into composer"
+  },
+  "sidepanel_historyDelete": {
+    "message": "Delete",
+    "description": "History item button: delete one entry"
+  },
+  "sidepanel_composeTitle": {
+    "message": "Compose Prompt",
+    "description": "Compose modal title"
+  },
+  "sidepanel_composeVarsLabel": {
+    "message": "Vars",
+    "description": "Compose modal variable toolbar label"
+  },
+  "sidepanel_composeHint": {
+    "message": "Ctrl+Enter to submit",
+    "description": "Compose modal keyboard shortcut hint"
+  },
+  "sidepanel_composeSubmitting": {
+    "message": "Submitting…",
+    "description": "Compose modal submit button while a submission is in flight"
+  },
+  "sidepanel_composeSubmit": {
+    "message": "Submit",
+    "description": "Compose modal submit button"
+  },
+  "sidepanel_composeOverwrite": {
+    "message": "The editor already has content. Overwrite it?",
+    "description": "Confirm dialog before overwriting composer draft"
+  },
   "permission_required": {
     "message": "Permission required to embed this site",
     "description": "Alert when user denies permission request for a new domain"

@@ -520,6 +520,81 @@ function showFloatBubble(chip, text) {
   });
 }
 
+/**
+ * Execute one quick prompt end-to-end: expand variables → write clipboard →
+ * optionally fill the active chat iframe. UI-agnostic so chip clicks, history
+ * entries and the compose modal can all share the exact same behavior.
+ *
+ * @param {Object} opts
+ * @param {string} opts.content  raw prompt text, may contain {url}/{title}/{clipboard}/{html}
+ * @param {boolean} [opts.fillInput=true]  postMessage the text into the chat iframe
+ * @param {boolean} [opts.autoSubmit=true] auto-submit after filling
+ * @param {string} [opts.label='']  label for logging
+ * @returns {Promise<{ok:boolean, text?:string, hasClipboardVar?:boolean,
+ *   snapOk?:boolean, clipboardEmpty?:boolean, wrote?:boolean, fillEnabled?:boolean}>}
+ *   ok=false means aborted (e.g. {html} permission denied); feedback was already shown.
+ */
+async function runQuickPrompt({ content, fillInput = true, autoSubmit = true, label = '' }) {
+  const vars = await collectPageVars(content);
+  if (vars === null) return { ok: false };
+
+  const hasClipboardVar = /\{clipboard\}/.test(content);
+
+  const snap = await snapshotClipboard();
+  if (snap.dirty && snap.snapshotOk) {
+    await writeClipboard(cbGuard.saved);
+  }
+  let clipboardText = '';
+  if (hasClipboardVar) clipboardText = snap.clipboardText;
+
+  const text = content.replace(/\{url\}/g, vars.url).replace(/\{title\}/g, vars.title).replace(/\{clipboard\}/g, clipboardText).replace(/\{html\}/g, vars.html);
+
+  let wrote = false;
+  if (snap.snapshotOk) {
+    wrote = await writeClipboard(text);
+    if (wrote) cbGuard.lastWritten = text;
+  }
+  saveClipboardGuard();
+  console.log('[AIChats] quick prompt: label=' + label, 'fillInput=' + fillInput, 'autoSubmit=' + autoSubmit, 'text.length=' + text.length, 'clipboardWrite=' + (wrote ? 'OK' : 'skipped'));
+
+  if (fillInput) {
+    fillIntoChat(text, autoSubmit);
+  } else {
+    console.log('[AIChats] fillInput disabled, skip postMessage');
+  }
+
+  return { ok: true, text, hasClipboardVar, snapOk: snap.snapshotOk, clipboardEmpty: snap.clipboardEmpty, wrote, fillEnabled: fillInput };
+}
+
+/**
+ * Render the result of runQuickPrompt on an anchor element (chip, split button…):
+ * success glow, clipboard warning bubble, or error flash.
+ * @param {HTMLElement} anchor
+ * @param {{ok:boolean, hasClipboardVar?:boolean, snapOk?:boolean,
+ *   clipboardEmpty?:boolean, wrote?:boolean, fillEnabled?:boolean}} result
+ */
+function renderPromptFeedback(anchor, result) {
+  if (!result.ok) return;
+  const { fillEnabled, hasClipboardVar, snapOk, clipboardEmpty, wrote } = result;
+  const warnLabel = () => clipboardEmpty ? _('sidepanel_clipboardEmpty') : _('sidepanel_clipboardNonText');
+  if (fillEnabled) {
+    if (hasClipboardVar && !snapOk) {
+      showFloatBubble(anchor, warnLabel());
+    } else {
+      showChipSuccess(anchor);
+    }
+  } else {
+    if (wrote) {
+      showChipSuccess(anchor);
+    } else if (hasClipboardVar && !snapOk) {
+      showFloatBubble(anchor, warnLabel());
+    } else {
+      anchor.classList.add('error-flash');
+      anchor.addEventListener('animationend', () => anchor.classList.remove('error-flash'), { once: true });
+    }
+  }
+}
+
 async function renderChips(prompts) {
   if (!Array.isArray(prompts)) prompts = await store.get('prompts') || [];
   prompts = prompts.filter(p => p.enabled !== false);
@@ -536,62 +611,305 @@ async function renderChips(prompts) {
     chip.className = 'chip';
     chip.textContent = resolved.label;
     chip.addEventListener('click', async () => {
-      const content = resolved.content;
-      const vars = await collectPageVars(content);
-      if (vars === null) return;
-
-      const hasClipboardVar = /\{clipboard\}/.test(content);
-
-      const snap = await snapshotClipboard();
-      if (snap.dirty && snap.snapshotOk) {
-        await writeClipboard(cbGuard.saved);
-      }
-      let clipboardText = '';
-      if (hasClipboardVar) clipboardText = snap.clipboardText;
-
-      const text = content.replace(/\{url\}/g, vars.url).replace(/\{title\}/g, vars.title).replace(/\{clipboard\}/g, clipboardText).replace(/\{html\}/g, vars.html);
-
-      let wrote = false;
-      if (snap.snapshotOk) {
-        wrote = await writeClipboard(text);
-        if (wrote) cbGuard.lastWritten = text;
-      }
-      saveClipboardGuard();
-      console.log('[AIChats] chip click: prompt=' + resolved.label, 'fillInput=' + (p.fillInput !== false), 'autoSubmit=' + (p.autoSubmit !== false), 'text.length=' + text.length, 'clipboardWrite=' + (wrote ? 'OK' : 'skipped'));
-
-      if (p.fillInput !== false) {
-        fillIntoChat(text, p.autoSubmit !== false);
-      } else {
-        console.log('[AIChats] fillInput disabled, skip postMessage');
-      }
-
-      const fillEnabled = p.fillInput !== false;
-      if (fillEnabled) {
-        if (hasClipboardVar && !snap.snapshotOk) {
-          const warnLabel = snap.clipboardEmpty
-            ? _('sidepanel_clipboardEmpty')
-            : _('sidepanel_clipboardNonText');
-          showFloatBubble(chip, warnLabel);
-        } else {
-          showChipSuccess(chip);
-        }
-      } else {
-        if (wrote) {
-          showChipSuccess(chip);
-        } else if (hasClipboardVar && !snap.snapshotOk) {
-          const warnLabel = snap.clipboardEmpty
-            ? _('sidepanel_clipboardEmpty')
-            : _('sidepanel_clipboardNonText');
-          showFloatBubble(chip, warnLabel);
-        } else {
-          chip.classList.add('error-flash');
-          chip.addEventListener('animationend', () => chip.classList.remove('error-flash'), { once: true });
-        }
-      }
+      const result = await runQuickPrompt({
+        content: resolved.content,
+        fillInput: p.fillInput !== false,
+        autoSubmit: p.autoSubmit !== false,
+        label: resolved.label,
+      });
+      renderPromptFeedback(chip, result);
     });
     chipBar.appendChild(chip);
   });
 }
+
+/* ── Manual prompt: history + compose modal ──────────────── */
+
+const HISTORY_KEY = 'manualPromptHistory';
+const HISTORY_LIMIT = 30;
+
+const btnManualPrompt = document.getElementById('btnManualPrompt');
+const btnHistoryArrow = document.getElementById('btnHistoryArrow');
+const historyPopover = document.getElementById('historyPopover');
+const historyList = document.getElementById('historyList');
+const historyEmpty = document.getElementById('historyEmpty');
+const btnHistoryClear = document.getElementById('btnHistoryClear');
+const btnHistoryNew = document.getElementById('btnHistoryNew');
+const composeModal = document.getElementById('composeModal');
+const composeText = document.getElementById('composeText');
+const composeCancel = document.getElementById('composeCancel');
+const composeSubmit = document.getElementById('composeSubmit');
+
+async function loadHistory() {
+  try {
+    const list = await store.get(HISTORY_KEY);
+    return Array.isArray(list) ? list : [];
+  } catch { return []; }
+}
+
+// Dedupe by exact content (moved to top with a fresh timestamp), cap the list.
+async function addHistoryEntry(content) {
+  const list = await loadHistory();
+  const entry = { content, ts: Date.now() };
+  const next = [entry, ...list.filter(e => e.content !== content)].slice(0, HISTORY_LIMIT);
+  await store.set(HISTORY_KEY, next);
+}
+
+async function removeHistoryEntry(content) {
+  const list = await loadHistory();
+  await store.set(HISTORY_KEY, list.filter(e => e.content !== content));
+}
+
+async function clearHistory() {
+  await store.set(HISTORY_KEY, []);
+}
+
+/* ── History popover (hover opens, arrow click pins) ─────── */
+
+const HISTORY_HOVER_DELAY = 300;
+const HISTORY_LEAVE_DELAY = 150;
+
+let historyOpen = false;
+let historyPinned = false;
+let historyHoverTimer = null;
+let historyLeaveTimer = null;
+
+function positionHistoryPopover() {
+  historyPopover.style.visibility = 'hidden';
+  historyPopover.hidden = false;
+  const rect = btnHistoryArrow.getBoundingClientRect();
+  const toolbarRect = document.querySelector('.chip-toolbar').getBoundingClientRect();
+  const pw = historyPopover.offsetWidth;
+  const ph = historyPopover.offsetHeight;
+  const pad = 8;
+  let left = rect.right - pw;
+  if (left < pad) left = pad;
+  if (left + pw > window.innerWidth - pad) left = window.innerWidth - pw - pad;
+  // Anchor below the toolbar so the popover never covers its bottom border;
+  // flip above when there is not enough room underneath.
+  const anchorTop = Math.max(rect.bottom, toolbarRect.bottom);
+  let top = anchorTop + 4;
+  if (top + ph > window.innerHeight - pad) top = Math.max(pad, Math.min(rect.top, toolbarRect.top) - ph - 4);
+  historyPopover.style.left = `${left}px`;
+  historyPopover.style.top = `${top}px`;
+  historyPopover.style.visibility = '';
+}
+
+async function renderHistoryList() {
+  const list = await loadHistory();
+  historyList.innerHTML = '';
+  const empty = list.length === 0;
+  historyEmpty.hidden = !empty;
+  btnHistoryClear.hidden = empty;
+  list.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.title = entry.content;
+
+    const text = document.createElement('span');
+    text.className = 'history-item-text';
+    text.textContent = entry.content;
+
+    const actions = document.createElement('span');
+    actions.className = 'history-item-actions';
+
+    const btnEdit = document.createElement('button');
+    btnEdit.type = 'button';
+    btnEdit.title = _('sidepanel_historyEdit');
+    btnEdit.setAttribute('aria-label', _('sidepanel_historyEdit'));
+    btnEdit.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+    btnEdit.addEventListener('click', (e) => {
+      e.stopPropagation();
+      loadIntoComposer(entry.content);
+    });
+
+    const btnDel = document.createElement('button');
+    btnDel.type = 'button';
+    btnDel.title = _('sidepanel_historyDelete');
+    btnDel.setAttribute('aria-label', _('sidepanel_historyDelete'));
+    btnDel.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+    btnDel.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await removeHistoryEntry(entry.content);
+      await renderHistoryList();
+    });
+
+    actions.appendChild(btnEdit);
+    actions.appendChild(btnDel);
+    item.appendChild(text);
+    item.appendChild(actions);
+    item.addEventListener('click', async () => {
+      const result = await runQuickPrompt({
+        content: entry.content,
+        fillInput: true,
+        autoSubmit: true,
+        label: 'history',
+      });
+      if (!result.ok) return; // aborted (permission denied)
+      closeHistoryPopover();
+      renderPromptFeedback(btnManualPrompt, result);
+    });
+    historyList.appendChild(item);
+  });
+}
+
+async function openHistoryPopover(pin) {
+  clearTimeout(historyHoverTimer);
+  clearTimeout(historyLeaveTimer);
+  if (pin) historyPinned = true;
+  if (historyOpen) return;
+  await renderHistoryList();
+  positionHistoryPopover();
+  historyOpen = true;
+  btnHistoryArrow.classList.add('active');
+}
+
+function closeHistoryPopover() {
+  clearTimeout(historyHoverTimer);
+  clearTimeout(historyLeaveTimer);
+  historyOpen = false;
+  historyPinned = false;
+  historyPopover.hidden = true;
+  btnHistoryArrow.classList.remove('active');
+}
+
+btnHistoryArrow.addEventListener('mouseenter', () => {
+  clearTimeout(historyLeaveTimer);
+  historyHoverTimer = setTimeout(() => openHistoryPopover(false), HISTORY_HOVER_DELAY);
+});
+
+btnHistoryArrow.addEventListener('mouseleave', () => {
+  clearTimeout(historyHoverTimer);
+  if (historyOpen && !historyPinned) {
+    historyLeaveTimer = setTimeout(() => {
+      if (!historyPopover.matches(':hover')) closeHistoryPopover();
+    }, HISTORY_LEAVE_DELAY);
+  }
+});
+
+btnHistoryArrow.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (historyOpen && historyPinned) {
+    closeHistoryPopover();
+  } else {
+    openHistoryPopover(true);
+  }
+});
+
+historyPopover.addEventListener('mouseenter', () => clearTimeout(historyLeaveTimer));
+historyPopover.addEventListener('mouseleave', () => {
+  if (!historyPinned) closeHistoryPopover();
+});
+
+document.addEventListener('click', (e) => {
+  if (!historyOpen) return;
+  if (historyPopover.contains(e.target) || btnHistoryArrow.contains(e.target)) return;
+  closeHistoryPopover();
+});
+
+btnHistoryClear.addEventListener('click', async () => {
+  if (!confirm(_('sidepanel_historyClearConfirm'))) return;
+  await clearHistory();
+  await renderHistoryList();
+});
+
+btnHistoryNew.addEventListener('click', () => {
+  closeHistoryPopover();
+  openComposeModal();
+});
+
+/* ── Compose modal ───────────────────────────────────────── */
+
+function openComposeModal() {
+  composeModal.hidden = false;
+  composeText.focus();
+}
+
+function closeComposeModal() {
+  composeModal.hidden = true;
+}
+
+// Load a history entry into the composer, confirming before overwriting a draft.
+function loadIntoComposer(content) {
+  if (composeText.value.trim() && composeText.value !== content) {
+    if (!confirm(_('sidepanel_composeOverwrite'))) return;
+  }
+  composeText.value = content;
+  closeHistoryPopover();
+  openComposeModal();
+}
+
+let composeSubmitting = false;
+
+async function submitCompose() {
+  if (composeSubmitting) return;
+  const content = composeText.value;
+  if (!content.trim()) {
+    closeComposeModal();
+    return;
+  }
+  composeSubmitting = true;
+  composeSubmit.disabled = true;
+  composeSubmit.textContent = _('sidepanel_composeSubmitting');
+  let result;
+  try {
+    result = await runQuickPrompt({
+      content,
+      fillInput: true,
+      autoSubmit: true,
+      label: 'manual',
+    });
+  } finally {
+    composeSubmitting = false;
+    composeSubmit.disabled = false;
+    composeSubmit.textContent = _('sidepanel_composeSubmit');
+  }
+  if (!result.ok) return; // aborted (permission denied); keep the modal open
+  await addHistoryEntry(content);
+  closeComposeModal();
+  // Draft is kept in composeText so a follow-up tweak and resubmit is easy.
+  renderPromptFeedback(btnManualPrompt, result);
+}
+
+btnManualPrompt.addEventListener('click', () => {
+  closeHistoryPopover();
+  openComposeModal();
+});
+
+composeCancel.addEventListener('click', closeComposeModal);
+
+composeModal.addEventListener('click', (e) => {
+  if (e.target === composeModal) closeComposeModal();
+});
+
+composeSubmit.addEventListener('click', submitCompose);
+
+composeText.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    submitCompose();
+  }
+});
+
+// Variable buttons insert at the cursor / replace the selection.
+document.querySelectorAll('.var-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.var || '';
+    const start = composeText.selectionStart ?? composeText.value.length;
+    const end = composeText.selectionEnd ?? start;
+    composeText.setRangeText(v, start, end, 'end');
+    composeText.focus();
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (!composeModal.hidden) {
+    closeComposeModal();
+  } else if (historyOpen) {
+    closeHistoryPopover();
+  }
+});
 
 // Right-click context menu handoff: the background writes a pending fill to
 // session storage and opens the panel. We consume it either here (fresh panel)

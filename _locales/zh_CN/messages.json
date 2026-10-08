@@ -295,6 +295,66 @@
     "message": "非文本已跳过",
     "description": "Chip warning when clipboard contains non-text content"
   },
+  "sidepanel_manualPrompt": {
+    "message": "自定义",
+    "description": "Split button main area label: open manual prompt composer"
+  },
+  "sidepanel_manualPromptTitle": {
+    "message": "手动编写提示词",
+    "description": "Split button main area tooltip"
+  },
+  "sidepanel_historyTitle": {
+    "message": "历史提示词",
+    "description": "Split button arrow tooltip: prompt history"
+  },
+  "sidepanel_historyEmpty": {
+    "message": "暂无历史",
+    "description": "History popover empty state"
+  },
+  "sidepanel_historyClear": {
+    "message": "清空",
+    "description": "History popover clear-all button"
+  },
+  "sidepanel_historyClearConfirm": {
+    "message": "确定清空全部历史提示词？",
+    "description": "Confirm dialog before clearing prompt history"
+  },
+  "sidepanel_historyNew": {
+    "message": "新建提示词",
+    "description": "History popover button to open the composer"
+  },
+  "sidepanel_historyEdit": {
+    "message": "载入编辑",
+    "description": "History item button: load entry into composer"
+  },
+  "sidepanel_historyDelete": {
+    "message": "删除",
+    "description": "History item button: delete one entry"
+  },
+  "sidepanel_composeTitle": {
+    "message": "编写提示词",
+    "description": "Compose modal title"
+  },
+  "sidepanel_composeVarsLabel": {
+    "message": "变量",
+    "description": "Compose modal variable toolbar label"
+  },
+  "sidepanel_composeHint": {
+    "message": "Ctrl+Enter 提交",
+    "description": "Compose modal keyboard shortcut hint"
+  },
+  "sidepanel_composeSubmitting": {
+    "message": "提交中…",
+    "description": "Compose modal submit button while a submission is in flight"
+  },
+  "sidepanel_composeSubmit": {
+    "message": "提交",
+    "description": "Compose modal submit button"
+  },
+  "sidepanel_composeOverwrite": {
+    "message": "编辑框已有内容，确定覆盖？",
+    "description": "Confirm dialog before overwriting composer draft"
+  },
   "permission_required": {
     "message": "需要权限才能嵌入此网站",
     "description": "Alert when user denies permission request for a new domain"
