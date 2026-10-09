@@ -334,7 +334,7 @@ body {
   font-size: 12px;
 }
 
-/* ── Chip toolbar: manual-prompt split button + scrollable chips ── */
+/* ── Chip toolbar: scrollable quick-prompt chips ───────── */
 .chip-toolbar {
   display: flex;
   align-items: center;
@@ -344,54 +344,8 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.split-btn {
-  display: inline-flex;
-  align-items: stretch;
-  flex-shrink: 0;
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--bg-card);
-}
-
-.split-btn-main {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  font-size: 11px;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  color: var(--text-dim);
-  white-space: nowrap;
-  transition: background 0.15s, color 0.15s;
-  font-family: inherit;
-  position: relative;
-  overflow: hidden;
-}
-
-.split-btn-main:hover {
-  background: var(--accent);
-  color: #fff;
-}
-
-.split-btn-arrow {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 5px;
-  cursor: pointer;
-  border: none;
-  border-left: 1px solid var(--border-light);
-  background: transparent;
-  color: var(--text-dim);
-  transition: background 0.15s, color 0.15s;
-}
-
-.split-btn-arrow:hover,
-.split-btn-arrow.active {
-  background: var(--accent);
-  color: #fff;
+.chip-toolbar[hidden] {
+  display: none;
 }
 
 .chip-bar {
@@ -438,7 +392,8 @@ body {
 }
 
 .chip.chip-success,
-.split-btn-main.chip-success {
+.compose-fab.chip-success,
+.composer-send.chip-success {
   animation: chipBounce 0.2s ease;
 }
 
@@ -523,7 +478,8 @@ body {
 
 /* ── Chip error flash ──────────────────────────────────── */
 .chip.error-flash,
-.split-btn-main.error-flash {
+.compose-fab.error-flash,
+.composer-send.error-flash {
   animation: chipErrorFlash 0.6s ease;
 }
 
@@ -559,34 +515,130 @@ body {
   to   { opacity: 0; }
 }
 
-/* ── Manual prompt history popover ─────────────────────── */
-.history-popover {
-  position: fixed;
-  z-index: 900;
+/* ── Compose modal: history section ────────────────────── */
+/* The composer stays put; only the history list flexes, so the send button
+   never drifts away from the textarea no matter how many entries exist. */
+.modal-compose > .composer {
+  flex-shrink: 0;
+}
+
+.compose-history {
   display: flex;
   flex-direction: column;
-  width: 280px;
-  max-height: 40vh;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-bottom: 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bg-card);
   overflow: hidden;
 }
 
-.history-popover[hidden] {
+.compose-history[hidden] {
   display: none;
 }
 
-.history-list {
+.compose-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 6px 32px 2px 4px; /* right gap clears the floating close button */
+  flex-shrink: 0;
+}
+
+/* Destructive list-footer action: sits at the end of the scrollable list so it
+   reads as the list's closing action, clearly separated from the search box. */
+.history-clear-row {
+  display: block;
+  width: 100%;
+  margin-top: 2px;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.history-clear-row:hover {
+  background: color-mix(in srgb, #ef4444 10%, transparent);
+  color: #ef4444;
+}
+
+/* Flush search: no box, no border — it reads as part of the history card.
+   A soft tint (and an accent icon) only appears on hover/focus. */
+.history-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.history-search-wrap:hover {
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+}
+
+.history-search-wrap:focus-within {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.history-search-wrap[hidden] {
+  display: none;
+}
+
+.history-search-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.history-search-wrap:focus-within .history-search-icon {
+  color: var(--accent);
+}
+
+.history-search {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.history-search::placeholder {
+  color: var(--text-muted);
+}
+
+.history-list {
+  flex: 1 1 auto;
   min-height: 0;
+  max-height: 400px; /* ~10 rows visible; the rest scrolls */
   overflow-y: auto;
   padding: 2px 0;
 }
 
+.history-list:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
 .history-empty {
-  padding: 16px 12px;
+  padding: 14px 12px;
   text-align: center;
   font-size: 12px;
   color: var(--text-muted);
@@ -600,20 +652,16 @@ body {
   position: relative;
   display: grid;
   grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
+  align-items: start;
+  gap: 8px;
+  padding: 7px 8px;
   cursor: pointer;
 }
 
-/* Full-width straight divider between entries; last one has none */
-.history-item + .history-item {
-  border-top: 1px solid var(--border-light);
-}
-
-/* Subtle tint hover (never a solid fill) so dividers and text stay readable */
-.history-item:hover {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+/* Subtle tint for hover and keyboard selection (never a solid fill) */
+.history-item:hover,
+.history-item.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .history-item-text {
@@ -629,16 +677,51 @@ body {
   overflow: hidden;
 }
 
-/* Action column keeps a fixed width so rows never shift; fades in on hover */
+/* Right column: time by default, swapped for actions on hover. Fixed width so
+   the text column never reflows when the buttons appear. */
+.history-item-meta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 46px;
+  min-height: 22px;
+}
+
+.history-item-time {
+  font-size: 10.5px;
+  line-height: 1;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
 .history-item-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
   display: flex;
   gap: 2px;
   opacity: 0;
   transition: opacity 0.15s;
 }
 
+.history-item:hover .history-item-time {
+  opacity: 0;
+}
+
 .history-item:hover .history-item-actions {
   opacity: 1;
+}
+
+/* Touch devices have no hover: keep actions visible and drop the time swap. */
+@media (hover: none) {
+  .history-item-time {
+    opacity: 0;
+  }
+  .history-item-actions {
+    opacity: 1;
+  }
 }
 
 .history-item-actions button {
@@ -667,40 +750,63 @@ body {
   pointer-events: none;
 }
 
-.history-footer {
+/* ── Draggable compose FAB ─────────────────────────────── */
+.compose-fab {
+  position: absolute;
+  /* Above chat iframes, below the loading overlay (50) so it stays hidden while a site loads. */
+  z-index: 40;
+  /* Pre-JS default: right-center; JS clamps the persisted position over this. */
+  left: calc(100% - 58px);
+  top: calc(50% - 24px);
+  width: 48px;
+  height: 48px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-top: 1px solid var(--border);
-}
-
-.history-footer button {
-  padding: 4px 10px;
-  font-size: 11px;
-  cursor: pointer;
+  justify-content: center;
+  padding: 0;
   border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-dim);
-  font-family: inherit;
-  transition: background 0.15s, color 0.15s;
-}
-
-.history-footer .history-clear:hover {
-  background: color-mix(in srgb, #ef4444 12%, transparent);
-  color: #ef4444;
-}
-
-.history-footer .history-new {
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent);
-}
-
-.history-footer .history-new:hover {
-  background: var(--accent);
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: grab;
   color: #fff;
+  background: linear-gradient(135deg, #a855f7, #3b82f6, #06b6d4);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.42), 0 2px 6px rgba(0, 0, 0, 0.25);
+  opacity: 0.6;
+  transition: opacity 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.compose-fab:hover {
+  opacity: 1;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.compose-fab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.compose-fab.dragging {
+  cursor: grabbing;
+  opacity: 1;
+  transition: none;
+  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.6), 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.compose-fab svg {
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+/* Full-panel shield shown only while dragging, so the chat iframe never
+   intercepts the pointer; sits just under the FAB. */
+.fab-drag-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 39;
+  cursor: grabbing;
 }
 
 /* ── Manual prompt compose modal ───────────────────────── */
@@ -719,139 +825,149 @@ body {
 }
 
 .modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px 18px;
   /* Fill the narrow side panel instead of degrading to 90vw */
-  width: min(440px, calc(100vw - 24px));
+  width: min(560px, calc(100vw - 16px));
+  max-height: calc(100vh - 24px);
+  overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* Three sections: title / editor / actions */
-.modal h3 {
-  font-size: 15px;
-  margin: 0 0 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
+/* When there is no history the composer is the first content, so give the
+   floating close button its own strip above it (only in this state). */
+.modal-compose.no-history {
+  padding-top: 40px; /* ~10px breathing room under the floating close button */
+}
+
+/* Close button floats at the modal's top-right corner; it never takes a row. */
+.compose-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  transition: background 0.15s, color 0.15s;
+}
+
+.compose-close:hover {
+  background: var(--btn-icon-hover-bg);
   color: var(--text-primary);
 }
 
-.modal-fields {
+.compose-close svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Chat-style composer: auto-growing textarea with an in-box bottom bar */
+.composer {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin-bottom: 14px;
-}
-
-.modal-fields textarea {
-  padding: 8px 12px;
-  background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: 0 0 6px 6px;
-  color: var(--text-primary);
-  font-size: 13px;
-  outline: none;
-  font-family: inherit;
-  resize: vertical;
-  min-height: 170px;
-  max-height: 45vh;
+  border-radius: 12px;
+  background: var(--bg-card);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.modal-fields textarea:focus {
+.composer:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
-/* Variable toolbar sits flush on top of the textarea (shared seam, no gap) */
-.var-toolbar {
+.composer textarea {
+  display: block;
+  width: 100%;
+  padding: 10px 12px 4px;
+  border: none;
+  background: transparent;
+  outline: none;
+  resize: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  font-family: inherit;
+  min-height: 76px; /* ~3 lines */
+  overflow-y: hidden;
+}
+
+.composer-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px 8px;
+}
+
+.var-pills {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  transition: border-color 0.15s;
-}
-
-.modal-fields:focus-within .var-toolbar {
-  border-color: var(--accent);
-}
-
-.var-toolbar-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-right: 2px;
-  user-select: none;
+  gap: 5px;
+  min-width: 0;
 }
 
 .var-btn {
-  padding: 2px 7px;
+  padding: 2px 8px;
   font-size: 11px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent);
-  transition: background 0.15s, color 0.15s;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-dim);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .var-btn:hover {
-  background: var(--accent);
-  color: #fff;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
+.composer-send {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
-
-.modal-hint {
-  margin-right: auto;
-  font-size: 11px;
-  color: var(--text-muted);
-  user-select: none;
-}
-
-.btn-secondary {
-  padding: 7px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-primary);
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
   cursor: pointer;
-  font-size: 13px;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: var(--bg-surface);
-  border-color: var(--border);
-}
-
-.btn-primary {
-  padding: 7px 24px;
+  border: none;
+  border-radius: 50%;
   background: var(--accent);
   color: var(--btn-primary-text);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
+  transition: background 0.15s, opacity 0.15s;
 }
 
-.btn-primary:hover {
+.composer-send:hover {
   background: var(--accent-hover);
 }
 
-.btn-primary:disabled {
-  opacity: 0.6;
+.composer-send:disabled {
+  opacity: 0.4;
   cursor: default;
+}
+
+.composer-send svg {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
 }

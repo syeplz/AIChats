@@ -55,6 +55,10 @@
     "message": "Cancel",
     "description": "Cancel button"
   },
+  "common_close": {
+    "message": "Close",
+    "description": "Close button"
+  },
   "common_detect": {
     "message": "Detect",
     "description": "Detect favicon button"
@@ -295,61 +299,37 @@
     "message": "Non-text skipped",
     "description": "Chip warning when clipboard contains non-text content"
   },
-  "sidepanel_manualPrompt": {
-    "message": "Custom",
-    "description": "Split button main area label: open manual prompt composer"
-  },
   "sidepanel_manualPromptTitle": {
     "message": "Write a prompt manually",
-    "description": "Split button main area tooltip"
+    "description": "Draggable compose FAB tooltip"
   },
   "sidepanel_historyTitle": {
-    "message": "Prompt history",
-    "description": "Split button arrow tooltip: prompt history"
+    "message": "History",
+    "description": "History section title inside the compose modal"
   },
-  "sidepanel_historyEmpty": {
-    "message": "No history yet",
-    "description": "History popover empty state"
+  "sidepanel_historySearch": {
+    "message": "Search history",
+    "description": "Placeholder and aria-label for the history search box"
+  },
+  "sidepanel_historyNoResults": {
+    "message": "No matching prompts",
+    "description": "Shown in the history list when the search matches nothing"
   },
   "sidepanel_historyClear": {
-    "message": "Clear",
-    "description": "History popover clear-all button"
+    "message": "Clear history",
+    "description": "History list footer button: clear all entries"
   },
   "sidepanel_historyClearConfirm": {
     "message": "Clear all prompt history?",
     "description": "Confirm dialog before clearing prompt history"
   },
-  "sidepanel_historyNew": {
-    "message": "New prompt",
-    "description": "History popover button to open the composer"
-  },
-  "sidepanel_historyEdit": {
-    "message": "Load into editor",
-    "description": "History item button: load entry into composer"
-  },
   "sidepanel_historyDelete": {
     "message": "Delete",
     "description": "History item button: delete one entry"
   },
-  "sidepanel_composeTitle": {
-    "message": "Compose Prompt",
-    "description": "Compose modal title"
-  },
-  "sidepanel_composeVarsLabel": {
-    "message": "Vars",
-    "description": "Compose modal variable toolbar label"
-  },
-  "sidepanel_composeHint": {
-    "message": "Ctrl+Enter to submit",
-    "description": "Compose modal keyboard shortcut hint"
-  },
-  "sidepanel_composeSubmitting": {
-    "message": "Submitting…",
-    "description": "Compose modal submit button while a submission is in flight"
-  },
   "sidepanel_composeSubmit": {
-    "message": "Submit",
-    "description": "Compose modal submit button"
+    "message": "Send (Ctrl+Enter)",
+    "description": "Compose modal send button (aria-label/title)"
   },
   "sidepanel_composeOverwrite": {
     "message": "The editor already has content. Overwrite it?",

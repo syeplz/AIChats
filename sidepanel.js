@@ -600,8 +600,10 @@ async function renderChips(prompts) {
   prompts = prompts.filter(p => p.enabled !== false);
   if (prompts.length === 0) {
     chipBar.hidden = true;
+    chipToolbar.hidden = true;
     return;
   }
+  chipToolbar.hidden = false;
   chipBar.hidden = false;
   chipBar.innerHTML = '';
   prompts.forEach(p => {
@@ -623,21 +625,25 @@ async function renderChips(prompts) {
   });
 }
 
-/* ── Manual prompt: history + compose modal ──────────────── */
+/* ── Manual prompt: compose modal + history + draggable FAB ── */
 
 const HISTORY_KEY = 'manualPromptHistory';
-const HISTORY_LIMIT = 30;
+const HISTORY_LIMIT = 30;        // entries kept in storage
+const FAB_POS_KEY = 'composeFabPos';
+const FAB_DRAG_THRESHOLD = 4;
 
-const btnManualPrompt = document.getElementById('btnManualPrompt');
-const btnHistoryArrow = document.getElementById('btnHistoryArrow');
-const historyPopover = document.getElementById('historyPopover');
+const composeFab = document.getElementById('composeFab');
+const panelBody = document.querySelector('.panel-body');
+const chipToolbar = document.getElementById('chipToolbar');
 const historyList = document.getElementById('historyList');
-const historyEmpty = document.getElementById('historyEmpty');
-const btnHistoryClear = document.getElementById('btnHistoryClear');
-const btnHistoryNew = document.getElementById('btnHistoryNew');
+const historyNoResults = document.getElementById('historyNoResults');
+const historySearchWrap = document.getElementById('historySearchWrap');
+const historySearch = document.getElementById('historySearch');
 const composeModal = document.getElementById('composeModal');
+const composeDialog = document.querySelector('.modal-compose');
+const composeHistory = document.querySelector('.compose-history');
 const composeText = document.getElementById('composeText');
-const composeCancel = document.getElementById('composeCancel');
+const composeClose = document.getElementById('composeClose');
 const composeSubmit = document.getElementById('composeSubmit');
 
 async function loadHistory() {
@@ -664,44 +670,50 @@ async function clearHistory() {
   await store.set(HISTORY_KEY, []);
 }
 
-/* ── History popover (hover opens, arrow click pins) ─────── */
+/* ── History list (rendered inside the compose modal) ─────── */
 
-const HISTORY_HOVER_DELAY = 300;
-const HISTORY_LEAVE_DELAY = 150;
+let historyEntries = [];   // everything stored, newest first
+let historyFiltered = [];  // the subset currently shown (search applied)
+let historyActiveIdx = -1; // keyboard selection within historyFiltered
+let relTimeFmt = null;
 
-let historyOpen = false;
-let historyPinned = false;
-let historyHoverTimer = null;
-let historyLeaveTimer = null;
-
-function positionHistoryPopover() {
-  historyPopover.style.visibility = 'hidden';
-  historyPopover.hidden = false;
-  const rect = btnHistoryArrow.getBoundingClientRect();
-  const toolbarRect = document.querySelector('.chip-toolbar').getBoundingClientRect();
-  const pw = historyPopover.offsetWidth;
-  const ph = historyPopover.offsetHeight;
-  const pad = 8;
-  let left = rect.right - pw;
-  if (left < pad) left = pad;
-  if (left + pw > window.innerWidth - pad) left = window.innerWidth - pw - pad;
-  // Anchor below the toolbar so the popover never covers its bottom border;
-  // flip above when there is not enough room underneath.
-  const anchorTop = Math.max(rect.bottom, toolbarRect.bottom);
-  let top = anchorTop + 4;
-  if (top + ph > window.innerHeight - pad) top = Math.max(pad, Math.min(rect.top, toolbarRect.top) - ph - 4);
-  historyPopover.style.left = `${left}px`;
-  historyPopover.style.top = `${top}px`;
-  historyPopover.style.visibility = '';
+// Locale-aware "3 分钟前 / 3 minutes ago"; falls back to a date for old entries.
+function formatRelTime(ts) {
+  if (!Number.isFinite(ts)) return '';
+  const locale = document.documentElement.lang || 'zh-CN';
+  if (!relTimeFmt) {
+    try { relTimeFmt = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }); }
+    catch { relTimeFmt = new Intl.RelativeTimeFormat('en', { numeric: 'auto' }); }
+  }
+  const diffSec = Math.round((ts - Date.now()) / 1000); // negative for the past
+  const abs = Math.abs(diffSec);
+  if (abs < 60) return relTimeFmt.format(diffSec, 'second');
+  if (abs < 3600) return relTimeFmt.format(Math.round(diffSec / 60), 'minute');
+  if (abs < 86400) return relTimeFmt.format(Math.round(diffSec / 3600), 'hour');
+  if (abs < 86400 * 30) return relTimeFmt.format(Math.round(diffSec / 86400), 'day');
+  return new Date(ts).toLocaleDateString(locale);
 }
 
 async function renderHistoryList() {
-  const list = await loadHistory();
+  historyEntries = await loadHistory();
+  const query = historySearch.value.trim().toLowerCase();
+  const matches = query
+    ? historyEntries.filter(e => e.content.toLowerCase().includes(query))
+    : historyEntries.slice();
+  historyFiltered = matches;
+
+  const hasEntries = historyEntries.length > 0;
+  // Hide the whole history block until at least one entry exists; the list
+  // itself scrolls past ~10 rows (max-height), never hard-sliced.
+  composeHistory.hidden = !hasEntries;
+  composeDialog.classList.toggle('no-history', !hasEntries);
+  historySearchWrap.hidden = !hasEntries;
+  historyNoResults.hidden = !(hasEntries && query && matches.length === 0);
+
   historyList.innerHTML = '';
-  const empty = list.length === 0;
-  historyEmpty.hidden = !empty;
-  btnHistoryClear.hidden = empty;
-  list.forEach(entry => {
+  historyActiveIdx = -1;
+
+  historyFiltered.forEach(entry => {
     const item = document.createElement('div');
     item.className = 'history-item';
     item.title = entry.content;
@@ -710,19 +722,18 @@ async function renderHistoryList() {
     text.className = 'history-item-text';
     text.textContent = entry.content;
 
+    const meta = document.createElement('span');
+    meta.className = 'history-item-meta';
+
+    const time = document.createElement('span');
+    time.className = 'history-item-time';
+    time.textContent = formatRelTime(entry.ts);
+
     const actions = document.createElement('span');
     actions.className = 'history-item-actions';
 
-    const btnEdit = document.createElement('button');
-    btnEdit.type = 'button';
-    btnEdit.title = _('sidepanel_historyEdit');
-    btnEdit.setAttribute('aria-label', _('sidepanel_historyEdit'));
-    btnEdit.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
-    btnEdit.addEventListener('click', (e) => {
-      e.stopPropagation();
-      loadIntoComposer(entry.content);
-    });
-
+    // The whole row already loads the entry into the composer, so no dedicated
+    // edit button is needed — only the destructive delete stays here.
     const btnDel = document.createElement('button');
     btnDel.type = 'button';
     btnDel.title = _('sidepanel_historyDelete');
@@ -734,94 +745,106 @@ async function renderHistoryList() {
       await renderHistoryList();
     });
 
-    actions.appendChild(btnEdit);
     actions.appendChild(btnDel);
+    meta.appendChild(time);
+    meta.appendChild(actions);
     item.appendChild(text);
-    item.appendChild(actions);
-    item.addEventListener('click', async () => {
-      const result = await runQuickPrompt({
-        content: entry.content,
-        fillInput: true,
-        autoSubmit: true,
-        label: 'history',
-      });
-      if (!result.ok) return; // aborted (permission denied)
-      closeHistoryPopover();
-      renderPromptFeedback(btnManualPrompt, result);
-    });
+    item.appendChild(meta);
+    item.addEventListener('click', () => loadIntoComposer(entry.content));
     historyList.appendChild(item);
   });
-}
 
-async function openHistoryPopover(pin) {
-  clearTimeout(historyHoverTimer);
-  clearTimeout(historyLeaveTimer);
-  if (pin) historyPinned = true;
-  if (historyOpen) return;
-  await renderHistoryList();
-  positionHistoryPopover();
-  historyOpen = true;
-  btnHistoryArrow.classList.add('active');
-}
-
-function closeHistoryPopover() {
-  clearTimeout(historyHoverTimer);
-  clearTimeout(historyLeaveTimer);
-  historyOpen = false;
-  historyPinned = false;
-  historyPopover.hidden = true;
-  btnHistoryArrow.classList.remove('active');
-}
-
-btnHistoryArrow.addEventListener('mouseenter', () => {
-  clearTimeout(historyLeaveTimer);
-  historyHoverTimer = setTimeout(() => openHistoryPopover(false), HISTORY_HOVER_DELAY);
-});
-
-btnHistoryArrow.addEventListener('mouseleave', () => {
-  clearTimeout(historyHoverTimer);
-  if (historyOpen && !historyPinned) {
-    historyLeaveTimer = setTimeout(() => {
-      if (!historyPopover.matches(':hover')) closeHistoryPopover();
-    }, HISTORY_LEAVE_DELAY);
+  // Destructive action lives at the end of the list, only while browsing
+  // (hidden during a search so it never sits under "no results").
+  if (hasEntries && !query) {
+    const clearRow = document.createElement('button');
+    clearRow.type = 'button';
+    clearRow.className = 'history-clear-row';
+    clearRow.textContent = _('sidepanel_historyClear');
+    clearRow.addEventListener('click', async () => {
+      if (!confirm(_('sidepanel_historyClearConfirm'))) return;
+      await clearHistory();
+      await renderHistoryList();
+    });
+    historyList.appendChild(clearRow);
   }
-});
+}
 
-btnHistoryArrow.addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (historyOpen && historyPinned) {
-    closeHistoryPopover();
-  } else {
-    openHistoryPopover(true);
+// Move the keyboard selection within the filtered list (clamped, scrolled into view).
+function setHistoryActive(idx) {
+  const items = historyList.querySelectorAll('.history-item');
+  if (!items.length) return;
+  idx = Math.max(0, Math.min(idx, items.length - 1));
+  historyActiveIdx = idx;
+  items.forEach((el, i) => el.classList.toggle('active', i === idx));
+  items[idx].scrollIntoView({ block: 'nearest' });
+}
+
+function handleHistoryNavKey(e) {
+  if (composeModal.hidden || !historyFiltered.length) return;
+  // Let the clear-row button handle its own Enter/Space activation.
+  if (e.target.closest?.('.history-clear-row')) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    setHistoryActive(historyActiveIdx + 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (historyActiveIdx <= 0) {
+      historyActiveIdx = -1;
+      historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+    } else {
+      setHistoryActive(historyActiveIdx - 1);
+    }
+  } else if (e.key === 'Enter' && historyActiveIdx >= 0) {
+    e.preventDefault();
+    loadIntoComposer(historyFiltered[historyActiveIdx].content);
   }
+}
+
+historySearch.addEventListener('input', () => renderHistoryList());
+
+historySearch.addEventListener('keydown', (e) => {
+  // Let Escape clear the query first instead of closing the modal.
+  if (e.key === 'Escape' && historySearch.value) {
+    historySearch.value = '';
+    renderHistoryList();
+    e.stopPropagation();
+    return;
+  }
+  handleHistoryNavKey(e);
 });
 
-historyPopover.addEventListener('mouseenter', () => clearTimeout(historyLeaveTimer));
-historyPopover.addEventListener('mouseleave', () => {
-  if (!historyPinned) closeHistoryPopover();
-});
-
-document.addEventListener('click', (e) => {
-  if (!historyOpen) return;
-  if (historyPopover.contains(e.target) || btnHistoryArrow.contains(e.target)) return;
-  closeHistoryPopover();
-});
-
-btnHistoryClear.addEventListener('click', async () => {
-  if (!confirm(_('sidepanel_historyClearConfirm'))) return;
-  await clearHistory();
-  await renderHistoryList();
-});
-
-btnHistoryNew.addEventListener('click', () => {
-  closeHistoryPopover();
-  openComposeModal();
-});
+historyList.addEventListener('keydown', handleHistoryNavKey);
 
 /* ── Compose modal ───────────────────────────────────────── */
 
-function openComposeModal() {
+let composeSubmitting = false;
+
+const COMPOSER_MAX_LINES = 10;
+
+// Grow the textarea with its content up to ~10 lines, then let it scroll.
+function autoGrowComposer() {
+  composeText.style.height = 'auto';
+  const cs = getComputedStyle(composeText);
+  const line = parseFloat(cs.lineHeight) || 20;
+  const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+  const max = line * COMPOSER_MAX_LINES + pad;
+  composeText.style.height = Math.min(composeText.scrollHeight, max) + 'px';
+  composeText.style.overflowY = composeText.scrollHeight > max ? 'auto' : 'hidden';
+}
+
+// The send button dims when there is nothing to send (or while sending).
+function updateComposerState() {
+  composeSubmit.disabled = composeSubmitting || !composeText.value.trim();
+}
+
+async function openComposeModal() {
+  historySearch.value = '';
+  // Render before showing so the history block never flashes in empty.
+  await renderHistoryList();
   composeModal.hidden = false;
+  autoGrowComposer();
+  updateComposerState();
   composeText.focus();
 }
 
@@ -835,22 +858,17 @@ function loadIntoComposer(content) {
     if (!confirm(_('sidepanel_composeOverwrite'))) return;
   }
   composeText.value = content;
-  closeHistoryPopover();
-  openComposeModal();
+  autoGrowComposer();
+  updateComposerState();
+  composeText.focus();
 }
-
-let composeSubmitting = false;
 
 async function submitCompose() {
   if (composeSubmitting) return;
   const content = composeText.value;
-  if (!content.trim()) {
-    closeComposeModal();
-    return;
-  }
+  if (!content.trim()) return;
   composeSubmitting = true;
   composeSubmit.disabled = true;
-  composeSubmit.textContent = _('sidepanel_composeSubmitting');
   let result;
   try {
     result = await runQuickPrompt({
@@ -861,22 +879,16 @@ async function submitCompose() {
     });
   } finally {
     composeSubmitting = false;
-    composeSubmit.disabled = false;
-    composeSubmit.textContent = _('sidepanel_composeSubmit');
+    updateComposerState();
   }
-  if (!result.ok) return; // aborted (permission denied); keep the modal open
+  if (!result.ok) return; // aborted (permission denied); keep the draft + modal open
   await addHistoryEntry(content);
   closeComposeModal();
   // Draft is kept in composeText so a follow-up tweak and resubmit is easy.
-  renderPromptFeedback(btnManualPrompt, result);
+  renderPromptFeedback(composeFab, result);
 }
 
-btnManualPrompt.addEventListener('click', () => {
-  closeHistoryPopover();
-  openComposeModal();
-});
-
-composeCancel.addEventListener('click', closeComposeModal);
+composeClose.addEventListener('click', closeComposeModal);
 
 composeModal.addEventListener('click', (e) => {
   if (e.target === composeModal) closeComposeModal();
@@ -884,7 +896,13 @@ composeModal.addEventListener('click', (e) => {
 
 composeSubmit.addEventListener('click', submitCompose);
 
+composeText.addEventListener('input', () => {
+  autoGrowComposer();
+  updateComposerState();
+});
+
 composeText.addEventListener('keydown', (e) => {
+  // Enter inserts a newline; Ctrl/Cmd+Enter submits.
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
     submitCompose();
@@ -904,12 +922,123 @@ document.querySelectorAll('.var-btn').forEach(btn => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (!composeModal.hidden) {
-    closeComposeModal();
-  } else if (historyOpen) {
-    closeHistoryPopover();
-  }
+  if (!composeModal.hidden) closeComposeModal();
 });
+
+/* ── Draggable compose FAB ───────────────────────────────── */
+
+// Position is stored as a 0–1 ratio of the draggable range so it survives
+// side-panel resizes; a fresh (never-dragged) FAB defaults to the right-center.
+let fabPos = null;
+let fabDrag = null;
+let fabSuppressClick = false;
+
+function fabGeometry() {
+  const pb = panelBody.getBoundingClientRect();
+  const size = composeFab.offsetWidth || 48;
+  return {
+    pbLeft: pb.left,
+    pbTop: pb.top,
+    maxX: Math.max(0, pb.width - size),
+    maxY: Math.max(0, pb.height - size),
+  };
+}
+
+// Clamp the stored ratio back into view (also used on panel resize).
+function applyFabPos() {
+  const { maxX, maxY } = fabGeometry();
+  const rx = fabPos ? fabPos.rx : 1;
+  const ry = fabPos ? fabPos.ry : 0.5;
+  const left = Math.min(Math.max(0, rx * maxX), maxX);
+  const top = Math.min(Math.max(0, ry * maxY), maxY);
+  composeFab.style.left = `${left}px`;
+  composeFab.style.top = `${top}px`;
+}
+
+// Transparent shield that swallows pointer events during a drag, so the chat
+// iframe underneath never steals them (pointer capture does not cross iframes).
+let fabShield = null;
+
+function showFabShield() {
+  if (fabShield) return;
+  fabShield = document.createElement('div');
+  fabShield.className = 'fab-drag-shield';
+  panelBody.appendChild(fabShield);
+}
+
+function hideFabShield() {
+  if (!fabShield) return;
+  fabShield.remove();
+  fabShield = null;
+}
+
+composeFab.addEventListener('pointerdown', (e) => {
+  if (e.button !== 0) return;
+  const rect = composeFab.getBoundingClientRect();
+  const geo = fabGeometry();
+  fabSuppressClick = false;
+  fabDrag = {
+    pointerId: e.pointerId,
+    startX: e.clientX,
+    startY: e.clientY,
+    offsetX: e.clientX - rect.left,
+    offsetY: e.clientY - rect.top,
+    pbLeft: geo.pbLeft,
+    pbTop: geo.pbTop,
+    moved: false,
+  };
+  composeFab.setPointerCapture(e.pointerId);
+  showFabShield();
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (!fabDrag || e.pointerId !== fabDrag.pointerId) return;
+  const dx = e.clientX - fabDrag.startX;
+  const dy = e.clientY - fabDrag.startY;
+  if (!fabDrag.moved && Math.hypot(dx, dy) < FAB_DRAG_THRESHOLD) return;
+  fabDrag.moved = true;
+  composeFab.classList.add('dragging');
+  const { maxX, maxY } = fabGeometry();
+  let left = e.clientX - fabDrag.offsetX - fabDrag.pbLeft;
+  let top = e.clientY - fabDrag.offsetY - fabDrag.pbTop;
+  left = Math.min(Math.max(0, left), maxX);
+  top = Math.min(Math.max(0, top), maxY);
+  composeFab.style.left = `${left}px`;
+  composeFab.style.top = `${top}px`;
+  fabPos = { rx: maxX ? left / maxX : 0, ry: maxY ? top / maxY : 0 };
+});
+
+function endFabDrag(e) {
+  if (!fabDrag || (e && e.pointerId !== fabDrag.pointerId)) return;
+  const { moved, pointerId } = fabDrag;
+  fabDrag = null;
+  composeFab.classList.remove('dragging');
+  hideFabShield();
+  try { composeFab.releasePointerCapture(pointerId); } catch {}
+  if (moved) {
+    fabSuppressClick = true;
+    setTimeout(() => { fabSuppressClick = false; }, 0);
+    store.set(FAB_POS_KEY, fabPos);
+  }
+}
+
+window.addEventListener('pointerup', endFabDrag);
+window.addEventListener('pointercancel', endFabDrag);
+
+composeFab.addEventListener('click', () => {
+  if (fabSuppressClick) return;
+  openComposeModal();
+});
+
+async function initComposeFab() {
+  const saved = await store.get(FAB_POS_KEY);
+  if (saved && typeof saved.rx === 'number' && typeof saved.ry === 'number') {
+    fabPos = { rx: saved.rx, ry: saved.ry };
+  }
+  applyFabPos();
+}
+
+window.addEventListener('resize', applyFabPos);
 
 // Right-click context menu handoff: the background writes a pending fill to
 // session storage and opens the panel. We consume it either here (fresh panel)
@@ -960,6 +1089,7 @@ async function init() {
   updateThemeSelect();
   await loadClipboardGuard();
   await renderChips();
+  await initComposeFab();
   await consumePendingFill();
 
   document.getElementById('themeSelect').addEventListener('change', async (e) => {

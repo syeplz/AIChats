@@ -55,6 +55,10 @@
     "message": "取消",
     "description": "Cancel button"
   },
+  "common_close": {
+    "message": "关闭",
+    "description": "Close button"
+  },
   "common_detect": {
     "message": "检测",
     "description": "Detect favicon button"
@@ -295,61 +299,37 @@
     "message": "非文本已跳过",
     "description": "Chip warning when clipboard contains non-text content"
   },
-  "sidepanel_manualPrompt": {
-    "message": "自定义",
-    "description": "Split button main area label: open manual prompt composer"
-  },
   "sidepanel_manualPromptTitle": {
     "message": "手动编写提示词",
-    "description": "Split button main area tooltip"
+    "description": "Draggable compose FAB tooltip"
   },
   "sidepanel_historyTitle": {
-    "message": "历史提示词",
-    "description": "Split button arrow tooltip: prompt history"
+    "message": "历史记录",
+    "description": "History section title inside the compose modal"
   },
-  "sidepanel_historyEmpty": {
-    "message": "暂无历史",
-    "description": "History popover empty state"
+  "sidepanel_historySearch": {
+    "message": "搜索历史提示词",
+    "description": "Placeholder and aria-label for the history search box"
+  },
+  "sidepanel_historyNoResults": {
+    "message": "没有匹配的提示词",
+    "description": "Shown in the history list when the search matches nothing"
   },
   "sidepanel_historyClear": {
-    "message": "清空",
-    "description": "History popover clear-all button"
+    "message": "清空历史记录",
+    "description": "History list footer button: clear all entries"
   },
   "sidepanel_historyClearConfirm": {
     "message": "确定清空全部历史提示词？",
     "description": "Confirm dialog before clearing prompt history"
   },
-  "sidepanel_historyNew": {
-    "message": "新建提示词",
-    "description": "History popover button to open the composer"
-  },
-  "sidepanel_historyEdit": {
-    "message": "载入编辑",
-    "description": "History item button: load entry into composer"
-  },
   "sidepanel_historyDelete": {
     "message": "删除",
     "description": "History item button: delete one entry"
   },
-  "sidepanel_composeTitle": {
-    "message": "编写提示词",
-    "description": "Compose modal title"
-  },
-  "sidepanel_composeVarsLabel": {
-    "message": "变量",
-    "description": "Compose modal variable toolbar label"
-  },
-  "sidepanel_composeHint": {
-    "message": "Ctrl+Enter 提交",
-    "description": "Compose modal keyboard shortcut hint"
-  },
-  "sidepanel_composeSubmitting": {
-    "message": "提交中…",
-    "description": "Compose modal submit button while a submission is in flight"
-  },
   "sidepanel_composeSubmit": {
-    "message": "提交",
-    "description": "Compose modal submit button"
+    "message": "发送（Ctrl+Enter）",
+    "description": "Compose modal send button (aria-label/title)"
   },
   "sidepanel_composeOverwrite": {
     "message": "编辑框已有内容，确定覆盖？",
