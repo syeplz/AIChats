@@ -87,9 +87,9 @@ function updateBackgroundJs(prompts) {
     const comma = i < prompts.length - 1 ? ',' : '';
     const label = p.label.replace(/'/g, "\\'");
     const content = p.content.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-    return `      { id: '${p.id}', isDefault: ${p.isDefault === 'true'}, enabled: ${p.enabled === 'true'}, fillInput: ${p.fillInput !== 'false'}, autoSubmit: ${p.autoSubmit !== 'false'}, label: '${label}', content: \`${content}\` }${comma}`;
+    return `  { id: '${p.id}', isDefault: ${p.isDefault === 'true'}, enabled: ${p.enabled === 'true'}, fillInput: ${p.fillInput !== 'false'}, autoSubmit: ${p.autoSubmit !== 'false'}, label: '${label}', content: \`${content}\` }${comma}`;
   });
-  const block = `${startMarker}\n${lines.join('\n')}\n      ${endMarker}`;
+  const block = `${startMarker}\n${lines.join('\n')}\n  ${endMarker}`;
 
   const markerPattern = /\/\/ >>> SYNCED_PROMPTS_START[\s\S]*?\/\/ >>> SYNCED_PROMPTS_END/g;
   const matches = src.match(markerPattern);
@@ -171,7 +171,7 @@ function initMarkers() {
     }
     const arrContent = src.slice(arrStart, arrEnd);
     src = src.slice(0, arrStart)
-      + '// >>> SYNCED_PROMPTS_START\n' + arrContent.slice(1, -1) + '\n      // >>> SYNCED_PROMPTS_END'
+      + '// >>> SYNCED_PROMPTS_START\n' + arrContent.slice(1, -1) + '\n  // >>> SYNCED_PROMPTS_END'
       + src.slice(arrEnd);
     fs.writeFileSync(BACKGROUND_JS, src);
     console.log(`  Initialized markers in ${BACKGROUND_JS}`);
