@@ -305,7 +305,6 @@ function scheduleResend(gen, msg, startTime) {
     const iframe = pendingFrame || getActiveFrame();
     if (iframe?.contentWindow) {
       iframe.contentWindow.postMessage(msg, '*');
-      console.log('[AIChats] postMessage retry, gen=' + gen);
     } else {
       console.warn('[AIChats] postMessage retry skipped: iframe not ready');
     }
@@ -391,7 +390,6 @@ window.addEventListener('message', async (event) => {
   await writeClipboard(cbGuard.saved);
   cbGuard.lastWritten = null;
   saveClipboardGuard();
-  console.log('[AIChats] fill-input-ack: clipboard restored');
 });
 
 // Expand {url}/{title}/{html} from the active tab. Returns null when the
@@ -447,7 +445,6 @@ function fillIntoChat(text, autoSubmit) {
     gen,
   };
   iframe.contentWindow.postMessage(msg, '*');
-  console.log('[AIChats] postMessage sent, gen=' + gen, 'submitByEnter=' + (chat.submitByEnter === true));
   pendingGen = gen;
   pendingFrame = iframe;
   scheduleResend(gen, msg, Date.now());
@@ -529,12 +526,11 @@ function showFloatBubble(chip, text) {
  * @param {string} opts.content  raw prompt text, may contain {url}/{title}/{clipboard}/{html}
  * @param {boolean} [opts.fillInput=true]  postMessage the text into the chat iframe
  * @param {boolean} [opts.autoSubmit=true] auto-submit after filling
- * @param {string} [opts.label='']  label for logging
  * @returns {Promise<{ok:boolean, text?:string, hasClipboardVar?:boolean,
  *   snapOk?:boolean, clipboardEmpty?:boolean, wrote?:boolean, fillEnabled?:boolean}>}
  *   ok=false means aborted (e.g. {html} permission denied); feedback was already shown.
  */
-async function runQuickPrompt({ content, fillInput = true, autoSubmit = true, label = '' }) {
+async function runQuickPrompt({ content, fillInput = true, autoSubmit = true }) {
   const vars = await collectPageVars(content);
   if (vars === null) return { ok: false };
 
@@ -555,12 +551,9 @@ async function runQuickPrompt({ content, fillInput = true, autoSubmit = true, la
     if (wrote) cbGuard.lastWritten = text;
   }
   saveClipboardGuard();
-  console.log('[AIChats] quick prompt: label=' + label, 'fillInput=' + fillInput, 'autoSubmit=' + autoSubmit, 'text.length=' + text.length, 'clipboardWrite=' + (wrote ? 'OK' : 'skipped'));
 
   if (fillInput) {
     fillIntoChat(text, autoSubmit);
-  } else {
-    console.log('[AIChats] fillInput disabled, skip postMessage');
   }
 
   return { ok: true, text, hasClipboardVar, snapOk: snap.snapshotOk, clipboardEmpty: snap.clipboardEmpty, wrote, fillEnabled: fillInput };
@@ -617,7 +610,6 @@ async function renderChips(prompts) {
         content: resolved.content,
         fillInput: p.fillInput !== false,
         autoSubmit: p.autoSubmit !== false,
-        label: resolved.label,
       });
       renderPromptFeedback(chip, result);
     });
@@ -875,7 +867,6 @@ async function submitCompose() {
       content,
       fillInput: true,
       autoSubmit: true,
-      label: 'manual',
     });
   } finally {
     composeSubmitting = false;

@@ -53,32 +53,4 @@ async function autoDetectFavicon(siteUrl) {
   return '';
 }
 
-async function upgradeIcon(img, chat) {
-  const googlePrefix = 'https://www.google.com/s2/favicons?domain=';
 
-  if (chat.icon.startsWith(googlePrefix)) return;
-
-  const origin = new URL(chat.url).origin;
-
-  try {
-    const resp = await fetch(chat.icon, {
-      signal: AbortSignal.timeout(3000),
-      headers: { 'Referer': origin + '/' }
-    });
-    if (resp.ok) {
-      const ct = resp.headers.get('Content-Type') || '';
-      if (isImageCT(ct)) {
-        const blob = await resp.blob();
-        img.src = URL.createObjectURL(blob);
-        return;
-      }
-    }
-  } catch {}
-
-  const hostname = new URL(chat.url).hostname;
-  img.src = `${googlePrefix}${hostname}&sz=32`;
-}
-
-async function setFaviconSrc(img, iconUrl, siteUrl) {
-  img.src = iconUrl;
-}

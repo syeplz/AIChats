@@ -75,14 +75,6 @@
     "message": "删除",
     "description": "Delete button"
   },
-  "common_openInNewTab": {
-    "message": "在新标签页打开",
-    "description": "Open link in new tab"
-  },
-  "common_refresh": {
-    "message": "刷新当前聊天站",
-    "description": "Refresh button tooltip"
-  },
   "common_switchTheme": {
     "message": "切换主题",
     "description": "Theme dropdown tooltip"
@@ -278,18 +270,6 @@
   "options_promptAutoSubmitHint": {
     "message": "点击切换是否自动提交",
     "description": "Auto submit status label tooltip"
-  },
-  "sidepanel_promptCopied": {
-    "message": "已复制！",
-    "description": "Chip copy feedback tooltip/text"
-  },
-  "sidepanel_clipboardSkipped": {
-    "message": "剪贴板内容非文本，未覆盖",
-    "description": "Chip tooltip when clipboard is not text and was left untouched"
-  },
-  "sidepanel_clipboardSkippedShort": {
-    "message": "未覆盖",
-    "description": "Chip text when clipboard is not text and was left untouched"
   },
   "sidepanel_clipboardEmpty": {
     "message": "剪贴板为空",

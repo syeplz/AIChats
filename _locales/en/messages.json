@@ -75,14 +75,6 @@
     "message": "Delete",
     "description": "Delete button"
   },
-  "common_openInNewTab": {
-    "message": "Open in new tab",
-    "description": "Open link in new tab"
-  },
-  "common_refresh": {
-    "message": "Refresh current chat",
-    "description": "Refresh button tooltip"
-  },
   "common_switchTheme": {
     "message": "Switch theme",
     "description": "Theme dropdown tooltip"
@@ -278,18 +270,6 @@
   "options_promptAutoSubmitHint": {
     "message": "Click to toggle auto submit",
     "description": "Auto submit status label tooltip"
-  },
-  "sidepanel_promptCopied": {
-    "message": "Copied!",
-    "description": "Chip copy feedback tooltip/text"
-  },
-  "sidepanel_clipboardSkipped": {
-    "message": "Clipboard is not text; not overwritten",
-    "description": "Chip tooltip when clipboard is not text and was left untouched"
-  },
-  "sidepanel_clipboardSkippedShort": {
-    "message": "Not overwritten",
-    "description": "Chip text when clipboard is not text and was left untouched"
   },
   "sidepanel_clipboardEmpty": {
     "message": "Clipboard empty",

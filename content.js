@@ -1,9 +1,7 @@
 (function() {
   const SOURCE = 'aichats-chipbar';
 
-  function log(...args) { console.log('[AIChats]', ...args); }
   function warn(...args) { console.warn('[AIChats]', ...args); }
-  function error(...args) { console.error('[AIChats]', ...args); }
 
   function desc(el) {
     let s = el.tagName;
@@ -43,7 +41,6 @@
       return null;
     }
     if (candidates.length === 1) {
-      log('findInput: single candidate', desc(candidates[0].el));
       return candidates[0].el;
     }
 
@@ -64,7 +61,6 @@
 
     candidates.sort((a, b) => b.score - a.score);
     const best = candidates[0];
-    log('findInput: scored', candidates.length, 'candidates, picked', desc(best.el), 'score=' + best.score);
     return best.el;
   }
 
@@ -88,18 +84,15 @@
   function fillInput(el, text) {
     if (!text) {
       el.focus();
-      log('fillInput: empty text, focus only');
       return;
     }
     el.focus();
     if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
       el.value = text;
       el.dispatchEvent(new Event('input', { bubbles: true }));
-      log('fillInput: set value on', desc(el), 'length=' + text.length);
     } else if (el.isContentEditable) {
       el.textContent = text;
       el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
-      log('fillInput: set textContent on', desc(el), 'length=' + text.length);
     } else {
       warn('fillInput: unsupported element type', desc(el));
       return;
@@ -114,7 +107,6 @@
       for (const btn of container.querySelectorAll('button:not([disabled])')) {
         const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
         if (/send|submit|发送|提交/.test(aria)) {
-          log('findSubmitButton: found by aria-label in container', desc(btn));
           return btn;
         }
       }
@@ -122,14 +114,12 @@
     for (const btn of document.querySelectorAll('button:not([disabled])')) {
       const testId = (btn.getAttribute('data-testid') || '').toLowerCase();
       if (/send|submit/.test(testId)) {
-        log('findSubmitButton: found by data-testid', desc(btn));
         return btn;
       }
     }
     for (const btn of document.querySelectorAll('button:not([disabled])')) {
       const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
       if (/send|submit|发送|提交/.test(aria)) {
-        log('findSubmitButton: found by aria-label globally', desc(btn));
         return btn;
       }
     }
@@ -139,7 +129,6 @@
 
   function submit(input, submitByEnter) {
     if (submitByEnter) {
-      log('submit: dispatching Enter (submitByEnter=true)');
       input.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
         bubbles: true, cancelable: true
@@ -148,11 +137,9 @@
     }
     const btn = findSubmitButton(input);
     if (btn) {
-      log('submit: clicking', desc(btn));
       btn.click();
       return;
     }
-    log('submit: no button found, dispatching Enter');
     input.dispatchEvent(new KeyboardEvent('keydown', {
       key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
       bubbles: true, cancelable: true
@@ -276,7 +263,6 @@
       attachInput(input);
       if (readInputValue(input).trim()) return;
       fillInput(input, snap.draft);
-      log('restoreDraft: restored draft length=' + snap.draft.length);
     } finally {
       restoring = false;
     }
@@ -292,7 +278,6 @@
       if (snap.url === location.href) return;
       if (userActive) return;
       sessionStorage.setItem(RETRY_KEY, '1');
-      log('restoreSession: retrying navigation to ' + snap.url);
       location.assign(snap.url);
     });
   }
@@ -340,13 +325,11 @@
     if (msg.gen === lastGen) {
       // Already handled; the panel likely missed our ack. Re-send it so the
       // panel can restore the clipboard, but do not fill again.
-      log('message: duplicate gen=' + msg.gen + ', resending ack');
       try {
         window.parent.postMessage({ source: 'aichats-content', type: 'fill-input-ack', gen: msg.gen }, '*');
       } catch (e) {}
       return;
     }
-    log('message received, autoSubmit=' + msg.autoSubmit, 'text.length=' + msg.text.length, 'submitByEnter=' + msg.submitByEnter);
     const input = await findInputWithRetry(3, 500);
     if (msg.gen === lastGen) {
       // A concurrent retry filled already; just confirm.
@@ -363,7 +346,6 @@
     fillInput(input, msg.text);
     try {
       window.parent.postMessage({ source: 'aichats-content', type: 'fill-input-ack', gen: msg.gen }, '*');
-      log('fill-input-ack sent, gen=' + msg.gen);
     } catch (e) {
       warn('fill-input-ack send failed:', e);
     }

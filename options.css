@@ -429,10 +429,6 @@ summary:hover {
   color: var(--save-color);
 }
 
-.save-status.error {
-  color: var(--danger-color);
-}
-
 .save-hint {
   font-size: 11px;
   color: var(--text-muted);
