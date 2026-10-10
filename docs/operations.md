@@ -36,3 +36,12 @@
 - **产出物与约定**: 生成 `scripts/images/output/en/sidebar.png`、`scripts/images/output/zh/sidebar.png`（1280x800，透明留白）；输出目录按需创建；源文件 `assets/{en,zh}/sidebar.png` 保持不变
 - **验证方式**: `magick identify scripts/images/output/en/sidebar.png scripts/images/output/zh/sidebar.png` 两张均输出 `1280x800`
 
+
+## 2026-10-10 — 构建商店发布包 v1.0.7
+
+- **操作类型**: 构建/打包 + 修改可复用脚本
+- **脚本路径**: `scripts/build-zip.sh`
+- **用途**: 将 `manifest.json` 版本升至 1.0.7、在 `CHANGELOG.md` 写入 1.0.7 条目后，构建 Chrome Web Store 上传包 `aichats-store-v1.0.7.zip`；同时给 `build-zip.sh` 的 zip 排除列表新增 `scripts/images/output*`（避免本地截图中间产物混入）和 `assets/*/sidebar.png`（商店列表截图走商店后台单独上传，不进扩展包）
+- **运行方式**: `bash scripts/build-zip.sh`
+- **产出物与约定**: 输出 `aichats-store-v1.0.7.zip`（55 个文件，约 154 KB），排除 `.DS_Store`、`_metadata`、`.git`、`docs`、`.opencode`、历史 zip、`scripts/images/output*` 及 `assets/*/sidebar.png`；包内保留 `scripts/images/resize_sidebar_screenshots.sh`
+- **验证方式**: `unzip -p aichats-store-v1.0.7.zip manifest.json | grep '"version"'` 返回 `"version": "1.0.7"`；`unzip -l aichats-store-v1.0.7.zip | grep -c 'sidebar.png'` 返回 0

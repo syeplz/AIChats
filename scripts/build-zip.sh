@@ -4,7 +4,9 @@ set -euo pipefail
 # Build the Chrome Web Store upload package as aichats-store-v<version>.zip.
 # Contents follow the v1.0.3 package layout (extension sources + store docs +
 # assets), excluding local-only artifacts (.DS_Store, _metadata, .git, docs,
-# .opencode, and previous zip files).
+# .opencode, previous zip files), generated screenshot outputs, and the
+# store-listing sidebar screenshots (assets/*/sidebar.png), which are uploaded
+# through the store dashboard rather than shipped inside the extension.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -54,6 +56,9 @@ for f in "${FILES[@]}"; do
   fi
 done
 
-zip -r "$OUT" "${FILES[@]}" -x '*.DS_Store'
+zip -r "$OUT" "${FILES[@]}" \
+  -x '*.DS_Store' \
+  -x 'scripts/images/output*' \
+  -x 'assets/*/sidebar.png'
 
 echo "created $OUT (manifest version $VERSION)"

@@ -5,6 +5,35 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-10-10
+
+### Added
+- Manual prompt compose modal: a draggable FAB opens a chat-style composer
+  with an auto-growing textarea, variable pills, a round send button, and
+  Ctrl/Cmd+Enter to submit (plain Enter inserts a newline). The prompt
+  history lives inside the modal with live search, relative timestamps,
+  keyboard navigation, hover delete, and a clear-all action.
+- The composer empties after a successful submit; closing the modal without
+  submitting keeps the draft, and aborted submits (e.g. `{html}` permission
+  denied) keep the text untouched.
+
+### Changed
+- Store screenshots for both locales were re-exported and a reusable
+  resize script (`scripts/images/resize_sidebar_screenshots.sh`) was added
+  to normalize them to 1280x800.
+- READMEs (EN/zh_CN): new Manual Prompts feature section and usage step.
+- `background.js` dedupes the two default-prompt seed arrays into one
+  `DEFAULT_PROMPTS` constant and drops the 1.0.3 sync→local migration
+  (973 → 613 lines).
+
+### Fixed
+- Inserting a variable pill into an empty composer now refreshes the send
+  button state and auto-grow height (`setRangeText()` fires no input event).
+
+### Removed
+- Unused helpers, styles, debug logs, and locale keys across favicon,
+  content, sidepanel, options, theme, and both locale files.
+
 ## [1.0.6] - 2026-10-01
 
 ### Added
