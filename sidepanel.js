@@ -874,8 +874,11 @@ async function submitCompose() {
   }
   if (!result.ok) return; // aborted (permission denied); keep the draft + modal open
   await addHistoryEntry(content);
+  // Submitted: clear the composer. Closing without submitting keeps the draft.
+  composeText.value = '';
+  autoGrowComposer();
+  updateComposerState();
   closeComposeModal();
-  // Draft is kept in composeText so a follow-up tweak and resubmit is easy.
   renderPromptFeedback(composeFab, result);
 }
 
