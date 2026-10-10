@@ -26,3 +26,13 @@
 - **运行方式**: `node scripts/sync-prompts.js`
 - **产出物与约定**: 重写 `background.js` 的 `SYNCED_PROMPTS` marker 块（现仅 1 处）、`i18n.js` 的 `SYNCED_PROMPT_IDS` 块、`_locales/<lang>/messages.json` 中的 `prompts_<id>_*` 词条
 - **验证方式**: 连续两次运行 `node scripts/sync-prompts.js`，`git diff` 第二次与第一次完全一致（幂等）；`node --check background.js` 通过
+
+## 2026-10-10 — 统一商店截图尺寸为 1280x800
+
+- **操作类型**: 新增可复用脚本（结果输出到脚本同级目录，不改动源文件）
+- **脚本路径**: `scripts/images/resize_sidebar_screenshots.sh`
+- **用途**: 将 `assets/en/sidebar.png` 与 `assets/zh/sidebar.png` 使用 Lanczos 重采样滤镜等比缩放到不超过 1280x800，再用透明背景居中补齐留白（`-filter Lanczos -resize 1280x800 -background none -gravity center -extent 1280x800`）；结果写入脚本同级的 `output/<lang>/` 子目录，不再覆盖源文件
+- **运行方式**: `bash scripts/images/resize_sidebar_screenshots.sh`
+- **产出物与约定**: 生成 `scripts/images/output/en/sidebar.png`、`scripts/images/output/zh/sidebar.png`（1280x800，透明留白）；输出目录按需创建；源文件 `assets/{en,zh}/sidebar.png` 保持不变
+- **验证方式**: `magick identify scripts/images/output/en/sidebar.png scripts/images/output/zh/sidebar.png` 两张均输出 `1280x800`
+
