@@ -25,6 +25,9 @@ Select text on any page, right-click, and pick from the **Ask AI with selected t
 ### Quick Prompts
 Pre-built template prompts that auto-fill with your current page context. Supports `{url}`, `{title}`, `{clipboard}` and `{html}` variables — click a chip to copy the expanded prompt to your clipboard. When a chat site has the inject script enabled, the prompt is also automatically filled into the chat input box, and optionally auto-submitted. The extension restores your original clipboard content after the prompt is filled into the input, so a `{clipboard}` prompt always reads your own copied content — never a previously generated prompt (a snapshot is kept in session memory only and cleared when the browser restarts).
 
+### Manual Prompts
+A draggable floating button (drag it anywhere in the panel — its position is remembered) opens a compose modal for one-off prompts. Write or paste anything and send it straight to the current chat; the `{url}`, `{title}`, `{clipboard}` and `{html}` pills insert a variable at the cursor. Press **Ctrl/Cmd + Enter** (or the send button) to fill the chat and auto-submit. The modal also keeps a searchable history of your recent prompts (up to 30): click an entry to load it back into the composer, hover a row to delete it, or clear the entire list from an action at the end of the history. Closing the modal without sending keeps your draft; a successful send clears the composer.
+
 ### Customizable
 - Add any AI chat website you like, or pick from **10 pre-configured templates**: ChatGPT, DeepSeek, Claude, Kimi, Doubao, Gemini, Perplexity, Grok, Tongyi Qianwen, Wenxin Yiyan
 - Rearrange and toggle sites on/off
@@ -76,9 +79,10 @@ English and Simplified Chinese with a runtime language switcher.
 1. Click the AIChats icon in the Chrome toolbar to open the side panel
 2. Use the dropdown to switch between AI chat sites — conversations are kept alive when you switch
 3. Use the **Quick Prompts** chips to copy pre-built prompts to your clipboard (and auto-fill them into the chat when supported)
-4. Right-click any selected text and choose **Ask AI with selected text** to send it to your current chat
-5. Click the ↗ button to move the current site to a full-width browser tab
-6. Right-click the icon and select **Options** to customize sites, prompts, and theme
+4. Click the floating pencil button to write a one-off prompt, then press **Ctrl/Cmd + Enter** to send it to the current chat
+5. Right-click any selected text and choose **Ask AI with selected text** to send it to your current chat
+6. Click the ↗ button to move the current site to a full-width browser tab
+7. Right-click the icon and select **Options** to customize sites, prompts, and theme
 
 ---
 
