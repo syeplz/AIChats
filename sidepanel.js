@@ -910,6 +910,11 @@ document.querySelectorAll('.var-btn').forEach(btn => {
     const start = composeText.selectionStart ?? composeText.value.length;
     const end = composeText.selectionEnd ?? start;
     composeText.setRangeText(v, start, end, 'end');
+    // setRangeText() does not fire an input event, so refresh the height and
+    // enable the send button explicitly (otherwise a variable-only prompt
+    // leaves the send button disabled).
+    autoGrowComposer();
+    updateComposerState();
     composeText.focus();
   });
 });
