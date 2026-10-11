@@ -45,3 +45,12 @@
 - **运行方式**: `bash scripts/build-zip.sh`
 - **产出物与约定**: 输出 `aichats-store-v1.0.7.zip`（55 个文件，约 154 KB），排除 `.DS_Store`、`_metadata`、`.git`、`docs`、`.opencode`、历史 zip、`scripts/images/output*` 及 `assets/*/sidebar.png`；包内保留 `scripts/images/resize_sidebar_screenshots.sh`
 - **验证方式**: `unzip -p aichats-store-v1.0.7.zip manifest.json | grep '"version"'` 返回 `"version": "1.0.7"`；`unzip -l aichats-store-v1.0.7.zip | grep -c 'sidebar.png'` 返回 0
+
+## 2026-10-11 — 修复商店违规（关键字过多）并重新打包 v1.0.7
+
+- **操作类型**: 构建/打包 + 文档修改
+- **脚本路径**: `scripts/build-zip.sh`（未改动，复用）
+- **用途**: 商店以 "Yellow Argon / 产品说明中有过多关键字" 驳回，引用文案为 README 首段列举的 `ChatGPT, DeepSeek, Claude, Kimi, Doubao and more`。据此重写 `README.md` 首段与 Features 中的预配置模板条目、同步 `docs/readme/README.zh_CN.md`，并在 `CHANGELOG.md` 增补 Docs and metadata 说明；重新构建 `aichats-store-v1.0.7.zip`
+- **运行方式**: `bash scripts/build-zip.sh`
+- **产出物与约定**: `aichats-store-v1.0.7.zip`（55 个文件，约 154 KB）；包内 `README.md` 不再出现站点品牌枚举，仅保留“10 pre-configured templates”的功能性描述（模板名仍可在扩展内看到）
+- **验证方式**: `unzip -p aichats-store-v1.0.7.zip README.md | sed -n '3p;32p'` 两行均无品牌枚举；`unzip -p aichats-store-v1.0.7.zip README.md | grep -cE 'DeepSeek|Doubao|Kimi'` 返回 0；`unzip -p aichats-store-v1.0.7.zip manifest.json | grep version` 返回 `"1.0.7"`

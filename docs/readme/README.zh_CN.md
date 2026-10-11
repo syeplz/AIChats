@@ -1,6 +1,6 @@
 # AIChats
 
-**在 Chrome 侧边栏中集中使用多个 AI 聊天网站** — 快速切换 ChatGPT、DeepSeek、Claude、Kimi、豆包等 AI 聊天，直接发送消息或右键选中文本问 AI，内置智能快捷提示提升效率。
+**在 Chrome 侧边栏中集中使用多个 AI 聊天网站** — 在站点间快速切换、直接发送消息，或右键选中文本问 AI，内置智能快捷提示提升效率。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](../../LICENSE)
 [![Users](https://img.shields.io/chrome-web-store/users/bflhgadnamnmpcpjhgcimnioelhbacpd?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
@@ -29,7 +29,7 @@
 侧栏中的悬浮按钮（可拖动到面板任意位置，位置会被记住）会打开一个编写弹窗，用于临时编写一次性提示词。输入或粘贴内容后可直接发送到当前聊天；`{url}`、`{title}`、`{clipboard}`、`{html}` 变量胶囊可插入到光标处。按 **Ctrl/Cmd + Enter**（或点击发送按钮）即可填充聊天并自动提交。弹窗还内置最近提示词的可搜索历史（最多 30 条）：点击条目回填到编辑框、悬停可删除某条，或在列表末尾一键清空全部。未发送直接关闭会保留草稿，发送成功则清空编辑框。
 
 ### 灵活定制
-- 添加任意 AI 聊天网站，或从 **10 个预配置模板**中选择：ChatGPT、DeepSeek、Claude、Kimi、豆包、Gemini、Perplexity、Grok、通义千问、文心一言
+- 添加任意 AI 聊天网站，或从 **10 个预配置模板**中选择常用的 AI 聊天站点
 - 自由排序、启用/禁用站点
 - 每个站点可独立配置脚本注入和回车提交行为
 - 创建自定义快捷提示模板

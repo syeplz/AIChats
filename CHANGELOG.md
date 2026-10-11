@@ -34,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unused helpers, styles, debug logs, and locale keys across favicon,
   content, sidepanel, options, theme, and both locale files.
 
+### Docs and metadata
+- Rewrote the store-listing description to drop the enumeration of AI chat
+  site names (ChatGPT, DeepSeek, Claude, ...) to comply with the Chrome Web
+  Store keyword-metadata policy; the pre-configured template names remain
+  visible inside the extension.
+
 ## [1.0.6] - 2026-10-01
 
 ### Added

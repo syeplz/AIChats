@@ -1,6 +1,6 @@
 # AIChats
 
-**Use multiple AI chat websites in the Chrome side panel** — switch between ChatGPT, DeepSeek, Claude, Kimi, Doubao and more, send messages or right-click any selected text to ask AI, with smart quick prompts to speed up your workflow.
+**Use multiple AI chat websites in the Chrome side panel** — switch between sites instantly, send messages or right-click any selected text to ask AI, with smart quick prompts to speed up your workflow.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Users](https://img.shields.io/chrome-web-store/users/bflhgadnamnmpcpjhgcimnioelhbacpd?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bflhgadnamnmpcpjhgcimnioelhbacpd)
@@ -29,7 +29,7 @@ Pre-built template prompts that auto-fill with your current page context. Suppor
 A draggable floating button (drag it anywhere in the panel — its position is remembered) opens a compose modal for one-off prompts. Write or paste anything and send it straight to the current chat; the `{url}`, `{title}`, `{clipboard}` and `{html}` pills insert a variable at the cursor. Press **Ctrl/Cmd + Enter** (or the send button) to fill the chat and auto-submit. The modal also keeps a searchable history of your recent prompts (up to 30): click an entry to load it back into the composer, hover a row to delete it, or clear the entire list from an action at the end of the history. Closing the modal without sending keeps your draft; a successful send clears the composer.
 
 ### Customizable
-- Add any AI chat website you like, or pick from **10 pre-configured templates**: ChatGPT, DeepSeek, Claude, Kimi, Doubao, Gemini, Perplexity, Grok, Tongyi Qianwen, Wenxin Yiyan
+- Add any AI chat website you like, or pick from **10 pre-configured templates** for popular AI chat sites
 - Rearrange and toggle sites on/off
 - Per-site settings: toggle script injection and Enter-to-submit behavior
 - Create your own quick prompt templates
