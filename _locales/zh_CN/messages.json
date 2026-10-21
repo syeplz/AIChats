@@ -195,6 +195,18 @@
     "message": "还没有启用聊天站点",
     "description": "Empty state text when no chats enabled"
   },
+  "sidepanel_frameNotice": {
+    "message": "此站点可能需要在标签页中登录后才能显示",
+    "description": "Banner shown when the embedded frame is not the configured chat site"
+  },
+  "sidepanel_noticeOpenTab": {
+    "message": "在标签页打开",
+    "description": "Notice action: open the current chat site in a browser tab"
+  },
+  "sidepanel_noticeReload": {
+    "message": "刷新",
+    "description": "Notice action: reload the current chat frame"
+  },
   "sidepanel_goSettings": {
     "message": "去设置",
     "description": "Empty state action button"

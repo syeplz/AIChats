@@ -54,3 +54,12 @@
 - **运行方式**: `bash scripts/build-zip.sh`
 - **产出物与约定**: `aichats-store-v1.0.7.zip`（55 个文件，约 154 KB）；包内 `README.md` 不再出现站点品牌枚举，仅保留“10 pre-configured templates”的功能性描述（模板名仍可在扩展内看到）
 - **验证方式**: `unzip -p aichats-store-v1.0.7.zip README.md | sed -n '3p;32p'` 两行均无品牌枚举；`unzip -p aichats-store-v1.0.7.zip README.md | grep -cE 'DeepSeek|Doubao|Kimi'` 返回 0；`unzip -p aichats-store-v1.0.7.zip manifest.json | grep version` 返回 `"1.0.7"`
+
+## 2026-10-21 — 新增帧存活探针（probe.js）并修复打包白名单
+
+- **操作类型**: 新增扩展源码文件 + 修改可复用脚本
+- **脚本路径**: `scripts/build-zip.sh`（在 `FILES` 白名单中新增 `probe.js`，位于 `options.js` 与 `sidepanel.js` 之间）
+- **用途**: 侧栏加载的第三方聊天站被 `X-Frame-Options` / CSP `frame-ancestors` 拒绝时，Chrome 用错误页替换该帧，页面内脚本不执行，扩展此前无任何检测手段。新增 `probe.js` 作为独立内容脚本（`document_start`、`allFrames`），自报 `probe-ready` 并应答面板的 `probe-ping` 心跳；面板据此判定“帧内不是我们的聊天站”并显示提示条。`build-zip.sh` 的 `FILES` 是显式白名单，漏加会导致商店包静默缺少 `probe.js`（开发态正常、发行包失效）
+- **运行方式**: `bash scripts/build-zip.sh`
+- **产出物与约定**: 输出 `aichats-store-v<version>.zip`，包内必须包含 `probe.js`；`background.js` 的 `updateChatScripts()` 注册两个脚本 —— `aichats-probe`（所有 `enabled` 站点，不受 `inject` 开关影响）与 `aichats-content`（`enabled && inject`）
+- **验证方式**: `unzip -l aichats-store-v1.0.7.zip | grep probe.js` 命中；`node --check probe.js sidepanel.js background.js` 全部通过；本地 `X-Frame-Options: DENY` 测试页 + 正常页 + “先 ready 再跳转被拒页”三种场景下，提示条分别在约 4s、不出现、约 4s 出现，且正常帧心跳每 2s 续期、错误帧恢复后提示条自动消失

@@ -5,6 +5,38 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Liveness probe for embedded frames: a tiny always-on content script
+  (`probe.js`) announces itself and answers a periodic heartbeat, so the panel
+  can tell a real chat page from a frame Chrome refused to render
+  (`X-Frame-Options` / CSP `frame-ancestors`) or one that redirected itself to
+  an unembeddable sign-in domain. Neither the `iframe` `load` event (it fires
+  for refused frames too) nor a farewell message from the page (its source can
+  no longer be attributed after navigation) can do this.
+- A non-blocking notice bar above the frame when the probe stays silent, with
+  **Open in tab** (sign in there), **Reload** (restores the saved conversation
+  instead of dropping it) and dismiss. It disappears by itself if the page
+  answers again.
+
+### Changed
+- `probe.js` is registered for every enabled site regardless of the per-site
+  script-injection toggle, so diagnosis still works with injection off.
+  `content.js` remains gated by that toggle.
+- The "open in tab" header button and the notice action share one
+  `openActiveChatInTab()` helper.
+
+### Fixed
+- READMEs (EN/zh_CN) claimed a refresh button that the side panel never had;
+  the actual reload action now lives in the notice bar.
+
+### Docs and metadata
+- Added a Troubleshooting / 常见问题 section to both READMEs covering the
+  sign-in-first recovery path and the partitioned-cookie limitation.
+- Store listing: added a bullet for the new failure notice (still without
+  naming any AI chat site).
+
 ## [1.0.7] - 2026-10-10
 
 ### Added

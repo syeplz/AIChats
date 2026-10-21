@@ -10,24 +10,54 @@ try {
   console.error('[AIChats] setAccessLevel:', e);
 }
 
-async function updateChatScripts() {
-  const chats = await store.get('chats') || [];
-  const targets = chats.filter(c => c.enabled && c.inject);
-  try { await chrome.scripting.unregisterContentScripts({ ids: ['aichats-content'] }); } catch {}
-  if (targets.length === 0) return;
-  const matches = targets.map(c => {
+// Two scripts, two different scopes:
+//   - aichats-probe runs for every enabled chat so the side panel can tell
+//     "this frame is not our chat site" (blocked or redirected to auth) even
+//     when the user disabled script injection for that site.
+//   - aichats-content is the optional input/fill feature.
+function chatMatches(chats) {
+  return chats.map(c => {
     const url = c.url.endsWith('/') ? c.url : c.url + '/';
     return url + '*';
   });
+}
+
+async function updateChatScripts() {
+  const chats = await store.get('chats') || [];
+  const enabled = chats.filter(c => c.enabled);
+  const injectable = enabled.filter(c => c.inject);
   try {
-    await chrome.scripting.registerContentScripts([{
+    await chrome.scripting.unregisterContentScripts({ ids: ['aichats-content', 'aichats-probe'] });
+  } catch {}
+
+  const scripts = [];
+  if (enabled.length > 0) {
+    scripts.push({
+      id: 'aichats-probe',
+      js: ['probe.js'],
+      matches: chatMatches(enabled),
+      runAt: 'document_start',
+      allFrames: true,
+    });
+  }
+  if (injectable.length > 0) {
+    scripts.push({
       id: 'aichats-content',
       js: ['content.js'],
-      matches,
+      matches: chatMatches(injectable),
       runAt: 'document_idle',
       allFrames: true,
-    }]);
-  } catch (e) { console.error('registerContentScripts error:', e); }
+    });
+  }
+  // Register one at a time: an inaccessible match pattern in one script must
+  // not prevent the other from registering.
+  for (const script of scripts) {
+    try {
+      await chrome.scripting.registerContentScripts([script]);
+    } catch (e) {
+      console.error(`registerContentScripts(${script.id}) error:`, e);
+    }
+  }
 }
 
 const ICON_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
