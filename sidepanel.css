@@ -334,6 +334,64 @@ body {
   font-size: 12px;
 }
 
+/* ── Frame notice: the embedded page is not our chat site ── */
+.frame-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.frame-notice[hidden] {
+  display: none;
+}
+
+.frame-notice-text {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.frame-notice-btn {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.frame-notice-btn:hover {
+  background: var(--btn-icon-hover-bg);
+}
+
+.frame-notice-close {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.frame-notice-close:hover {
+  background: var(--btn-icon-hover-bg);
+  color: var(--text-primary);
+}
+
 /* ── Chip toolbar: scrollable quick-prompt chips ───────── */
 .chip-toolbar {
   display: flex;

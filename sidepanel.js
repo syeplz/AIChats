@@ -17,10 +17,25 @@ const chatFrames = document.getElementById('chatFrames');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const loadingLabel = document.getElementById('loadingLabel');
 const loadingLogo = document.getElementById('loadingLogo');
+const frameNotice = document.getElementById('frameNotice');
 
 // Keep-alive frames: one lazily-created iframe per chat, kept alive across
 // switches so drafts and conversations survive.
 const frameByChat = new Map();
+
+// Liveness probe state per chat. probe.js answers a heartbeat only when the
+// frame really is our chat site; a frame Chrome refused to display, or one that
+// redirected to an unembeddable sign-in domain, goes silent.
+//
+// The iframe `load` event fires for refused frames too, so it is not a success
+// signal. A farewell message from the page is not usable either: by the time it
+// arrives the frame has navigated, so `event.source` no longer matches
+// `iframe.contentWindow` and the message cannot be attributed to a chat.
+const PROBE_TIMEOUT = 4000;      // first confirmation after we set iframe.src
+const PROBE_HEARTBEAT = 2000;    // ping cadence once a frame has confirmed
+const PROBE_MISS_LIMIT = 2;      // consecutive unanswered pings before giving up
+const probeByChat = new Map();
+let probeTimer = null;
 
 const SNAP_KEY = 'aichats-snapshot';
 
@@ -37,6 +52,84 @@ function getActiveChatId() {
 
 function hideAllFrames() {
   for (const iframe of frameByChat.values()) iframe.hidden = true;
+}
+
+// ── Frame liveness probe ──────────────────────────────────
+// The iframe `load` event fires for refused frames too, so it cannot be used as
+// a success signal. Only a reply from probe.js proves the frame is our site.
+function probeChatId(source) {
+  for (const [id, iframe] of frameByChat) {
+    if (iframe.contentWindow === source) return id;
+  }
+  return null;
+}
+
+// Called right before we point a frame at a new URL.
+function armProbe(chatId) {
+  const rec = probeByChat.get(chatId) || { gen: 0, timer: null };
+  rec.gen += 1;
+  rec.ok = false;
+  rec.misses = 0;
+  rec.degraded = false;
+  rec.dismissed = false;
+  clearTimeout(rec.timer);
+  probeByChat.set(chatId, rec);
+  const gen = rec.gen;
+  rec.timer = setTimeout(() => {
+    if (rec.gen !== gen || rec.ok) return;
+    degradeFrame(chatId, gen);
+  }, PROBE_TIMEOUT);
+  refreshFrameNotice();
+}
+
+function confirmProbe(chatId) {
+  const rec = probeByChat.get(chatId);
+  if (!rec) return;
+  rec.ok = true;
+  rec.misses = 0;
+  rec.degraded = false;                 // self-heal a notice shown too early
+  clearTimeout(rec.timer);
+  rec.timer = null;
+  refreshFrameNotice();
+}
+
+function degradeFrame(chatId, gen) {
+  const rec = probeByChat.get(chatId);
+  if (!rec || rec.gen !== gen || rec.ok || rec.dismissed) return;
+  rec.degraded = true;
+  rec.timer = null;
+  refreshFrameNotice();
+}
+
+// Only the active frame is pinged: hidden frames are not visible to the user,
+// and loadChatDirect() pings immediately when one becomes active again.
+function probeTick() {
+  const id = getActiveChatId();
+  const iframe = id ? frameByChat.get(id) : null;
+  const rec = id ? probeByChat.get(id) : null;
+  if (!iframe || !rec || iframe.hidden) return;
+  if (rec.ok) {
+    rec.misses += 1;
+    if (rec.misses >= PROBE_MISS_LIMIT) {
+      rec.ok = false;                  // stop counting until it answers again
+      degradeFrame(id, rec.gen);
+      return;
+    }
+  }
+  try {
+    iframe.contentWindow?.postMessage({ source: 'aichats-chipbar', type: 'probe-ping' }, '*');
+  } catch {}
+}
+
+function startProbeHeartbeat() {
+  if (probeTimer) return;
+  probeTimer = setInterval(probeTick, PROBE_HEARTBEAT);
+}
+
+function refreshFrameNotice() {
+  const id = getActiveChatId();
+  const rec = id ? probeByChat.get(id) : null;
+  frameNotice.hidden = !(rec && rec.degraded && !rec.dismissed);
 }
 
 function createFrame(chat) {
@@ -58,8 +151,14 @@ function pruneFrames(enabledIds) {
     if (!enabledIds.has(id)) {
       iframe.remove();
       frameByChat.delete(id);
+      const rec = probeByChat.get(id);
+      if (rec) {
+        clearTimeout(rec.timer);
+        probeByChat.delete(id);
+      }
     }
   }
+  refreshFrameNotice();
 }
 
 function createAIBadge() {
@@ -208,9 +307,28 @@ function loadChatDirect(id) {
   if (isFirstLoad) {
     showLoading(chat);
     resolveFrameSrc(chat).then(src => {
-      if (getActiveChatId() === id) iframe.src = src;
+      if (getActiveChatId() !== id) return;
+      armProbe(id);
+      iframe.src = src;
     });
+  } else if (probeByChat.has(id)) {
+    // Coming back to a live frame: check it is still our chat site instead of
+    // waiting up to a full heartbeat interval.
+    probeTick();
   }
+  refreshFrameNotice();
+}
+
+// Reload the active frame without dropping the saved conversation, so signing
+// in from a browser tab brings the user back to where they were.
+async function reloadChatFrame(chatId) {
+  const chat = allChats.find(c => c.id === chatId);
+  const iframe = frameByChat.get(chatId);
+  if (!chat || !iframe) return;
+  showLoading(chat);
+  const src = await resolveFrameSrc(chat);
+  armProbe(chatId);
+  iframe.src = src;
 }
 
 chatSelectTrigger.addEventListener('click', (e) => {
@@ -239,7 +357,10 @@ function startNewChat() {
   showLoading(chat);
   let origin = null;
   try { origin = new URL(chat.url).origin; } catch {}
-  const nav = () => { iframe.src = chat.url; };
+  const nav = () => {
+    armProbe(id);
+    iframe.src = chat.url;
+  };
   if (!origin) { nav(); return; }
   chrome.storage.session.get(SNAP_KEY).then(res => {
     const all = res[SNAP_KEY] || {};
@@ -258,7 +379,7 @@ document.getElementById('btnGithub').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://github.com/syeplz/AIChats' });
 });
 
-document.getElementById('btnOpenTab').addEventListener('click', async () => {
+async function openActiveChatInTab() {
   const chat = allChats.find(c => c.id === getActiveChatId());
   if (!chat) return;
   const url = await resolveFrameSrc(chat);
@@ -266,6 +387,26 @@ document.getElementById('btnOpenTab').addEventListener('click', async () => {
   const opts = { url };
   if (typeof tab?.index === 'number') opts.index = tab.index + 1;
   chrome.tabs.create(opts);
+}
+
+document.getElementById('btnOpenTab').addEventListener('click', () => {
+  openActiveChatInTab();
+});
+
+document.getElementById('btnNoticeTab').addEventListener('click', () => {
+  openActiveChatInTab();
+});
+
+document.getElementById('btnNoticeReload').addEventListener('click', () => {
+  const id = getActiveChatId();
+  if (id) reloadChatFrame(id);
+});
+
+document.getElementById('btnNoticeClose').addEventListener('click', () => {
+  const id = getActiveChatId();
+  const rec = id ? probeByChat.get(id) : null;
+  if (rec) rec.dismissed = true;
+  refreshFrameNotice();
 });
 
 document.getElementById('btnSidebarOptions').addEventListener('click', () => {
@@ -371,6 +512,15 @@ async function snapshotClipboard() {
   cbGuard.lastWritten = null;
   return { clipboardText: live || '', snapshotOk: live !== null, dirty: false, clipboardEmpty: live === '' };
 }
+
+// Liveness probe replies from probe.js (one per embedded chat frame).
+window.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.source !== 'aichats-content') return;
+  if (data.type !== 'probe-ready' && data.type !== 'probe-pong') return;
+  const chatId = probeChatId(event.source);
+  if (chatId) confirmProbe(chatId);
+});
 
 window.addEventListener('message', async (event) => {
   const data = event.data;
@@ -1090,6 +1240,7 @@ async function init() {
   await renderChips();
   await initComposeFab();
   await consumePendingFill();
+  startProbeHeartbeat();
 
   document.getElementById('themeSelect').addEventListener('change', async (e) => {
     await setTheme(e.target.value);

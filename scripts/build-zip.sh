@@ -30,6 +30,7 @@ FILES=(
   favicon.js
   i18n.js
   options.js
+  probe.js
   sidepanel.js
   store.js
   theme.js

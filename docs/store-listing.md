@@ -18,6 +18,8 @@ Features:
 - Right-click menu — select text and right-click to send it, translate it, or
   run a quick prompt
 - Keep-alive sessions — switching chats never loses your conversations or drafts
+- Clear failure notice — if a site only renders after you sign in, the panel
+  says so and offers to open it in a tab and reload once you are done
 - Custom sites — add any AI chat website, or pick from 10 pre-configured templates
 - Themes & languages — dark, light or system theme; English and Simplified Chinese
 
@@ -32,6 +34,7 @@ AIChats 是一款开源 Chrome 扩展，让你在侧栏中无缝切换和管理�
 - 智能快捷提示 — 模板提示词自动填入聊天输入框，支持一键提交
 - 右键菜单 — 选中文字后右键，即可发送、翻译或套用快捷提示
 - 会话保持 — 切换聊天不再丢失对话与草稿
+- 清晰的失败提示 — 站点需要先登录才能嵌入显示时，侧栏会明确提示，并提供在标签页打开、登录后刷新的入口
 - 自定义站点 — 添加任意 AI 聊天网站，也可从 10 个预配置模板中选择
 - 主题与语言 — 深色 / 浅色 / 跟随系统，支持中英文
 

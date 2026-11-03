@@ -195,6 +195,18 @@
     "message": "No chat sites enabled",
     "description": "Empty state text when no chats enabled"
   },
+  "sidepanel_frameNotice": {
+    "message": "This site may need you to sign in from a browser tab first",
+    "description": "Banner shown when the embedded frame is not the configured chat site"
+  },
+  "sidepanel_noticeOpenTab": {
+    "message": "Open in tab",
+    "description": "Notice action: open the current chat site in a browser tab"
+  },
+  "sidepanel_noticeReload": {
+    "message": "Reload",
+    "description": "Notice action: reload the current chat frame"
+  },
   "sidepanel_goSettings": {
     "message": "Go to Settings",
     "description": "Empty state action button"

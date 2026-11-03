@@ -15,7 +15,7 @@
 ## Features
 
 ### Side Panel
-Open AI chats in Chrome's side panel with a dropdown to instantly switch between sites. Includes a refresh button to reload the current chat, a button to open the current site in a new browser tab, and a GitHub button to visit the project repo. No need to juggle tabs.
+Open AI chats in Chrome's side panel with a dropdown to instantly switch between sites. Includes a button to open the current site in a new browser tab and a GitHub button to visit the project repo. No need to juggle tabs.
 
 **Keep-alive sessions** — switching chats never reloads the page. Each site you visit stays alive in the background, so your drafts and conversations survive switches, and going back is instant.
 
@@ -83,6 +83,25 @@ English and Simplified Chinese with a runtime language switcher.
 5. Right-click any selected text and choose **Ask AI with selected text** to send it to your current chat
 6. Click the ↗ button to move the current site to a full-width browser tab
 7. Right-click the icon and select **Options** to customize sites, prompts, and theme
+
+---
+
+## Troubleshooting
+
+### A chat site won't display in the side panel
+
+Some sites only render inside the panel once you are signed in, and their sign-in flow jumps to a domain the extension is not allowed to embed. When that happens the panel shows a notice bar above the page:
+
+> This site may need you to sign in from a browser tab first — **Open in tab** · **Reload**
+
+Work through it in this order:
+
+1. **Click "Open in tab"** and sign in there. If the site works normally in the tab, the panel was only missing your session.
+2. **Return to the panel and click "Reload"**. Your previous conversation is restored, not discarded.
+3. **If the site also fails in the tab**, the problem is the network or the site itself, not this extension.
+4. **If you were already signed in and the panel still says you are not**, the site stores its session in a partitioned (`Partitioned`) cookie. Chrome keys that cookie to the top-level site, so an embedded copy cannot read it — this extension cannot share that session.
+
+If the notice never appears but the page is still blank, open the site in a tab to check whether it is reachable at all.
 
 ---
 
