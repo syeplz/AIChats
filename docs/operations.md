@@ -63,3 +63,12 @@
 - **运行方式**: `bash scripts/build-zip.sh`
 - **产出物与约定**: 输出 `aichats-store-v<version>.zip`，包内必须包含 `probe.js`；`background.js` 的 `updateChatScripts()` 注册两个脚本 —— `aichats-probe`（所有 `enabled` 站点，不受 `inject` 开关影响）与 `aichats-content`（`enabled && inject`）
 - **验证方式**: `unzip -l aichats-store-v1.0.7.zip | grep probe.js` 命中；`node --check probe.js sidepanel.js background.js` 全部通过；本地 `X-Frame-Options: DENY` 测试页 + 正常页 + “先 ready 再跳转被拒页”三种场景下，提示条分别在约 4s、不出现、约 4s 出现，且正常帧心跳每 2s 续期、错误帧恢复后提示条自动消失
+
+## 2026-11-03 — 构建商店发布包 v1.0.8
+
+- **操作类型**: 构建/打包 + 版本发布
+- **脚本路径**: `scripts/build-zip.sh`（未改动，复用；其 `FILES` 白名单已在 1.0.8 开发阶段加入 `probe.js`）
+- **用途**: 将 `manifest.json` 版本升至 1.0.8、把 `CHANGELOG.md` 的 `[Unreleased]` 段落定为 `[1.0.8] - 2026-11-03`，构建 Chrome Web Store 上传包 `aichats-store-v1.0.8.zip`。本版内容：帧存活探针 `probe.js` + 侧栏非阻断提示条（在标签页打开 / 刷新 / 关闭）
+- **运行方式**: `bash scripts/build-zip.sh`
+- **产出物与约定**: 输出 `aichats-store-v1.0.8.zip`（56 个文件，约 158 KB）；相比 1.0.7 多出 `probe.js`；排除 `.DS_Store`、`_metadata`、`.git`、`docs`、`.opencode`、历史 zip、`scripts/images/output*` 及 `assets/*/sidebar.png`
+- **验证方式**: `unzip -p aichats-store-v1.0.8.zip manifest.json | grep '"version"'` 返回 `"version": "1.0.8"`；`unzip -l ... | grep probe.js` 命中；`unzip -l ... | grep -c sidebar.png` 为 0；`unzip -p ... README.md | grep -cE 'DeepSeek|Doubao|Kimi'` 为 0；`node --check probe.js sidepanel.js background.js` 通过
